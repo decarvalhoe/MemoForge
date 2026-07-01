@@ -65,14 +65,17 @@ export function isRegionSolved(regionId, solvedLevelIds) {
 
 /**
  * Une région est déverrouillée si elle est le point de départ, ou si la région qui la
- * déverrouille est résolue.
+ * déverrouille est à la fois RÉSOLUE **et** elle-même déverrouillée. La condition est donc
+ * TRANSITIVE : une région vide (résolue par vacuité) laisse passer, mais une région à
+ * contenu non résolue en amont bloque toute la suite — pas d'« îlots » débloqués.
  * @param {string} regionId
  * @param {Set<string>} solvedLevelIds
  */
 export function isRegionUnlocked(regionId, solvedLevelIds) {
 	const r = BY_ID[regionId];
 	if (!r) return false;
-	return r.unlock === null || isRegionSolved(r.unlock, solvedLevelIds);
+	if (r.unlock === null) return true;
+	return isRegionSolved(r.unlock, solvedLevelIds) && isRegionUnlocked(r.unlock, solvedLevelIds);
 }
 
 /**
