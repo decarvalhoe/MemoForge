@@ -47,11 +47,13 @@ export class Interpreter {
 		this.mem.clearChanged();
 		const instr = this.program[this.pc];
 		try {
-			if (instr.ast.op === 'free') {
-				this.mem.free(this.mem.getVar(instr.ast.ptr));
+			const ast = instr.ast;
+			if (ast.op === 'free') {
+				this.mem.free(this.mem.getVar(ast.ptr));
+			} else if (ast.op === 'write') {
+				this.mem.emit(ast.fd, this.evalExpr(ast.src), this.evalExpr(ast.count));
 			} else {
-				const v = this.evalExpr(instr.ast.rhs);
-				this.writePlace(instr.ast.lhs, v);
+				this.writePlace(ast.lhs, this.evalExpr(ast.rhs));
 			}
 		} catch (err) {
 			this.error = err.message;
