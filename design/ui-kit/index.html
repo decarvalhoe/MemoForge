@@ -1,0 +1,303 @@
+<!-- @dsCard group="MemoForge" viewport="900x640" name="MemoForge — jeu interactif" subtitle="Carte → salle → RUN → médailles" -->
+<!-- @startingPoint section="MemoForge" subtitle="Interactive puzzle-game flow" viewport="900x640" -->
+<!DOCTYPE html>
+<html lang="fr" class="theme-dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MemoForge — UI kit</title>
+<link rel="stylesheet" href="styles.css">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  html,body{margin:0;background:var(--bg);font-family:var(--font-mono);color:var(--text)}
+  #app{max-width:900px;margin:0 auto;padding:22px}
+  .tabs{display:flex;gap:8px;margin-bottom:16px;align-items:center}
+  .tab{font-family:var(--font-mono);font-size:var(--fs-sm);padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-well);color:var(--text-muted);cursor:pointer}
+  .tab[data-on]{color:var(--accent);border-color:var(--accent);box-shadow:var(--glow-green)}
+  .brand{font-family:var(--font-display);font-size:34px;line-height:.9;color:var(--accent);text-shadow:var(--text-glow-green);margin-right:auto}
+  .brand span{color:var(--text)}
+  .cell,.slot{transition:box-shadow var(--dur),transform var(--dur),border-color var(--dur)}
+  .slot[data-active]{box-shadow:var(--ring)}
+  .cell[data-hit]{box-shadow:var(--glow-green-strong)}
+  .verdict{opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s}
+  .verdict[data-show]{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="text/plain" id="appsrc">
+const { useState, useRef, useEffect } = React;
+function findNS(names){for(const k in window){try{const o=window[k];if(o&&names.some(n=>typeof o[n]==='function'))return o;}catch(e){}}return {};}
+const NS = findNS(['TerminalWindow','Locker','CodeBrick','Button','Mascot','StatChip','Medal','FeedbackBanner','RegionCard','Badge']);
+
+/* Fallback primitives — used when the compiled _ds_bundle.js is not present
+   (plain preview). Once the design system compiles, the real bundled
+   components (identical API, from components/**) take precedence. */
+const FB = {};
+FB.TerminalWindow = ({title='forge_memoire',children,scanlines=true,style={},bodyStyle={}})=>(
+  <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'var(--radius-md)',overflow:'hidden',position:'relative',...style}}>
+    <div style={{display:'flex',alignItems:'center',gap:7,padding:'9px 13px',background:'var(--bg)',borderBottom:'1px solid var(--border)'}}>
+      <span style={{width:9,height:9,borderRadius:'50%',background:'var(--danger)'}}/><span style={{width:9,height:9,borderRadius:'50%',background:'var(--pointer)'}}/><span style={{width:9,height:9,borderRadius:'50%',background:'var(--accent)'}}/>
+      <span style={{marginLeft:8,fontSize:'var(--fs-sm)',color:'var(--text-muted)'}}>{title}</span>
+    </div>
+    <div style={{position:'relative',...bodyStyle}}>
+      {scanlines?<div style={{position:'absolute',inset:0,background:'var(--scanlines)',mixBlendMode:'screen',pointerEvents:'none',zIndex:9}}/>:null}
+      <div style={{position:'relative',zIndex:1}}>{children}</div>
+    </div>
+  </div>);
+FB.Locker = ({name,address,value,state='normal',stateLabel,kind,style={}})=>{
+  const d={normal:{l:'normal',fill:'var(--surface-well)',b:'var(--border)',a:'var(--text)',dash:0,g:'none'},
+    changed:{l:'modifié',fill:'var(--success-fill)',b:'var(--value)',a:'var(--value)',dash:0,g:'var(--glow-green)'},
+    pointer:{l:'pointeur',fill:'var(--pointer-fill)',b:'var(--pointer)',a:'var(--pointer)',dash:0,g:'none'},
+    allocated:{l:'alloué',fill:'var(--surface-well)',b:'var(--pointer)',a:'var(--text)',dash:1,g:'none'},
+    freed:{l:'libéré',fill:'var(--surface-nested)',b:'var(--border)',a:'var(--text-muted)',dash:1,g:'none'}}[state]||{};
+  return (<div style={{flex:1,minWidth:84,background:d.fill,border:`1px ${d.dash?'dashed':'solid'} ${d.b}`,borderRadius:'var(--radius-sm)',padding:11,textAlign:'center',boxShadow:d.g,opacity:state==='freed'?.55:1,...style}}>
+    <div style={{fontSize:'var(--fs-sm)',fontWeight:600,color:d.a}}>{name}</div>
+    {address?<div style={{fontSize:'var(--fs-2xs)',color:'var(--text-muted)',opacity:.7}}>n° {address}{kind?` · ${kind}`:''}</div>:null}
+    <div style={{fontSize:'var(--fs-value)',fontWeight:600,marginTop:3,color:d.a,textShadow:state==='changed'?'var(--text-glow-green)':'none'}}>{value==null?'—':value}</div>
+    <div style={{fontSize:'var(--fs-2xs)',marginTop:4,color:d.a}}>{stateLabel||d.l}</div>
+  </div>);};
+FB.CodeBrick = ({code,index,role='plain',state='placed',handle=true,style={}})=>{
+  const rc={plain:'var(--text)',pointer:'var(--pointer)',free:'var(--accent)',value:'var(--value)'}[role]||'var(--text)';
+  const active=state==='active';
+  return (<div style={{display:'flex',alignItems:'center',gap:9,background:'var(--surface-well)',border:`1px solid ${active?'var(--accent)':'var(--border)'}`,borderRadius:'var(--radius-sm)',padding:'9px 11px',boxShadow:active?'var(--ring)':'none',opacity:state==='ghost'?.4:1,...style}}>
+    {handle?<span style={{color:'var(--text-muted)',cursor:'grab'}}>⠿</span>:null}
+    {index!==undefined?<span style={{fontSize:'var(--fs-2xs)',color:'var(--text-muted)'}}>{String(index).padStart(2,'0')}</span>:null}
+    <code style={{fontSize:'var(--fs-md)',fontWeight:600,color:rc}}>{code}</code>
+  </div>);};
+FB.Button = ({children,variant='primary',size='md',glyph,disabled,onClick,style={}})=>{
+  const v={primary:{background:'var(--accent)',color:'var(--on-accent)',border:'1px solid var(--accent)',boxShadow:'var(--glow-green)'},
+    secondary:{background:'var(--surface-well)',color:'var(--accent)',border:'1px solid var(--accent)'},
+    ghost:{background:'transparent',color:'var(--text-muted)',border:'1px solid var(--border)'},
+    danger:{background:'transparent',color:'var(--danger)',border:'1px solid var(--danger)'}}[variant];
+  return (<button type="button" disabled={disabled} onClick={onClick} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',gap:6,minHeight:size==='sm'?36:44,padding:size==='sm'?'8px 12px':'10px 16px',borderRadius:'var(--radius-sm)',fontFamily:'var(--font-mono)',fontSize:size==='sm'?'var(--fs-sm)':'var(--fs-md)',fontWeight:600,letterSpacing:'.02em',cursor:disabled?'not-allowed':'pointer',opacity:disabled?.45:1,...v,...style}}>{glyph?<span>{glyph}</span>:null}{children}</button>);};
+FB.Mascot = ({mood='think',size='md',boxed=true,caption,style={}})=>{
+  const f={win:'[^‿^]',think:'[o_o]',err:'[x_x]'},c={win:'var(--success)',think:'var(--text)',err:'var(--danger)'};
+  const face=<span style={{fontSize:size==='lg'?26:size==='sm'?15:20,fontWeight:600,color:c[mood],textShadow:mood==='win'?'var(--text-glow-green)':'none'}}>{f[mood]}</span>;
+  if(!boxed)return <span style={style}>{face}</span>;
+  return (<div style={{display:'flex',alignItems:'center',gap:9,background:'var(--surface-well)',border:'1px solid var(--border)',borderRadius:'var(--radius-sm)',padding:'8px 10px',...style}}>{face}{caption?<span style={{fontSize:'var(--fs-2xs)',color:'var(--text-muted)',lineHeight:1.3,whiteSpace:'pre-line'}}>{caption}</span>:null}</div>);};
+FB.StatChip = ({label,value,tone='neutral',style={}})=>{
+  const c={neutral:'var(--text)',value:'var(--value)',pointer:'var(--pointer)'}[tone];
+  return (<div style={{flex:1,background:'var(--surface-well)',border:'1px solid var(--border)',borderRadius:'var(--radius-sm)',padding:7,textAlign:'center',...style}}><div style={{fontSize:18,fontWeight:600,color:c}}>{value}</div><div style={{fontSize:'var(--fs-2xs)',color:'var(--text-muted)',letterSpacing:'.06em'}}>{label}</div></div>);};
+FB.Medal = ({label,earned,style={}})=>(<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 10px',background:earned?'var(--surface-nested)':'var(--surface-well)',border:`1px ${earned?'solid var(--success)':'dashed var(--border)'}`,borderRadius:'var(--radius-sm)',opacity:earned?1:.55,...style}}><span style={{fontSize:'var(--fs-sm)',color:earned?'var(--text)':'var(--text-muted)'}}>{label}</span><span style={{fontSize:13,color:earned?'var(--success)':'var(--text-muted)'}}>{earned?'★':'☆'}</span></div>);
+FB.FeedbackBanner = ({tone='success',title,children,glyph,style={}})=>{
+  const m={success:{c:'var(--success)',g:'[^‿^]'},crash:{c:'var(--danger)',g:'[x_x]'},leak:{c:'var(--pointer)',g:'⚠'}}[tone];
+  return (<div style={{background:'var(--surface-well)',border:`1px solid ${m.c}`,borderLeft:`var(--stroke-accent) solid ${m.c}`,borderRadius:'var(--radius-sm)',padding:'10px 12px',...style}}><div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:15,fontWeight:600,color:m.c}}>{glyph||m.g}</span><span style={{fontSize:'var(--fs-sm)',fontWeight:600,color:m.c,letterSpacing:'.03em'}}>{title}</span></div>{children?<div style={{fontSize:'var(--fs-xs)',color:'var(--text)',marginTop:5,lineHeight:1.45}}>{children}</div>:null}</div>);};
+FB.RegionCard = ({id,title,status='locked',note,style={}})=>{
+  const m={solved:{b:'solid var(--success)',c:'var(--text)',nc:'var(--success)',g:'★★★',d:1,sh:'var(--glow-green)'},
+    current:{b:'solid var(--pointer)',c:'var(--text)',nc:'var(--pointer)',g:'◊',d:1,sh:'var(--glow-amber)'},
+    locked:{b:'dashed var(--border)',c:'var(--text-muted)',nc:'var(--text-muted)',g:'🔒',d:.5,sh:'none'}}[status];
+  return (<div style={{flex:1,minWidth:120,background:'var(--surface-well)',border:`1px ${m.b}`,borderRadius:'var(--radius-sm)',padding:'8px 10px',opacity:m.d,boxShadow:m.sh,...style}}><div style={{fontSize:'var(--fs-sm)',fontWeight:600,color:m.c}}>{id?<span style={{color:'var(--text-muted)'}}>{id} · </span>:null}{title}</div><div style={{fontSize:'var(--fs-2xs)',color:m.nc,marginTop:3}}>{m.g} {note||(status==='solved'?'résolu':status==='current'?'tu es ici':'verrouillé')}</div></div>);};
+FB.Badge = ({children,tone='neutral',glyph,style={}})=>{
+  const t={neutral:{c:'var(--text-muted)',b:'var(--border)',bg:'transparent'},value:{c:'var(--value)',b:'var(--value)',bg:'var(--success-fill)'},pointer:{c:'var(--pointer)',b:'var(--pointer)',bg:'var(--pointer-fill)'},danger:{c:'var(--danger)',b:'var(--danger)',bg:'var(--danger-fill)'}}[tone];
+  return (<span style={{display:'inline-flex',alignItems:'center',gap:4,padding:'3px 8px',borderRadius:'var(--radius-sm)',border:`1px solid ${t.b}`,background:t.bg,color:t.c,fontSize:'var(--fs-xs)',fontWeight:600,letterSpacing:'.04em',...style}}>{glyph?<span>{glyph}</span>:null}{children}</span>);};
+
+const pick = (n)=> (NS && typeof NS[n]==='function') ? NS[n] : FB[n];
+const TerminalWindow=pick('TerminalWindow'), Locker=pick('Locker'), CodeBrick=pick('CodeBrick'),
+  Button=pick('Button'), Mascot=pick('Mascot'), StatChip=pick('StatChip'), Medal=pick('Medal'),
+  FeedbackBanner=pick('FeedbackBanner'), RegionCard=pick('RegionCard'), Badge=pick('Badge');
+
+/* ---------------- RAM MAP ---------------- */
+function RegionMap({ onEnter }) {
+  const regions = [
+    { name:'CASIERS & ADRESSES', addr:'0x0000 · pile basse', open:true, rooms:[
+      {id:'1-1',title:'Mets 42 dans n',status:'solved',note:'★★★ résolu'},
+      {id:'1-2',title:'Atteins n via p',status:'current'},
+      {id:'1-3',title:'Échange a et b',status:'locked'}]},
+    { name:'TABLEAUX & ÉCHANGE', addr:'🔒 verrouillée', open:false, rooms:[{id:'2-1',title:'Inverse le tableau',status:'locked'}]},
+    { name:'MÉMOIRE DYNAMIQUE — LE TAS', addr:'malloc / free · 🔒', open:false, rooms:[
+      {id:'3-1',title:'Réserve, écris, libère',status:'locked'},
+      {id:'3-2',title:'Chaque malloc a son free',status:'locked'}]},
+    { name:'CHAÎNES & FIN', addr:'🔒', open:false, rooms:[{id:'4-1',title:'Écris la chaîne "Hi"',status:'locked'}]},
+  ];
+  return (
+    <TerminalWindow title="forge_memoire — carte.ram — 0x0000…0xFFFF">
+      <div style={{padding:'16px 22px 20px'}}>
+        <div style={{fontFamily:'var(--font-display)',fontSize:'var(--fs-display-1)',lineHeight:1,color:'var(--accent)',textShadow:'var(--text-glow-green)'}}>LA RAM</div>
+        <div style={{display:'flex',alignItems:'center',gap:8,background:'var(--danger-fill)',border:'1px solid var(--danger)',borderRadius:'var(--radius-sm)',padding:'7px 10px',margin:'8px 0 14px'}}>
+          <span style={{color:'var(--danger)',animation:'mf-blink 1s steps(1) infinite'}}>⚠</span>
+          <span style={{fontSize:'var(--fs-sm)',color:'var(--danger)'}}>des fuites menacent la RAM — remets de l'ordre dans une région pour débloquer la suivante</span>
+        </div>
+        <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          {regions.map(r=>(
+            <div key={r.name} style={{background:r.open?'var(--surface-nested)':'var(--surface)',border:'1px '+(r.open?'solid var(--accent)':'dashed var(--border)'),borderRadius:'var(--radius-md)',padding:'11px 13px',opacity:r.open?1:.6,boxShadow:r.open?'0 0 14px rgba(70,224,138,.12)':'none'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline'}}>
+                <div style={{fontSize:'var(--fs-md)',fontWeight:600,color:r.open?'var(--accent)':'var(--text-muted)'}}>▸ {r.name}</div>
+                <div style={{fontSize:'var(--fs-2xs)',color:'var(--text-muted)'}}>{r.addr}</div>
+              </div>
+              <div style={{display:'flex',gap:9,marginTop:9,flexWrap:'wrap'}}>
+                {r.rooms.map(room=>(
+                  <div key={room.id} style={{flex:1,minWidth:120,cursor:room.status!=='locked'?'pointer':'default'}} onClick={()=>{if(room.status!=='locked')onEnter(room.id);}}>
+                    <RegionCard id={room.id} title={room.title} status={room.status} note={room.note}/>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginTop:14}}>
+          <Button variant="primary" glyph=">" onClick={()=>onEnter('1-2')}>entrer dans 1-2</Button>
+          <div style={{marginLeft:'auto',display:'flex',gap:12,alignItems:'center',fontSize:'var(--fs-2xs)',color:'var(--text-muted)'}}>
+            <span><span style={{color:'var(--accent)'}}>━</span> résolu</span>
+            <span><span style={{color:'var(--pointer)'}}>◊</span> courant</span>
+            <Badge tone="neutral" glyph="🔒">verrouillé</Badge>
+          </div>
+        </div>
+      </div>
+    </TerminalWindow>
+  );
+}
+
+/* ---------------- PUZZLE ROOM (1-2) with live RUN ---------------- */
+function PuzzleRoom({ onSolved }) {
+  const [nVal,setN]=useState(0);
+  const [pVal,setP]=useState('NULL');
+  const [steps,setSteps]=useState(0);
+  const [active,setActive]=useState(0);      // 1 or 2
+  const [hit,setHit]=useState(false);
+  const [mood,setMood]=useState('think');
+  const [done,setDone]=useState(false);
+  const cellsRef=useRef(null), threadRef=useRef(null), dotRef=useRef(null);
+  const timers=useRef([]), tween=useRef(null);
+
+  function clearAll(){timers.current.forEach(clearTimeout);timers.current=[];if(tween.current)clearTimeout(tween.current);}
+  function reset(){clearAll();setN(0);setP('NULL');setSteps(0);setActive(0);setHit(false);setMood('think');setDone(false);const p=threadRef.current;if(p)p.style.opacity=0;const d=dotRef.current;if(d)d.setAttribute('r',0);}
+
+  function drawThread(){
+    const wrap=cellsRef.current,path=threadRef.current,dot=dotRef.current;if(!wrap||!path)return;
+    const pc=wrap.querySelector('[data-k=p]'),nc=wrap.querySelector('[data-k=n]');
+    const wr=wrap.getBoundingClientRect(),pr=pc.getBoundingClientRect(),nr=nc.getBoundingClientRect();
+    const x1=pr.left+pr.width/2-wr.left,y1=pr.top-wr.top+6,x2=nr.left+nr.width/2-wr.left,y2=nr.top-wr.top+6;
+    const cx=(x1+x2)/2,cy=Math.min(y1,y2)-30;
+    path.setAttribute('d',`M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`);
+    path.style.opacity=1;dot.setAttribute('cx',x2);dot.setAttribute('cy',y2);dot.setAttribute('r',4);
+  }
+  function tweenN(){const t0=Date.now();const tick=()=>{const k=Math.min(1,(Date.now()-t0)/550);setN(Math.round(42*k));if(k<1)tween.current=setTimeout(tick,16);};tick();}
+
+  function run(){
+    reset();setMood('think');
+    const push=(fn,ms)=>timers.current.push(setTimeout(fn,ms));
+    push(()=>{setActive(1);setSteps(1);},250);
+    push(()=>{setP('→0x41');drawThread();},500);
+    push(()=>{setActive(2);setSteps(2);},1600);
+    push(()=>{tweenN();setHit(true);},1750);
+    push(()=>{setActive(0);setMood('win');setDone(true);},2650);
+  }
+
+  return (
+    <TerminalWindow title="forge_memoire — casiers & adresses — 80×24">
+      <div style={{padding:'16px 22px 20px'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:6}}>
+          <div style={{fontSize:'var(--fs-xs)',color:'var(--accent)',letterSpacing:'.06em'}}>RÉGION // CASIERS &amp; ADRESSES</div>
+          <div style={{fontSize:'var(--fs-xs)',color:'var(--text-muted)'}}>salle 02 / 07</div>
+        </div>
+        <div style={{fontFamily:'var(--font-display)',fontSize:'var(--fs-display-2)',color:'var(--text)',textShadow:'var(--text-glow-ink)'}}>&gt; Atteins n à travers le pointeur p<span style={{animation:'mf-blink 1s steps(1) infinite',color:'var(--accent)'}}>_</span></div>
+        <div style={{fontSize:'var(--fs-sm)',color:'var(--text-muted)',marginTop:5}}>n doit valoir 42 — interdit d'écrire n directement. D'abord <code style={{color:'var(--accent)'}}>p = &amp;n</code>, ensuite <code>*p = 42</code>.</div>
+
+        <div ref={cellsRef} id="mf-cells" style={{position:'relative',display:'flex',gap:14,margin:'16px 0 14px'}}>
+          <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',overflow:'visible',pointerEvents:'none',zIndex:3}}>
+            <path ref={threadRef} d="" fill="none" stroke="var(--pointer)" strokeWidth="2" strokeDasharray="4 4" style={{opacity:0,transition:'opacity .3s',filter:'drop-shadow(0 0 4px rgba(232,184,75,.7))'}}/>
+            <circle ref={dotRef} r="0" fill="var(--pointer)"/>
+          </svg>
+          <div className="cell" data-k="n" data-hit={hit?1:undefined} style={{flex:1,zIndex:1,borderRadius:'var(--radius-sm)'}}>
+            <Locker name="n" address="0x41" kind="int" value={nVal} state={hit?'changed':'normal'} stateLabel="la cible"/>
+          </div>
+          <div className="cell" data-k="p" style={{flex:1,zIndex:2,borderRadius:'var(--radius-sm)'}}>
+            <Locker name="p" address="0x42" kind="ptr" value={pVal} state="pointer" stateLabel="contient une adresse"/>
+          </div>
+        </div>
+
+        <div style={{display:'flex',gap:16,flexWrap:'wrap'}}>
+          <div style={{flex:1,minWidth:250}}>
+            <div style={{fontSize:'var(--fs-2xs)',color:'var(--text-muted)',letterSpacing:'.08em',marginBottom:7}}>// PROGRAMME</div>
+            <div style={{display:'flex',flexDirection:'column',gap:6}}>
+              <div className="slot" data-active={active===1?1:undefined} style={{borderRadius:'var(--radius-sm)'}}><CodeBrick code="p = &n" index={1} role="pointer" state={active===1?'active':'placed'}/></div>
+              <div className="slot" data-active={active===2?1:undefined} style={{borderRadius:'var(--radius-sm)'}}><CodeBrick code="*p = 42" index={2} state={active===2?'active':'placed'}/></div>
+            </div>
+            <div style={{fontSize:'var(--fs-2xs)',color:'var(--text-muted)',letterSpacing:'.08em',margin:'12px 0 7px'}}>// BANQUE</div>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              <CodeBrick code="p = 42" state="bank" handle={false}/>
+              <CodeBrick code="*p = n" state="bank" handle={false}/>
+            </div>
+          </div>
+          <div style={{flex:'0 0 176px',display:'flex',flexDirection:'column',gap:9}}>
+            <div style={{display:'flex',gap:7}}>
+              <StatChip label="PAS" value={steps} tone="value"/>
+              <StatChip label="INSTR." value={2}/>
+              <StatChip label="PAR" value={2} tone="pointer"/>
+            </div>
+            <Mascot mood={mood} caption={"GLIF surveille\nla mémoire"}/>
+            <div className="verdict" data-show={done?1:undefined} style={{background:'var(--success-fill)',border:'1px solid var(--success)',borderRadius:'var(--radius-sm)',padding:'8px 10px'}}>
+              <div style={{fontSize:'var(--fs-sm)',fontWeight:600,color:'var(--success)'}}>OK — n == 42 ✓</div>
+              <div style={{fontSize:'var(--fs-2xs)',color:'var(--success)'}}>★ au par (2/2)</div>
+            </div>
+            <Button variant="primary" glyph=">" onClick={run}>RUN</Button>
+            <Button variant="ghost" size="sm" onClick={reset}>reset</Button>
+            {done ? <Button variant="secondary" size="sm" onClick={onSolved}>voir les médailles →</Button> : null}
+          </div>
+        </div>
+      </div>
+    </TerminalWindow>
+  );
+}
+
+/* ---------------- ROOM COMPLETE ---------------- */
+function RoomComplete({ onNext, onReplay }) {
+  return (
+    <TerminalWindow title="forge_memoire — feedback & médailles">
+      <div style={{padding:'16px 22px 20px',display:'flex',gap:16,flexWrap:'wrap'}}>
+        <div style={{flex:1,minWidth:250,background:'var(--surface-well)',border:'1px solid var(--success)',borderRadius:'var(--radius-md)',padding:15,boxShadow:'0 0 18px rgba(70,224,138,.15)'}}>
+          <div style={{fontFamily:'var(--font-display)',fontSize:28,lineHeight:1,color:'var(--success)',textShadow:'var(--text-glow-green)'}}>SALLE 1-2 RÉSOLUE</div>
+          <div style={{fontSize:'var(--fs-xs)',color:'var(--text-muted)',marginTop:2}}>Atteins n à travers le pointeur p</div>
+          <div style={{display:'flex',flexDirection:'column',gap:7,marginTop:14}}>
+            <Medal label="résolu" earned/>
+            <Medal label="≤ 2 instructions" earned/>
+            <Medal label="≤ 2 pas d'exécution" earned/>
+            <Medal label="≤ 1 casier utilisé"/>
+          </div>
+          <div style={{display:'flex',gap:8,marginTop:14}}>
+            <Button variant="primary" style={{flex:1}} onClick={onNext}>région suivante →</Button>
+            <Button variant="ghost" size="sm" onClick={onReplay}>rejouer</Button>
+          </div>
+        </div>
+        <div style={{flex:1,minWidth:250,display:'flex',flexDirection:'column',gap:10}}>
+          <div style={{fontSize:'var(--fs-2xs)',color:'var(--text-muted)',letterSpacing:'.08em'}}>// ÉTATS DE FEEDBACK</div>
+          <FeedbackBanner tone="success" title="RÉUSSITE">n == 42 ✓ &nbsp; <span style={{color:'var(--text-muted)'}}>segfault: none · leaks: 0</span></FeedbackBanner>
+          <FeedbackBanner tone="crash" title="CRASH — déréférencement de NULL"><code style={{color:'var(--danger)'}}>*p = 42</code> alors que <code style={{color:'var(--danger)'}}>p == NULL</code> → SIGSEGV</FeedbackBanner>
+          <FeedbackBanner tone="leak" title="FUITE MÉMOIRE"><code style={{color:'var(--pointer)'}}>malloc</code> sans <code style={{color:'var(--accent)'}}>free</code> → casier orphelin</FeedbackBanner>
+        </div>
+      </div>
+    </TerminalWindow>
+  );
+}
+
+/* ---------------- APP SHELL ---------------- */
+function App(){
+  const [view,setView]=useState('map'); // map | room | done
+  return (
+    <div>
+      <div className="tabs">
+        <div className="brand">MEMO<span>FORGE</span></div>
+        <div className="tab" data-on={view==='map'?1:undefined} onClick={()=>setView('map')}>carte</div>
+        <div className="tab" data-on={view==='room'?1:undefined} onClick={()=>setView('room')}>salle 1-2</div>
+        <div className="tab" data-on={view==='done'?1:undefined} onClick={()=>setView('done')}>médailles</div>
+      </div>
+      {view==='map' && <RegionMap onEnter={()=>setView('room')}/>}
+      {view==='room' && <PuzzleRoom onSolved={()=>setView('done')}/>}
+      {view==='done' && <RoomComplete onNext={()=>setView('map')} onReplay={()=>setView('room')}/>}
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('app')).render(<App/>);
+</script>
+<script>
+  (function(){
+    var src=document.getElementById('appsrc').textContent;
+    var out=Babel.transform(src,{presets:[['react',{runtime:'classic'}]]}).code;
+    (0,eval)(out);
+  })();
+</script>
+</body>
+</html>
