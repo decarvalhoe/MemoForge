@@ -7,6 +7,7 @@ import { renderProgram } from '../ui/programView.js';
 import { renderPalette } from '../ui/paletteView.js';
 import { renderControls } from '../ui/controls.js';
 import { renderRegionMap } from '../ui/regionMapView.js';
+import { renderCallStack } from '../ui/callStackView.js';
 import { button } from '../ui/components/index.js';
 import { explainRun, explainError, explainLeak } from './pitfalls.js';
 import { SANDBOX } from './sandbox.js';
@@ -50,11 +51,12 @@ export class Game {
 
 		this.elMission = el('header', { class: 'mission' });
 		this.elMemory = el('div', { class: 'memory' });
+		this.elCallStack = el('div', { class: 'callstack' });
 		this.elProgram = el('div', { class: 'program' });
 		this.elPalette = el('div', { class: 'palette' });
 		this.elControls = el('div', { class: 'controls' });
 		this.elMainSection = el('div', { class: 'main' }, [
-			el('section', { class: 'panel' }, [el('h2', { text: 'mur de casiers' }), this.elMemory]),
+			el('section', { class: 'panel' }, [el('h2', { text: 'mur de casiers' }), this.elMemory, this.elCallStack]),
 			el('aside', { class: 'side' }, [
 				el('h2', { text: 'ton programme' }), this.elProgram,
 				el('h2', { text: 'palette' }), this.elPalette
@@ -309,6 +311,8 @@ export class Game {
 		if (!this.examMode) parts.push(el('p', { class: 'mission-hint', text: 'Indice : ' + lv.hint }));
 		this.elMission.append(...parts);
 		renderMemory(this.elMemory, this.memory.snapshot(), this.memory.heap(), this.memory.changed, this.memory.output);
+		const frames = this.interp && typeof this.interp.frames === 'function' ? this.interp.frames() : null;
+		renderCallStack(this.elCallStack, frames);
 		renderProgram(this.elProgram, this.program, lv.slots, this.activeIndex, (i) => this.removeBlock(i), (from, to) => this.moveBlock(from, to));
 		renderPalette(this.elPalette, lv.bank, this.program.length >= lv.slots, (instr) => this.addBlock(instr));
 		let onNext = null;
