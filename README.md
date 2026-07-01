@@ -2,73 +2,85 @@
 
 [![CI](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml/badge.svg)](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml)
 
-Jeu de puzzle de programmation pour comprendre **les pointeurs, `malloc`/`free` et les
-grands principes de la mémoire en C** — en manipulant un mur de casiers.
+Jeu web de puzzle pour comprendre **les pointeurs, `malloc`/`free`, les chaînes et la
+mémoire du langage C** — en assemblant de petits programmes sur un **mur de casiers**.
+Support d'entraînement pour la **Piscine C de l'École 42**.
 
-Tu assembles un petit programme à partir de briques d'instructions, tu l'exécutes
-(d'un coup ou en pas-à-pas), tu vois les casiers s'animer, et tu gagnes des étoiles si
-tu atteins la cible sans bug.
+Tu explores une **carte de la RAM**, tu entres dans une salle, tu assembles un programme
+par briques d'instructions, tu l'exécutes **pas à pas** (les casiers s'animent, le fil
+pointeur se trace), et tu gagnes des **médailles** si tu atteins la cible proprement.
 
 ## Lancer le jeu
 
-Les modules ES exigent un serveur HTTP (le `file://` les bloque). Depuis ce dossier :
+Les modules ES exigent un serveur HTTP (`file://` les bloque) :
 
 ```bash
-python -m http.server 8000
+npm run serve      # = python3 -m http.server 8000
 ```
 
-Puis ouvre http://localhost:8000 dans le navigateur.
+Puis ouvre <http://localhost:8000>. Un accès réseau est requis (polices Google Fonts).
+
+## Ce que le jeu propose
+
+- **Aventure « carte RAM »** : 7 régions = concepts de la Piscine, à progression
+  verrouillée (une région se débloque quand la précédente est résolue).
+- **12 niveaux** ancrés sur de vrais `ft_*` : `Casiers & adresses`, `Tableaux`,
+  `Sortie & ASCII` (`write`/`ft_putstr`), `Chaînes` (`strcpy`, sentinelle `'\0'`),
+  `Conversion` (`atoi`, `putnbr_base`), `Mémoire dynamique` (`malloc`/`free`/fuite),
+  `Listes` (nœuds `->next`).
+- **Exécution animée** pas à pas + **fil pointeur** `p → n`.
+- **Pédagogie active** : mascotte réactive, **feedback qui explique le piège**
+  (déréf. NULL, use-after-free, double free, fuite, maillon encore chaîné), indice après
+  deux échecs.
+- **Médailles** d'optimisation, **réordonnancement** des briques (glisser-déposer + ▲/▼),
+  **bac à sable** (expérimentation libre), **mode examen** (chrono, sans indice, score).
+- **Thème clair/sombre**, **responsive** mobile, **accessibilité** (contraste WCAG AA
+  vérifié par test).
 
 ## Architecture
 
-Trois couches indépendantes — le moteur ne connaît pas l'UI.
+Trois couches indépendantes — **le moteur ne connaît pas l'UI**.
 
 ```
-forge-memoire/
-├── index.html              point d'entrée
-├── styles/main.css         thème (casiers, pupitre, contrôles)
-├── src/
-│   ├── main.js             bootstrap : monte le jeu dans #app
-│   ├── engine/             LE CŒUR — testable sans navigateur
-│   │   ├── memory.js       modèle mémoire : casiers, adresses, malloc/free, fuites
-│   │   └── interpreter.js  exécute une liste d'instructions sur la mémoire (pas-à-pas)
-│   ├── game/
-│   │   ├── levels.js       données des niveaux (cible, palette, étoiles)
-│   │   └── game.js         contrôleur : état, progression, run/step, verdict
-│   └── ui/
-│       ├── dom.js          mini-helper DOM
-│       ├── memoryView.js   rend le mur de casiers
-│       ├── programView.js  rend ton programme (slots)
-│       ├── paletteView.js  rend la palette d'instructions
-│       └── controls.js     boutons exécuter / pas-à-pas / réinitialiser + verdict
+src/
+├── engine/        LE CŒUR — testable sans navigateur
+│   ├── memory.js       casiers, adresses, malloc/free, chaînes, sortie, nœuds
+│   ├── interpreter.js  exécute un programme (pas-à-pas)
+│   └── ast.js          constructeurs d'instructions (data-driven)
+├── game/          logique de jeu (sans DOM)
+│   ├── levels.js  world.js  medals.js  tracker.js  pitfalls.js
+│   ├── questions.js  sandbox.js  exam.js
+│   └── game.js         contrôleur : modes carte/salle/bac-à-sable/examen
+├── ui/            vues + design-system
+│   ├── components/     Locker, CodeBrick, Button, Mascot, FeedbackBanner, Medal…
+│   ├── memoryView / programView / paletteView / controls / regionMapView
+│   └── theme.js        bascule clair/sombre
+└── util/contrast.js    contraste WCAG (a11y)
+styles/tokens/     design-system « Phosphore » (couleurs, typo, effets)
 ```
 
-### Le modèle d'instruction (un C simplifié, piloté par les données)
+Le design-system provient d'un projet **Claude Design** (voir `docs/DESIGN_SYNC.md`) ; le
+prototype de référence est dans `design/ui-kit/`.
 
-Une instruction = une affectation `lhs = rhs`.
+## Base pédagogique
 
-- `lhs` (cible) : `{t:'var', name}` ou `{t:'deref', name}` (= `*p`)
-- `rhs` (expression) : `{t:'lit', v}` · `{t:'var', name}` · `{t:'addr', name}` (= `&x`) · `{t:'deref', name}`
+Le contenu n'imite pas 118 exercices : il rend jouables les **12 « briques »** qui les
+composent tous (voir [`docs/BRIQUES.md`](docs/BRIQUES.md), d'après l'analyse transversale
+de la Piscine). La feuille de route produit est dans [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
-Exemples : `tmp = a` · `p = &n` · `*p = 42`. Ajouter une instruction au jeu = ajouter une
-entrée dans `levels.js`, sans toucher au moteur.
+## Tests & qualité
 
-## Étendre
+```bash
+npm test      # node --test + couverture (seuil 90 % sur src/engine)
+npm run lint  # ESLint (règles inspirées de la Norme 42)
+```
 
-- **Nouveau niveau** : une entrée dans `src/game/levels.js`.
-- **Nouvelle opération** (`malloc`, boucle, `->next`) : étendre `interpreter.js` (eval/exec)
-  et `memory.js` (alloc/free déjà présents), puis l'exposer dans la palette d'un niveau.
+La suite couvre le moteur (mémoire, interpréteur), les niveaux, le modèle de monde, les
+médailles, le tracker, les pièges, les questions, le contraste a11y — **exécutée en CI sur
+chaque PR**.
 
-## État — 7 niveaux, 4 mondes (sujets principaux de la Piscine)
+## Contribuer
 
-| Monde | Sujet | Niveaux | Module |
-|---|---|---|---|
-| 1. Casiers & adresses | pointeurs, `&`, `*` | 42 dans n · via pointeur · échange a/b | C01 |
-| 2. Tableaux & échange | swap, index miroir | inverser un tableau | C01 |
-| 3. Mémoire dynamique | `malloc`/`free`/NULL/fuite/double free | réserve-écris-libère · un free par malloc | C07 |
-| 4. Chaînes & fin | `'\0'` | écrire "Hi" | C02/C04 |
-
-À venir (mécanique à ajouter) : récursion (C05), listes chaînées `->next` (C12), boucles.
-
-Moteur vérifié par `node tests/smoke.mjs` (16 cas : solutions correctes, mauvais ordres,
-fuites, double free, déréférencements de NULL).
+Deux lanes (moteur/infra et design/contenu) coordonnées via
+[`docs/COORDINATION.md`](docs/COORDINATION.md) : worktrees isolés, une PR par sujet en
+fichiers disjoints, tests avant merge.
