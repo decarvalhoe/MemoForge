@@ -4,6 +4,7 @@ const WORD = 4;
 const HEAP_BASE = 5000;
 const INT_MIN = -2147483648;
 const INT_MAX = 2147483647;
+const HEAP_CAPACITY = 4096;
 
 export class Memory {
 	constructor(varDefs) {
@@ -13,6 +14,8 @@ export class Memory {
 		this.order = [];
 		this.allocated = new Set();
 		this.freed = new Set();
+		this.blocks = new Map();
+		this.usedHeap = 0;
 		this.changed = new Set();
 		this.output = '';
 		this.nextHeap = HEAP_BASE;
@@ -139,20 +142,53 @@ export class Memory {
 		this.output += digits.reverse().join('');
 	}
 
-	allocate() {
-		const addr = this.nextHeap;
-		this.nextHeap += WORD;
-		this.cells.set(addr, 0);
-		this.allocated.add(addr);
-		this.freed.delete(addr);
-		return addr;
+	allocate(size = 1) {
+		if (!Number.isInteger(size) || size <= 0)
+			throw new RuntimeError('taille de malloc invalide');
+		if (this.usedHeap + size > HEAP_CAPACITY)
+			return 0;
+		const base = this.nextHeap;
+		let k = 0;
+		while (k < size) {
+			this.cells.set(this.nextHeap, 0);
+			this.allocated.add(this.nextHeap);
+			this.freed.delete(this.nextHeap);
+			this.nextHeap += WORD;
+			k += 1;
+		}
+		this.blocks.set(base, size);
+		this.usedHeap += size;
+		return base;
 	}
 
 	free(addr) {
-		if (addr === 0 || !this.allocated.has(addr))
+		const size = this.blocks.get(addr);
+		if (addr === 0 || size === undefined)
 			throw new RuntimeError('free invalide (adresse non allouée)');
-		this.allocated.delete(addr);
-		this.freed.add(addr);
+		let k = 0;
+		while (k < size) {
+			const a = addr + k * WORD;
+			this.allocated.delete(a);
+			this.freed.add(a);
+			k += 1;
+		}
+		this.blocks.delete(addr);
+		this.usedHeap -= size;
+	}
+
+	strcpy(dst, src) {
+		if (dst === 0 || src === 0)
+			throw new RuntimeError('déréférencement de NULL');
+		let d = dst;
+		let s = src;
+		while (true) {
+			const c = this.readAddr(s);
+			this.writeAddr(d, c);
+			if (this.isTerminator(c))
+				return dst;
+			d += WORD;
+			s += WORD;
+		}
 	}
 
 	leaks() {

@@ -20,7 +20,7 @@ export class Interpreter {
 		if (e.t === 'deref')
 			return m.readAddr(m.getVar(e.name));
 		if (e.t === 'malloc')
-			return m.allocate();
+			return m.allocate(e.size === undefined ? 1 : this.evalExpr(e.size));
 		if (e.t === 'strlen')
 			return m.strlen(this.evalExpr(e.src));
 		if (e.t === 'atoi')
@@ -78,6 +78,8 @@ export class Interpreter {
 				this.mem.emit(ast.fd, this.evalExpr(ast.src), this.evalExpr(ast.count));
 			} else if (ast.op === 'putnbr_base') {
 				this.mem.putnbrBase(this.evalExpr(ast.n), this.evalExpr(ast.base));
+			} else if (ast.op === 'strcpy') {
+				this.mem.strcpy(this.evalExpr(ast.dst), this.evalExpr(ast.src));
 			} else {
 				this.writePlace(ast.lhs, this.evalExpr(ast.rhs));
 			}
