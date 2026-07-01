@@ -16,6 +16,7 @@ export class Memory {
 		this.freed = new Set();
 		this.blocks = new Map();
 		this.usedHeap = 0;
+		this.refs = new Map();
 		this.changed = new Set();
 		this.output = '';
 		this.nextHeap = HEAP_BASE;
@@ -189,6 +190,47 @@ export class Memory {
 			d += WORD;
 			s += WORD;
 		}
+	}
+
+	createNode(data) {
+		const base = this.allocate(2);
+		if (base === 0)
+			return 0;
+		this.cells.set(base, data);
+		this.cells.set(base + WORD, 0);
+		return base;
+	}
+
+	nodeField(addr, field) {
+		if (addr === 0)
+			throw new RuntimeError('déréférencement de NULL');
+		return field === 'next' ? this.readAddr(addr + WORD) : this.readAddr(addr);
+	}
+
+	setNodeField(addr, field, value) {
+		if (addr === 0)
+			throw new RuntimeError('déréférencement de NULL');
+		if (field !== 'next') {
+			this.writeAddr(addr, value);
+			return;
+		}
+		const old = this.readAddr(addr + WORD);
+		if (old !== 0)
+			this.refs.set(old, (this.refs.get(old) || 0) - 1);
+		this.writeAddr(addr + WORD, value);
+		if (value !== 0)
+			this.refs.set(value, (this.refs.get(value) || 0) + 1);
+	}
+
+	freeNode(addr) {
+		if ((this.refs.get(addr) || 0) > 0)
+			throw new RuntimeError('libération d\'un nœud encore chaîné (encore référencé)');
+		if (this.blocks.get(addr) === undefined)
+			throw new RuntimeError('free invalide (adresse non allouée)');
+		const next = this.readAddr(addr + WORD);
+		if (next !== 0)
+			this.refs.set(next, (this.refs.get(next) || 0) - 1);
+		this.free(addr);
 	}
 
 	leaks() {

@@ -27,6 +27,10 @@ export class Interpreter {
 			return m.atoi(this.evalExpr(e.src));
 		if (e.t === 'bin')
 			return this.evalBin(e);
+		if (e.t === 'node')
+			return m.createNode(this.evalExpr(e.data));
+		if (e.t === 'field')
+			return m.nodeField(this.evalExpr(e.node), e.field);
 		throw new RuntimeError('expression inconnue');
 	}
 
@@ -62,6 +66,10 @@ export class Interpreter {
 				m.changed.add(n);
 			return;
 		}
+		if (p.t === 'field') {
+			m.setNodeField(this.evalExpr(p.node), p.field, value);
+			return;
+		}
 		throw new RuntimeError('cible non assignable');
 	}
 
@@ -80,6 +88,8 @@ export class Interpreter {
 				this.mem.putnbrBase(this.evalExpr(ast.n), this.evalExpr(ast.base));
 			} else if (ast.op === 'strcpy') {
 				this.mem.strcpy(this.evalExpr(ast.dst), this.evalExpr(ast.src));
+			} else if (ast.op === 'free_node') {
+				this.mem.freeNode(this.evalExpr(ast.node));
 			} else {
 				this.writePlace(ast.lhs, this.evalExpr(ast.rhs));
 			}
