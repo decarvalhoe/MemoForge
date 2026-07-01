@@ -23,9 +23,9 @@ import { LEVELS } from './levels.js';
 export const REGIONS = [
 	{ id: 'r1', name: 'Casiers & adresses', addr: '0x0000 · pile basse', module: 'C01', briques: ['B6'], levelIds: ['1-1', '1-2', '1-3'], unlock: null },
 	{ id: 'r2', name: 'Tableaux & échange', addr: '0x0040', module: 'C01', briques: ['B6'], levelIds: ['2-1'], unlock: 'r1' },
-	{ id: 'r3', name: 'Sortie & ASCII', addr: 'write · 0x0080', module: 'C00/C04', briques: ['B1', 'B3'], levelIds: [], unlock: 'r2' },
-	{ id: 'r4', name: 'Chaînes & bornes', addr: "'\\0' · 0x00C0", module: 'C02/C03', briques: ['B2', 'B7'], levelIds: ['4-1'], unlock: 'r3' },
-	{ id: 'r5', name: 'Conversion nombre↔texte', addr: '0x0100', module: 'C04', briques: ['B3', 'B4', 'B5'], levelIds: [], unlock: 'r4' },
+	{ id: 'r3', name: 'Sortie & ASCII', addr: 'write · 0x0080', module: 'C00/C04', briques: ['B1', 'B3'], levelIds: ['s-1'], unlock: 'r2' },
+	{ id: 'r4', name: 'Chaînes & bornes', addr: "'\\0' · 0x00C0", module: 'C02/C03', briques: ['B2', 'B7'], levelIds: ['4-1', 'str-1'], unlock: 'r3' },
+	{ id: 'r5', name: 'Conversion nombre↔texte', addr: '0x0100', module: 'C04', briques: ['B3', 'B4', 'B5'], levelIds: ['conv-1', 'conv-2'], unlock: 'r4' },
 	{ id: 'r6', name: 'Mémoire dynamique — le Tas', addr: 'malloc/free · 0x1388', module: 'C07', briques: ['B8'], levelIds: ['3-1', '3-2'], unlock: 'r5' },
 	{ id: 'r7', name: 'Récursivité', addr: 'la pile · 0x2000', module: 'C05', briques: ['B9'], levelIds: [], unlock: 'r6' },
 	{ id: 'r8', name: 'Pointeurs de fonction', addr: '0x3000', module: 'C11', briques: ['B11'], levelIds: [], unlock: 'r7' },

@@ -240,7 +240,7 @@ export class Game {
 			el('p', { class: 'mission-goal', text: lv.goalText }),
 			el('p', { class: 'mission-hint', text: 'Indice : ' + lv.hint })
 		);
-		renderMemory(this.elMemory, this.memory.snapshot(), this.memory.heap(), this.memory.changed);
+		renderMemory(this.elMemory, this.memory.snapshot(), this.memory.heap(), this.memory.changed, this.memory.output);
 		renderProgram(this.elProgram, this.program, lv.slots, this.activeIndex, (i) => this.removeBlock(i), (from, to) => this.moveBlock(from, to));
 		renderPalette(this.elPalette, lv.bank, this.program.length >= lv.slots, (instr) => this.addBlock(instr));
 		const showHint = this.fails >= 2 && !(this.verdict && this.verdict.passed);
