@@ -46,3 +46,9 @@ export const ifThen = (guard, body) => ({ op: 'if', guard, body: body.map((a) =>
 export const func = (name, params, body) => ({ name, params, body: body.map((a) => ({ ast: a })) });
 export const call = (place, name, args) => ({ op: 'call', place, name, args });
 export const ret = (value) => ({ op: 'return', value });
+
+// Valeur-fonction (B11 · pointeur de fonction) : funcRef produit la « valeur » d'une
+// fonction (son nom, comme &f) ; apply l'applique indirectement — `fn` est une expression
+// évaluée à une valeur-fonction. C'est ce qui permet `ft_foreach` (passer f) et `do-op`.
+export const funcRef = (name) => ({ t: 'fnref', name });
+export const apply = (place, fn, args) => ({ op: 'apply', place, fn, args });
