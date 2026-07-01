@@ -40,9 +40,21 @@ export function renderRegionMap(container, solved, onEnter, onSandbox, onExam) {
 				const clickable = open;
 				const roomStatus = solved.has(id) ? 'solved' : (clickable ? 'current' : 'locked');
 				const card = regionCard({ id, title: lv ? lv.title : id, status: roomStatus });
-				const wrap = el('div', { style: `flex:1;min-width:120px;cursor:${clickable ? 'pointer' : 'default'}` }, [card]);
-				if (clickable) wrap.addEventListener('click', () => onEnter(id));
-				rooms.appendChild(wrap);
+				const title = lv ? lv.title : id;
+				const attrs = { class: 'mf-room-link', style: `flex:1;min-width:120px;cursor:${clickable ? 'pointer' : 'default'}` };
+				if (clickable) {
+					// Salle jouable = élément interactif accessible au clavier.
+					attrs.role = 'button';
+					attrs.tabindex = '0';
+					attrs['aria-label'] = `Entrer dans la salle ${id} : ${title}`;
+					attrs.onclick = () => onEnter(id);
+					attrs.onkeydown = (e) => {
+						if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEnter(id); }
+					};
+				} else {
+					attrs['aria-disabled'] = 'true';
+				}
+				rooms.appendChild(el('div', attrs, [card]));
 			}
 		}
 

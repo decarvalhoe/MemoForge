@@ -152,6 +152,9 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 .star-off { color: var(--text-muted); opacity: .6; }
 .verdict .btn-primary { margin-top: var(--sp-3); }
 
+/* Focus clavier visible sur les salles de la carte (rôle bouton). */
+.mf-room-link:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--radius-md); }
+
 @media (max-width: 680px) {
 	.wrap { padding: var(--sp-9) var(--sp-6) 4rem; }
 	.main { flex-direction: column; }

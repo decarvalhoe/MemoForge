@@ -31,7 +31,7 @@ export function renderControls(container, handlers, state) {
 			{ class: 'stars', style: 'display:flex;flex-direction:column;gap:6px;margin:10px 0' },
 			v.stars.map((s) => medal({ label: s.label, earned: s.got }))
 		);
-		const area = el('div', { style: 'margin-top:16px' }, [banner, medals]);
+		const area = el('div', { role: 'status', 'aria-live': 'polite', style: 'margin-top:16px' }, [banner, medals]);
 		if (v.passed && handlers.onNext) {
 			const next = button({ label: 'Niveau suivant →', variant: 'primary', onClick: handlers.onNext });
 			next.style.marginTop = '4px';
