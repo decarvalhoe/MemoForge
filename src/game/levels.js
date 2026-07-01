@@ -1,5 +1,5 @@
 // Constructeurs d'AST fournis par la lane moteur (src/engine/ast.js) — cf. docs/COORDINATION.md.
-import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy } from '../engine/ast.js';
+import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode } from '../engine/ast.js';
 
 export const LEVELS = [
 	{
@@ -216,6 +216,27 @@ export const LEVELS = [
 		bank: [
 			{ id: 'hex', label: 'putnbr_base(n, hex)', ast: putnbrBase(variable('n'), lit('0123456789abcdef')) },
 			{ id: 'bin', label: 'putnbr_base(n, bin)', ast: putnbrBase(variable('n'), lit('01')) }
+		]
+	},
+	{
+		id: 'l-1',
+		world: 'Listes & arbres',
+		title: 'Chaîne deux maillons, puis libère',
+		goalText: 'Crée n1 et n2, chaîne-les (n1->next = n2), puis libère les deux SANS fuite ni crash.',
+		hint: 'On ne libère pas un maillon encore pointé : libère la TÊTE (n1) d\'abord — ça détache n2 — puis n2.',
+		vars: [
+			{ name: 'n1', value: 0, kind: 'ptr' },
+			{ name: 'n2', value: 0, kind: 'ptr' }
+		],
+		slots: 5,
+		par: 5,
+		goalCheck: (mem) => mem.leaks().length === 0 && mem.freed.size >= 4,
+		bank: [
+			{ id: 'mk-n1', label: 'n1 = node(1)', ast: assign(variable('n1'), node(lit(1))) },
+			{ id: 'mk-n2', label: 'n2 = node(2)', ast: assign(variable('n2'), node(lit(2))) },
+			{ id: 'link', label: 'n1->next = n2', ast: assign(field(variable('n1'), 'next'), variable('n2')) },
+			{ id: 'free-n1', label: 'free(n1)', ast: freeNode(variable('n1')) },
+			{ id: 'free-n2', label: 'free(n2)', ast: freeNode(variable('n2')) }
 		]
 	}
 ];

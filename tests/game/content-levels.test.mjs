@@ -47,3 +47,19 @@ describe('conv-2 — Conversion (putnbr_base)', () => {
 		assert.equal(goalMet(L, mem), false);
 	});
 });
+
+describe('l-1 — Listes (nœuds ->next, piège de libération)', () => {
+	const L = byId['l-1'];
+	test('créer, chaîner, libérer tête puis queue → propre', () => {
+		assert.ok(solved(L, ['mk-n1', 'mk-n2', 'link', 'free-n1', 'free-n2']));
+	});
+	test('libérer la queue encore chaînée → crash "encore chaîné"', () => {
+		const { error } = runProgram(L, ['mk-n1', 'mk-n2', 'link', 'free-n2']);
+		assert.match(error, /chaîné/);
+	});
+	test('oublier un free → fuite, cible non atteinte', () => {
+		const { mem } = runProgram(L, ['mk-n1', 'mk-n2', 'link', 'free-n1']);
+		assert.ok(mem.leaks().length > 0);
+		assert.equal(goalMet(L, mem), false);
+	});
+});
