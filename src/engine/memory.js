@@ -1,6 +1,6 @@
 export class RuntimeError extends Error {}
 
-const WORD = 4;
+export const WORD = 4;
 const HEAP_BASE = 5000;
 const INT_MIN = -2147483648;
 const INT_MAX = 2147483647;
