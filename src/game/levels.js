@@ -1,5 +1,5 @@
 // Constructeurs d'AST fournis par la lane moteur (src/engine/ast.js) — cf. docs/COORDINATION.md.
-import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode, open, read, close, bin, loop, iter, load, store } from '../engine/ast.js';
+import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode, open, read, close, bin, loop, whileLoop, iter, load, store } from '../engine/ast.js';
 
 export const LEVELS = [
 	{
@@ -346,6 +346,26 @@ export const LEVELS = [
 		bank: [
 			{ id: 'loop-2', label: 'boucle 2× : d[i] = s[i]', ast: loop(lit(2), [assign(store(addr('d0'), iter()), load(addr('s0'), iter()))]) },
 			{ id: 'loop-3', label: 'boucle 3× : d[i] = s[i]', ast: loop(lit(3), [assign(store(addr('d0'), iter()), load(addr('s0'), iter()))]) }
+		]
+	},
+	{
+		id: 'while-1',
+		world: 'Chaînes & bornes',
+		title: 'Compte les caractères (strlen à la main)',
+		goalText: 'Avance i tant que tu n\'as pas atteint la borne \'\\0\'. À la fin, i = la longueur (2).',
+		hint: 'Boucle À GARDE : tant que s[i] != \'\\0\', avance. C\'est le sentinel qui arrête — pas un nombre magique.',
+		vars: [
+			{ name: 'i', value: 0, kind: 'int' },
+			{ name: 's0', value: 'H', kind: 'char' },
+			{ name: 's1', value: 'i', kind: 'char' },
+			{ name: 's2', value: 0, kind: 'char' }
+		],
+		slots: 1,
+		par: 1,
+		goal: { i: 2 },
+		bank: [
+			{ id: 'w-sentinel', label: 'tant que s[i] != 0 : i = i+1', ast: whileLoop(bin('!=', load(addr('s0'), variable('i')), lit(0)), [assign(variable('i'), bin('+', variable('i'), lit(1)))]) },
+			{ id: 'w-count3', label: 'tant que i < 3 : i = i+1', ast: whileLoop(bin('<', variable('i'), lit(3)), [assign(variable('i'), bin('+', variable('i'), lit(1)))]) }
 		]
 	}
 ];
