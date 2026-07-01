@@ -10,6 +10,7 @@ import { renderRegionMap } from '../ui/regionMapView.js';
 import { button } from '../ui/components/index.js';
 import { explainRun, explainError, explainLeak } from './pitfalls.js';
 import { SANDBOX } from './sandbox.js';
+import { EXAM } from './exam.js';
 
 export class Game {
 	constructor(root) {
@@ -25,9 +26,16 @@ export class Game {
 		this.fails = 0;                  // échecs consécutifs sur le niveau courant
 		this._timer = null;              // timer de l'exécution animée
 		this.sandboxMode = false;        // bac à sable (niveau sans cible)
+		this.examMode = false;           // mode examen (séquence chronométrée)
+		this.examIndex = 0;
+		this.examSolved = 0;
+		this.examStart = 0;
+		this.examEndTime = 0;
+		this.examDone = false;
 	}
 
 	get level() {
+		if (this.examMode && !this.examDone) return LEVELS.find((l) => l.id === EXAM.levelIds[this.examIndex]);
 		return this.sandboxMode ? SANDBOX : LEVELS[this.levelIndex];
 	}
 
@@ -45,14 +53,14 @@ export class Game {
 		this.elProgram = el('div', { class: 'program' });
 		this.elPalette = el('div', { class: 'palette' });
 		this.elControls = el('div', { class: 'controls' });
-		const main = el('div', { class: 'main' }, [
+		this.elMainSection = el('div', { class: 'main' }, [
 			el('section', { class: 'panel' }, [el('h2', { text: 'mur de casiers' }), this.elMemory]),
 			el('aside', { class: 'side' }, [
 				el('h2', { text: 'ton programme' }), this.elProgram,
 				el('h2', { text: 'palette' }), this.elPalette
 			])
 		]);
-		this.elRoom = el('div', { class: 'view-room' }, [this.elMission, main, this.elControls]);
+		this.elRoom = el('div', { class: 'view-room' }, [this.elMission, this.elMainSection, this.elControls]);
 
 		this.root.append(this.elMap, this.elRoom);
 	}
@@ -61,6 +69,7 @@ export class Game {
 	showMap() {
 		clearTimeout(this._timer);
 		this.sandboxMode = false;
+		this.examMode = false;
 		this.view = 'map';
 		this.elMap.style.display = '';
 		this.elRoom.style.display = 'none';
@@ -78,6 +87,7 @@ export class Game {
 
 	enterSandbox() {
 		clearTimeout(this._timer);
+		this.examMode = false;
 		this.sandboxMode = true;
 		this.view = 'room';
 		this.elMap.style.display = 'none';
@@ -89,12 +99,54 @@ export class Game {
 		this.render();
 	}
 
+	// ---- mode examen (séquence chronométrée, sans indice, avec score) ----
+	enterExam() {
+		clearTimeout(this._timer);
+		this.sandboxMode = false;
+		this.examMode = true;
+		this.examIndex = 0;
+		this.examSolved = 0;
+		this.examDone = false;
+		this.examStart = Date.now();
+		this.view = 'room';
+		this.elMap.style.display = 'none';
+		this.elRoom.style.display = '';
+		this.loadExamLevel();
+	}
+
+	loadExamLevel() {
+		this.program = [];
+		this.mood = 'think';
+		this.fails = 0;
+		this.resetExecState();
+		this.render();
+	}
+
+	nextExam(solvedIt) {
+		if (solvedIt) this.examSolved += 1;
+		this.examIndex += 1;
+		if (this.examIndex >= EXAM.levelIds.length) {
+			this.examDone = true;
+			this.examEndTime = Date.now();
+			this.render();
+		} else {
+			this.loadExamLevel();
+		}
+	}
+
+	examElapsed() {
+		const end = this.examDone ? this.examEndTime : Date.now();
+		const s = Math.max(0, Math.floor((end - this.examStart) / 1000));
+		return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+	}
+
 	renderMap() {
-		renderRegionMap(this.elMap, this.solved, (id) => this.enterRoom(id), () => this.enterSandbox());
+		renderRegionMap(this.elMap, this.solved, (id) => this.enterRoom(id), () => this.enterSandbox(), () => this.enterExam());
 	}
 
 	loadLevel(i) {
 		this.sandboxMode = false;
+		this.examMode = false;
 		this.levelIndex = i;
 		this.program = [];
 		this.mood = 'think';
@@ -228,27 +280,54 @@ export class Game {
 	}
 
 	render() {
+		if (this.examMode && this.examDone) { this.renderExamSummary(); return; }
+		if (this.elMainSection) this.elMainSection.style.display = '';
+		this.elControls.style.display = '';
 		const lv = this.level;
 		clear(this.elMission);
 		const back = button({ label: '← carte', variant: 'ghost', size: 'sm', onClick: () => this.showMap() });
 		back.style.marginBottom = '10px';
-		const tag = lv.sandbox ? 'bac à sable' : ('niveau ' + (this.levelIndex + 1) + ' / ' + LEVELS.length + ' · ' + lv.world);
-		this.elMission.append(
+		let tag;
+		if (this.examMode) tag = `examen · Q${this.examIndex + 1}/${EXAM.levelIds.length} · ⏱ ${this.examElapsed()}`;
+		else if (lv.sandbox) tag = 'bac à sable';
+		else tag = 'niveau ' + (this.levelIndex + 1) + ' / ' + LEVELS.length + ' · ' + lv.world;
+		const parts = [
 			back,
 			el('div', { class: 'mission-tag', text: tag }),
 			el('div', { class: 'mission-title', text: lv.title }),
-			el('p', { class: 'mission-goal', text: lv.goalText }),
-			el('p', { class: 'mission-hint', text: 'Indice : ' + lv.hint })
-		);
+			el('p', { class: 'mission-goal', text: lv.goalText })
+		];
+		if (!this.examMode) parts.push(el('p', { class: 'mission-hint', text: 'Indice : ' + lv.hint }));
+		this.elMission.append(...parts);
 		renderMemory(this.elMemory, this.memory.snapshot(), this.memory.heap(), this.memory.changed, this.memory.output);
 		renderProgram(this.elProgram, this.program, lv.slots, this.activeIndex, (i) => this.removeBlock(i), (from, to) => this.moveBlock(from, to));
 		renderPalette(this.elPalette, lv.bank, this.program.length >= lv.slots, (instr) => this.addBlock(instr));
-		const showHint = this.fails >= 2 && !(this.verdict && this.verdict.passed);
+		let onNext = null;
+		if (this.examMode) onNext = () => this.nextExam(true);
+		else if (!lv.sandbox && this.levelIndex < LEVELS.length - 1) onNext = () => this.loadLevel(this.levelIndex + 1);
+		const showHint = !this.examMode && this.fails >= 2 && !(this.verdict && this.verdict.passed);
 		renderControls(this.elControls, {
 			onRun: () => this.run(),
 			onStep: () => this.step(),
 			onReset: () => this.reset(),
-			onNext: (!lv.sandbox && this.levelIndex < LEVELS.length - 1) ? () => this.loadLevel(this.levelIndex + 1) : null
+			onNext,
+			onSkip: this.examMode ? () => this.nextExam(false) : null
 		}, { verdict: this.verdict, mood: this.mood, hint: showHint ? lv.hint : null });
+	}
+
+	renderExamSummary() {
+		clear(this.elMission);
+		if (this.elMainSection) this.elMainSection.style.display = 'none';
+		this.elControls.style.display = 'none';
+		const total = EXAM.levelIds.length;
+		this.elMission.append(
+			el('div', { class: 'mission-tag', text: 'examen terminé' }),
+			el('div', { class: 'mission-title', text: `Score : ${this.examSolved} / ${total}` }),
+			el('p', { class: 'mission-goal', text: `Temps : ${this.examElapsed()}` }),
+			el('div', { style: 'display:flex;gap:8px;margin-top:14px' }, [
+				button({ label: 'recommencer', variant: 'primary', onClick: () => this.enterExam() }),
+				button({ label: '← carte', variant: 'ghost', onClick: () => this.showMap() })
+			])
+		);
 	}
 }

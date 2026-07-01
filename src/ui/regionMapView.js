@@ -6,8 +6,8 @@ import { LEVELS } from '../game/levels.js';
 const LEVEL_BY_ID = Object.fromEntries(LEVELS.map((l) => [l.id, l]));
 
 // Rend la carte de la RAM : régions, verrous, alerte fuite, entrée en salle.
-// onEnter(levelId) au clic d'une salle jouable ; onSandbox() pour le bac à sable.
-export function renderRegionMap(container, solved, onEnter, onSandbox) {
+// onEnter(levelId) au clic d'une salle ; onSandbox() bac à sable ; onExam() mode examen.
+export function renderRegionMap(container, solved, onEnter, onSandbox, onExam) {
 	clear(container);
 	const body = el('div', { style: 'padding:16px 22px 20px' });
 
@@ -52,10 +52,10 @@ export function renderRegionMap(container, solved, onEnter, onSandbox) {
 	}
 	body.appendChild(list);
 
-	if (onSandbox) {
-		const sb = button({ label: 'bac à sable', variant: 'secondary', size: 'sm', glyph: '⌘', onClick: onSandbox });
-		body.appendChild(el('div', { style: 'margin-top:14px;display:flex' }, [sb]));
-	}
+	const actions = [];
+	if (onSandbox) actions.push(button({ label: 'bac à sable', variant: 'secondary', size: 'sm', glyph: '⌘', onClick: onSandbox }));
+	if (onExam) actions.push(button({ label: 'examen', variant: 'secondary', size: 'sm', glyph: '⏱', onClick: onExam }));
+	if (actions.length) body.appendChild(el('div', { style: 'margin-top:14px;display:flex;gap:8px' }, actions));
 
 	container.appendChild(terminalWindow({ title: 'forge_memoire — carte.ram — 0x0000…0xFFFF' }, [body]));
 }
