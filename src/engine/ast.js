@@ -6,6 +6,17 @@
 //
 // Une instruction exécutable par l'interpréteur est soit une affectation
 // { lhs, rhs }, soit une opération { op, ... }. Les expressions portent un tag `t`.
+//
+// VOCABULAIRE UNIFIÉ (source unique — E2-10). L'interpréteur ne connaît que ces nœuds ;
+// tout niveau (levels.js) se construit exclusivement à partir d'ici :
+//   Expressions (t)  : lit · var · addr · deref · malloc · strlen · atoi · bin · node ·
+//                      field · open · read · load · store · iter · fnref
+//   Cibles (lhs)     : var · deref · store · field
+//   Instructions (op): assign{lhs,rhs} · free · write · putnbr_base · strcpy · free_node ·
+//                      close · loop · while · if · call · apply · return
+//   Fonctions        : func{name,params,body} (registre passé à l'interpréteur)
+// Étendre le langage = ajouter un constructeur ici + sa branche interpréteur + un test.
+// Contrat de non-régression : tests/game/non-regression.test.mjs (tous niveaux résolubles).
 
 // --- Expressions (rhs / src) ---
 export const lit = (v) => ({ t: 'lit', v });
