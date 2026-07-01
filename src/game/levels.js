@@ -1,5 +1,5 @@
 // Constructeurs d'AST fournis par la lane moteur (src/engine/ast.js) — cf. docs/COORDINATION.md.
-import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode, open, read, close } from '../engine/ast.js';
+import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode, open, read, close, bin } from '../engine/ast.js';
 
 export const LEVELS = [
 	{
@@ -304,6 +304,26 @@ export const LEVELS = [
 			{ id: 'copy', label: 'strcpy(p, &s0)', ast: strcpy(variable('p'), addr('s0')) },
 			{ id: 'show', label: 'write(1, p, 2)', ast: write(1, variable('p'), lit(2)) },
 			{ id: 'free-p', label: 'free(p)', ast: freeOp('p') }
+		]
+	},
+	{
+		id: 'conv-3',
+		world: 'Conversion nombre↔texte',
+		title: 'Extrais les chiffres',
+		goalText: 'Sépare 42 : u = les unités (2), t = les dizaines (4). C\'est le cœur de putnbr.',
+		hint: 'n % 10 donne le dernier chiffre (unités) ; n / 10 enlève ce chiffre (dizaines).',
+		vars: [
+			{ name: 'n', value: 42, kind: 'int' },
+			{ name: 'u', value: 0, kind: 'int' },
+			{ name: 't', value: 0, kind: 'int' }
+		],
+		slots: 2,
+		par: 2,
+		goal: { u: 2, t: 4 },
+		bank: [
+			{ id: 'u-mod', label: 'u = n % 10', ast: assign(variable('u'), bin('%', variable('n'), lit(10))) },
+			{ id: 't-div', label: 't = n / 10', ast: assign(variable('t'), bin('/', variable('n'), lit(10))) },
+			{ id: 'u-div-bad', label: 'u = n / 10', ast: assign(variable('u'), bin('/', variable('n'), lit(10))) }
 		]
 	}
 ];
