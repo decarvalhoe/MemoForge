@@ -1,0 +1,106 @@
+/* MemoForge — couche composant (design-system en vanilla JS).
+   Classes préfixées `mf-` pour cohabiter avec les styles de jeu existants pendant
+   la migration (issue E1-3). 100 % token-driven : voir styles/tokens/.
+   Miroir des composants du prototype design/ui-kit/. */
+
+/* ---------------- TerminalWindow ---------------- */
+.mf-terminal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; position: relative; }
+.mf-terminal__bar { display: flex; align-items: center; gap: 7px; padding: 9px 13px; background: var(--bg); border-bottom: 1px solid var(--border); }
+.mf-terminal__dot { width: 9px; height: 9px; border-radius: 50%; }
+.mf-terminal__dot--r { background: var(--danger); }
+.mf-terminal__dot--a { background: var(--pointer); }
+.mf-terminal__dot--g { background: var(--accent); }
+.mf-terminal__title { margin-left: 8px; font-size: var(--fs-sm); color: var(--text-muted); }
+.mf-terminal__body { position: relative; }
+.mf-terminal__scan { position: absolute; inset: 0; background: var(--scanlines); mix-blend-mode: screen; pointer-events: none; z-index: 9; }
+.mf-terminal__content { position: relative; z-index: 1; }
+
+/* ---------------- Locker ---------------- */
+.mf-locker { flex: 1; min-width: 84px; background: var(--surface-well); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px; text-align: center; box-shadow: var(--inset-well); }
+.mf-locker__name { font-size: var(--fs-sm); font-weight: 600; color: var(--text); }
+.mf-locker__addr { font-size: var(--fs-2xs); color: var(--text-muted); opacity: .7; }
+.mf-locker__val { font-size: var(--fs-value); font-weight: 600; margin-top: 3px; color: var(--text); line-height: 1; }
+.mf-locker__state { font-size: var(--fs-2xs); margin-top: 4px; color: var(--text); }
+.mf-locker--changed { background: var(--success-fill); border-color: var(--value); box-shadow: var(--glow-green); }
+.mf-locker--changed .mf-locker__name, .mf-locker--changed .mf-locker__val, .mf-locker--changed .mf-locker__state { color: var(--value); }
+.mf-locker--changed .mf-locker__val { text-shadow: var(--text-glow-green); }
+.mf-locker--pointer { background: var(--pointer-fill); border-color: var(--pointer); }
+.mf-locker--pointer .mf-locker__name, .mf-locker--pointer .mf-locker__val, .mf-locker--pointer .mf-locker__state { color: var(--pointer); }
+.mf-locker--allocated { border-style: dashed; border-color: var(--pointer); }
+.mf-locker--freed { background: var(--surface-nested); border-style: dashed; opacity: .55; }
+.mf-locker--freed .mf-locker__name, .mf-locker--freed .mf-locker__val, .mf-locker--freed .mf-locker__state { color: var(--text-muted); }
+
+/* ---------------- CodeBrick ---------------- */
+.mf-brick { display: flex; align-items: center; gap: 9px; background: var(--surface-well); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 11px; }
+.mf-brick--active { border-color: var(--accent); box-shadow: var(--ring); }
+.mf-brick--ghost { opacity: .4; }
+.mf-brick__handle { color: var(--text-muted); cursor: grab; }
+.mf-brick__idx { font-size: var(--fs-2xs); color: var(--text-muted); }
+.mf-brick__code { font-size: var(--fs-md); font-weight: 600; color: var(--text); }
+.mf-brick--pointer .mf-brick__code { color: var(--pointer); }
+.mf-brick--free .mf-brick__code { color: var(--accent); }
+.mf-brick--value .mf-brick__code { color: var(--value); }
+
+/* ---------------- Button ---------------- */
+.mf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 10px 16px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--fs-md); font-weight: 600; letter-spacing: .02em; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-muted); transition: border-color var(--dur), color var(--dur), box-shadow var(--dur); }
+.mf-btn--sm { min-height: 36px; padding: 8px 12px; font-size: var(--fs-sm); }
+.mf-btn--primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); box-shadow: var(--glow-green); }
+.mf-btn--secondary { background: var(--surface-well); border-color: var(--accent); color: var(--accent); }
+.mf-btn--ghost { background: transparent; border-color: var(--border); color: var(--text-muted); }
+.mf-btn--danger { background: transparent; border-color: var(--danger); color: var(--danger); }
+.mf-btn:disabled { opacity: .45; cursor: not-allowed; }
+.mf-btn:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
+.mf-btn--primary:not(:disabled):hover { color: var(--on-accent); background: var(--accent-hover); border-color: var(--accent-hover); }
+
+/* ---------------- Badge ---------------- */
+.mf-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: var(--fs-xs); font-weight: 600; letter-spacing: .04em; }
+.mf-badge--value { color: var(--value); border-color: var(--value); background: var(--success-fill); }
+.mf-badge--pointer { color: var(--pointer); border-color: var(--pointer); background: var(--pointer-fill); }
+.mf-badge--danger { color: var(--danger); border-color: var(--danger); background: var(--danger-fill); }
+
+/* ---------------- StatChip ---------------- */
+.mf-stat { flex: 1; background: var(--surface-well); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 7px; text-align: center; }
+.mf-stat__val { font-size: 18px; font-weight: 600; color: var(--text); }
+.mf-stat--value .mf-stat__val { color: var(--value); }
+.mf-stat--pointer .mf-stat__val { color: var(--pointer); }
+.mf-stat__label { font-size: var(--fs-2xs); color: var(--text-muted); letter-spacing: .06em; }
+
+/* ---------------- Mascot ---------------- */
+.mf-mascot { display: inline-flex; align-items: center; gap: 9px; background: var(--surface-well); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; }
+.mf-mascot__face { font-size: 20px; font-weight: 600; color: var(--text); }
+.mf-mascot--win .mf-mascot__face { color: var(--success); text-shadow: var(--text-glow-green); }
+.mf-mascot--err .mf-mascot__face { color: var(--danger); }
+.mf-mascot__cap { font-size: var(--fs-2xs); color: var(--text-muted); line-height: 1.3; white-space: pre-line; }
+
+/* ---------------- Medal ---------------- */
+.mf-medal { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: var(--surface-well); border: 1px dashed var(--border); border-radius: var(--radius-sm); opacity: .55; }
+.mf-medal__label { font-size: var(--fs-sm); color: var(--text-muted); }
+.mf-medal__mark { font-size: 13px; color: var(--text-muted); }
+.mf-medal--earned { background: var(--surface-nested); border-style: solid; border-color: var(--success); opacity: 1; }
+.mf-medal--earned .mf-medal__label { color: var(--text); }
+.mf-medal--earned .mf-medal__mark { color: var(--success); }
+
+/* ---------------- FeedbackBanner ---------------- */
+.mf-feedback { background: var(--surface-well); border: 1px solid var(--border); border-left: var(--stroke-accent) solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; }
+.mf-feedback__head { display: flex; align-items: center; gap: 8px; }
+.mf-feedback__glyph { font-size: 15px; font-weight: 600; }
+.mf-feedback__title { font-size: var(--fs-sm); font-weight: 600; letter-spacing: .03em; }
+.mf-feedback__body { font-size: var(--fs-xs); color: var(--text); margin-top: 5px; line-height: 1.45; }
+.mf-feedback--success { border-color: var(--success); border-left-color: var(--success); }
+.mf-feedback--success .mf-feedback__glyph, .mf-feedback--success .mf-feedback__title { color: var(--success); }
+.mf-feedback--crash { border-color: var(--danger); border-left-color: var(--danger); }
+.mf-feedback--crash .mf-feedback__glyph, .mf-feedback--crash .mf-feedback__title { color: var(--danger); }
+.mf-feedback--leak { border-color: var(--pointer); border-left-color: var(--pointer); }
+.mf-feedback--leak .mf-feedback__glyph, .mf-feedback--leak .mf-feedback__title { color: var(--pointer); }
+
+/* ---------------- RegionCard ---------------- */
+.mf-region { flex: 1; min-width: 120px; background: var(--surface-well); border: 1px dashed var(--border); border-radius: var(--radius-sm); padding: 8px 10px; opacity: .5; }
+.mf-region__title { font-size: var(--fs-sm); font-weight: 600; color: var(--text-muted); }
+.mf-region__id { color: var(--text-muted); }
+.mf-region__note { font-size: var(--fs-2xs); color: var(--text-muted); margin-top: 3px; }
+.mf-region--solved { border-style: solid; border-color: var(--success); opacity: 1; box-shadow: var(--glow-green); }
+.mf-region--solved .mf-region__title { color: var(--text); }
+.mf-region--solved .mf-region__note { color: var(--success); }
+.mf-region--current { border-style: solid; border-color: var(--pointer); opacity: 1; box-shadow: var(--glow-amber); }
+.mf-region--current .mf-region__title { color: var(--text); }
+.mf-region--current .mf-region__note { color: var(--pointer); }
