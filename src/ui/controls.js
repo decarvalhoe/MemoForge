@@ -8,11 +8,13 @@ export function renderControls(container, handlers, state) {
 
 	const runBtn = button({ label: 'Exécuter', variant: 'primary', glyph: '>', onClick: handlers.onRun });
 	runBtn.style.flex = '1';
-	container.appendChild(el('div', { class: 'controls-bar' }, [
+	const barButtons = [
 		runBtn,
 		button({ label: 'Pas-à-pas', variant: 'ghost', onClick: handlers.onStep }),
 		button({ label: 'Réinitialiser', variant: 'ghost', onClick: handlers.onReset })
-	]));
+	];
+	if (handlers.onSkip) barButtons.push(button({ label: 'passer →', variant: 'ghost', onClick: handlers.onSkip }));
+	container.appendChild(el('div', { class: 'controls-bar' }, barButtons));
 
 	// Mascotte : réagit (win/think/err) et donne l'indice du niveau après 2 échecs.
 	const caption = state.hint ? 'indice :\n' + state.hint : 'GLIF surveille\nla mémoire';
