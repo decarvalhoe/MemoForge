@@ -1,11 +1,16 @@
-import { RuntimeError } from './memory.js';
+import { RuntimeError, WORD } from './memory.js';
+
+const MAX_STEPS = 100000;
 
 export class Interpreter {
 	constructor(memory, program) {
 		this.mem = memory;
-		this.program = program;
-		this.pc = 0;
 		this.error = null;
+		this.steps = 0;
+		this.iterStack = [];
+		this.frameIndex = 0;
+		this.instrIndex = 0;
+		this.stack = [{ label: 'main', blocks: [{ instrs: program, index: 0, loop: null }] }];
 		this.done = program.length === 0;
 	}
 
@@ -35,7 +40,17 @@ export class Interpreter {
 			return m.open(e.name);
 		if (e.t === 'read')
 			return m.read(this.evalExpr(e.fd), this.evalExpr(e.dst), this.evalExpr(e.count));
+		if (e.t === 'load')
+			return m.readAddr(this.evalExpr(e.base) + this.evalExpr(e.index) * WORD);
+		if (e.t === 'iter')
+			return this.currentIter();
 		throw new RuntimeError('expression inconnue');
+	}
+
+	currentIter() {
+		if (this.iterStack.length === 0)
+			throw new RuntimeError('iter utilisé hors d\'une boucle');
+		return this.iterStack[this.iterStack.length - 1].i;
 	}
 
 	evalBin(e) {
@@ -53,6 +68,18 @@ export class Interpreter {
 			return Math.trunc(a / b);
 		if (e.op === '%')
 			return a - Math.trunc(a / b) * b;
+		if (e.op === '<')
+			return a < b ? 1 : 0;
+		if (e.op === '<=')
+			return a <= b ? 1 : 0;
+		if (e.op === '>')
+			return a > b ? 1 : 0;
+		if (e.op === '>=')
+			return a >= b ? 1 : 0;
+		if (e.op === '==')
+			return a === b ? 1 : 0;
+		if (e.op === '!=')
+			return a !== b ? 1 : 0;
 		throw new RuntimeError('opérateur inconnu');
 	}
 
@@ -63,11 +90,11 @@ export class Interpreter {
 			return;
 		}
 		if (p.t === 'deref') {
-			const addr = m.getVar(p.name);
-			m.writeAddr(addr, value);
-			const n = m.nameAt(addr);
-			if (n)
-				m.changed.add(n);
+			this.storeAt(m.getVar(p.name), value);
+			return;
+		}
+		if (p.t === 'store') {
+			this.storeAt(this.evalExpr(p.base) + this.evalExpr(p.index) * WORD, value);
 			return;
 		}
 		if (p.t === 'field') {
@@ -77,43 +104,168 @@ export class Interpreter {
 		throw new RuntimeError('cible non assignable');
 	}
 
+	storeAt(addr, value) {
+		this.mem.writeAddr(addr, value);
+		const n = this.mem.nameAt(addr);
+		if (n)
+			this.mem.changed.add(n);
+	}
+
+	runOp(ast) {
+		const m = this.mem;
+		if (ast.op === 'free')
+			m.free(m.getVar(ast.ptr));
+		else if (ast.op === 'write')
+			m.emit(ast.fd, this.evalExpr(ast.src), this.evalExpr(ast.count));
+		else if (ast.op === 'putnbr_base')
+			m.putnbrBase(this.evalExpr(ast.n), this.evalExpr(ast.base));
+		else if (ast.op === 'strcpy')
+			m.strcpy(this.evalExpr(ast.dst), this.evalExpr(ast.src));
+		else if (ast.op === 'free_node')
+			m.freeNode(this.evalExpr(ast.node));
+		else if (ast.op === 'close')
+			m.close(this.evalExpr(ast.fd));
+		else
+			this.writePlace(ast.lhs, this.evalExpr(ast.rhs));
+	}
+
+	truthy(v) {
+		return v !== 0 && v !== '\0' && v !== '' && v !== false && v !== null && v !== undefined;
+	}
+
+	loopContinues(loop) {
+		if (loop.kind === 'loop')
+			return loop.i < loop.n;
+		return this.truthy(this.evalExpr(loop.guard));
+	}
+
+	enterLoop(frame, loop, body) {
+		this.iterStack.push(loop);
+		frame.blocks.push({ instrs: body, index: 0, loop });
+	}
+
+	settle() {
+		while (this.stack.length > 0) {
+			const frame = this.stack[this.stack.length - 1];
+			if (frame.blocks.length === 0) {
+				this.stack.pop();
+				continue;
+			}
+			const block = frame.blocks[frame.blocks.length - 1];
+			if (block.index < block.instrs.length)
+				return true;
+			if (block.loop) {
+				block.loop.i += 1;
+				if (this.loopContinues(block.loop)) {
+					block.index = 0;
+					return true;
+				}
+				this.iterStack.pop();
+				frame.blocks.pop();
+				const parent = frame.blocks[frame.blocks.length - 1];
+				if (parent)
+					parent.index += 1;
+			} else {
+				frame.blocks.pop();
+			}
+		}
+		return false;
+	}
+
+	subtreeSize(instr) {
+		const ast = instr.ast;
+		if (ast.op === 'loop' || ast.op === 'while') {
+			let s = 1;
+			for (const b of ast.body)
+				s += this.subtreeSize(b);
+			return s;
+		}
+		return 1;
+	}
+
+	flatIndex(frame) {
+		let flat = 0;
+		for (let d = 0; d < frame.blocks.length; d++) {
+			const b = frame.blocks[d];
+			for (let k = 0; k < b.index; k++)
+				flat += this.subtreeSize(b.instrs[k]);
+			if (d < frame.blocks.length - 1)
+				flat += 1;
+		}
+		return flat;
+	}
+
+	status() {
+		return {
+			done: this.done,
+			error: this.error,
+			index: this.instrIndex,
+			frameIndex: this.frameIndex,
+			instrIndex: this.instrIndex
+		};
+	}
+
+	execInstr(frame, block, ast) {
+		if (ast.op === 'loop') {
+			const n = this.evalExpr(ast.count);
+			if (n > 0)
+				this.enterLoop(frame, { kind: 'loop', i: 0, n }, ast.body);
+			else
+				block.index += 1;
+		} else if (ast.op === 'while') {
+			if (this.truthy(this.evalExpr(ast.guard)))
+				this.enterLoop(frame, { kind: 'while', i: 0, n: null, guard: ast.guard }, ast.body);
+			else
+				block.index += 1;
+		} else {
+			this.runOp(ast);
+			block.index += 1;
+		}
+	}
+
 	step() {
 		if (this.done || this.error)
-			return { done: true, error: this.error, index: this.pc };
+			return this.status();
+		this.steps += 1;
+		if (this.steps > MAX_STEPS) {
+			this.error = 'boucle infinie : garde de pas dépassée';
+			this.done = true;
+			return this.status();
+		}
+		if (!this.settle()) {
+			this.done = true;
+			return this.status();
+		}
+		const frame = this.stack[this.stack.length - 1];
+		const block = frame.blocks[frame.blocks.length - 1];
+		this.frameIndex = this.stack.length - 1;
+		this.instrIndex = this.flatIndex(frame);
 		this.mem.clearChanged();
-		const instr = this.program[this.pc];
 		try {
-			const ast = instr.ast;
-			if (ast.op === 'free') {
-				this.mem.free(this.mem.getVar(ast.ptr));
-			} else if (ast.op === 'write') {
-				this.mem.emit(ast.fd, this.evalExpr(ast.src), this.evalExpr(ast.count));
-			} else if (ast.op === 'putnbr_base') {
-				this.mem.putnbrBase(this.evalExpr(ast.n), this.evalExpr(ast.base));
-			} else if (ast.op === 'strcpy') {
-				this.mem.strcpy(this.evalExpr(ast.dst), this.evalExpr(ast.src));
-			} else if (ast.op === 'free_node') {
-				this.mem.freeNode(this.evalExpr(ast.node));
-			} else if (ast.op === 'close') {
-				this.mem.close(this.evalExpr(ast.fd));
-			} else {
-				this.writePlace(ast.lhs, this.evalExpr(ast.rhs));
-			}
+			this.execInstr(frame, block, block.instrs[block.index].ast);
 		} catch (err) {
 			this.error = err.message;
 			this.done = true;
-			return { index: this.pc, error: this.error, done: true };
 		}
-		this.pc++;
-		if (this.pc >= this.program.length)
-			this.done = true;
-		return { index: this.pc - 1, done: this.done, error: null };
+		return this.status();
+	}
+
+	frames() {
+		return this.stack.map((frame) => {
+			const out = { label: frame.label, vars: this.mem.snapshot() };
+			for (let d = frame.blocks.length - 1; d >= 0; d--) {
+				if (frame.blocks[d].loop) {
+					out.loop = { i: frame.blocks[d].loop.i, n: frame.blocks[d].loop.n };
+					break;
+				}
+			}
+			return out;
+		});
 	}
 
 	run() {
 		let last = null;
-		let guard = 0;
-		while (!this.done && guard++ < 1000)
+		while (!this.done)
 			last = this.step();
 		return last;
 	}

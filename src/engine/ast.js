@@ -20,6 +20,9 @@ export const node = (data) => ({ t: 'node', data });
 export const field = (nodeExpr, name) => ({ t: 'field', node: nodeExpr, field: name });
 export const open = (name) => ({ t: 'open', name });
 export const read = (fd, dst, count) => ({ t: 'read', fd, dst, count });
+export const load = (base, index) => ({ t: 'load', base, index });
+export const store = (base, index) => ({ t: 'store', base, index });
+export const iter = () => ({ t: 'iter' });
 
 // --- Cibles (lhs) ---
 // var(name) et deref(name) servent aussi de cibles d'affectation.
@@ -32,3 +35,5 @@ export const putnbrBase = (n, base) => ({ op: 'putnbr_base', n, base });
 export const strcpy = (dst, src) => ({ op: 'strcpy', dst, src });
 export const freeNode = (nodeExpr) => ({ op: 'free_node', node: nodeExpr });
 export const close = (fd) => ({ op: 'close', fd });
+export const loop = (count, body) => ({ op: 'loop', count, body: body.map((a) => ({ ast: a })) });
+export const whileLoop = (guard, body) => ({ op: 'while', guard, body: body.map((a) => ({ ast: a })) });
