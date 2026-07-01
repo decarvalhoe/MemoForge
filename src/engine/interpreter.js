@@ -21,6 +21,8 @@ export class Interpreter {
 			return m.readAddr(m.getVar(e.name));
 		if (e.t === 'malloc')
 			return m.allocate();
+		if (e.t === 'strlen')
+			return m.strlen(this.evalExpr(e.src));
 		throw new RuntimeError('expression inconnue');
 	}
 

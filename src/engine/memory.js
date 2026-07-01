@@ -73,6 +73,24 @@ export class Memory {
 		return count;
 	}
 
+	isTerminator(v) {
+		return v === 0 || v === '\0';
+	}
+
+	strlen(addr) {
+		if (addr === 0)
+			throw new RuntimeError('déréférencement de NULL');
+		let a = addr;
+		let len = 0;
+		while (this.cells.has(a) && !this.freed.has(a)) {
+			if (this.isTerminator(this.cells.get(a)))
+				return len;
+			len += 1;
+			a += WORD;
+		}
+		throw new RuntimeError("chaîne sans borne : pas de '\\0'");
+	}
+
 	allocate() {
 		const addr = this.nextHeap;
 		this.nextHeap += WORD;
