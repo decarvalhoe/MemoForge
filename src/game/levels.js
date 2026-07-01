@@ -1,5 +1,5 @@
 // Constructeurs d'AST fournis par la lane moteur (src/engine/ast.js) — cf. docs/COORDINATION.md.
-import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode } from '../engine/ast.js';
+import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode, open, read, close } from '../engine/ast.js';
 
 export const LEVELS = [
 	{
@@ -258,6 +258,29 @@ export const LEVELS = [
 			{ id: 'set-term', label: "c2 = '\\0'", ast: assign(variable('c2'), lit(0)) },
 			{ id: 'measure', label: 'n = strlen(&c0)', ast: assign(variable('n'), strlen(addr('c0'))) },
 			{ id: 'atoi-bad', label: 'n = atoi(&c0)', ast: assign(variable('n'), atoi(addr('c0'))) }
+		]
+	},
+	{
+		id: 'f-1',
+		world: 'Fichiers & syscalls',
+		title: 'Affiche le fichier',
+		goalText: 'Ouvre le fichier, lis son contenu dans le buffer, écris-le sur la sortie, puis FERME-le.',
+		hint: 'Ordre : open → read (dans le buffer) → write(1, …) → close. Oublier close = descripteur fuité.',
+		files: { 'hi.txt': 'Hi' },
+		vars: [
+			{ name: 'fd', value: 0, kind: 'int' },
+			{ name: 'buf0', value: 0, kind: 'char' },
+			{ name: 'buf1', value: 0, kind: 'char' },
+			{ name: 'n', value: 0, kind: 'int' }
+		],
+		slots: 4,
+		par: 4,
+		goalCheck: (mem) => mem.output === 'Hi' && mem.openDescriptors().length === 0,
+		bank: [
+			{ id: 'open', label: 'fd = open("hi.txt")', ast: assign(variable('fd'), open('hi.txt')) },
+			{ id: 'read', label: 'n = read(fd, &buf0, 2)', ast: assign(variable('n'), read(variable('fd'), addr('buf0'), lit(2))) },
+			{ id: 'write', label: 'write(1, &buf0, n)', ast: write(1, addr('buf0'), variable('n')) },
+			{ id: 'close', label: 'close(fd)', ast: close(variable('fd')) }
 		]
 	}
 ];
