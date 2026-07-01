@@ -23,7 +23,29 @@ export class Interpreter {
 			return m.allocate();
 		if (e.t === 'strlen')
 			return m.strlen(this.evalExpr(e.src));
+		if (e.t === 'atoi')
+			return m.atoi(this.evalExpr(e.src));
+		if (e.t === 'bin')
+			return this.evalBin(e);
 		throw new RuntimeError('expression inconnue');
+	}
+
+	evalBin(e) {
+		const a = this.evalExpr(e.a);
+		const b = this.evalExpr(e.b);
+		if ((e.op === '/' || e.op === '%') && b === 0)
+			throw new RuntimeError('division par zéro');
+		if (e.op === '+')
+			return a + b;
+		if (e.op === '-')
+			return a - b;
+		if (e.op === '*')
+			return a * b;
+		if (e.op === '/')
+			return Math.trunc(a / b);
+		if (e.op === '%')
+			return a - Math.trunc(a / b) * b;
+		throw new RuntimeError('opérateur inconnu');
 	}
 
 	writePlace(p, value) {
@@ -54,6 +76,8 @@ export class Interpreter {
 				this.mem.free(this.mem.getVar(ast.ptr));
 			} else if (ast.op === 'write') {
 				this.mem.emit(ast.fd, this.evalExpr(ast.src), this.evalExpr(ast.count));
+			} else if (ast.op === 'putnbr_base') {
+				this.mem.putnbrBase(this.evalExpr(ast.n), this.evalExpr(ast.base));
 			} else {
 				this.writePlace(ast.lhs, this.evalExpr(ast.rhs));
 			}

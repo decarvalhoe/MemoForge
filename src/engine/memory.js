@@ -2,6 +2,8 @@ export class RuntimeError extends Error {}
 
 const WORD = 4;
 const HEAP_BASE = 5000;
+const INT_MIN = -2147483648;
+const INT_MAX = 2147483647;
 
 export class Memory {
 	constructor(varDefs) {
@@ -89,6 +91,52 @@ export class Memory {
 			a += WORD;
 		}
 		throw new RuntimeError("chaîne sans borne : pas de '\\0'");
+	}
+
+	atoi(addr) {
+		if (addr === 0)
+			throw new RuntimeError('déréférencement de NULL');
+		let a = addr;
+		const at = () => (this.cells.has(a) && !this.freed.has(a)) ? this.cells.get(a) : undefined;
+		const isSpace = (c) => c === ' ' || c === '\t' || c === '\n';
+		while (isSpace(at()))
+			a += WORD;
+		let sign = 1;
+		const s = at();
+		if (s === '+' || s === '-') {
+			if (s === '-')
+				sign = -1;
+			a += WORD;
+		}
+		let res = 0;
+		let c = at();
+		while (typeof c === 'string' && c >= '0' && c <= '9') {
+			res = res * 10 + (c.charCodeAt(0) - 48);
+			if (sign === 1 && res > INT_MAX)
+				throw new RuntimeError('débordement : dépasse INT_MAX');
+			if (sign === -1 && -res < INT_MIN)
+				throw new RuntimeError('débordement : dépasse INT_MIN');
+			a += WORD;
+			c = at();
+		}
+		return sign * res;
+	}
+
+	putnbrBase(n, base) {
+		if (typeof base !== 'string' || base.length < 2)
+			throw new RuntimeError('base invalide (≥ 2 symboles)');
+		const b = base.length;
+		let x = n;
+		if (x < 0) {
+			this.output += '-';
+			x = -x;
+		}
+		const digits = [];
+		do {
+			digits.push(base[x % b]);
+			x = Math.floor(x / b);
+		} while (x > 0);
+		this.output += digits.reverse().join('');
 	}
 
 	allocate() {
