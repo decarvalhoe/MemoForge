@@ -37,3 +37,12 @@ export const freeNode = (nodeExpr) => ({ op: 'free_node', node: nodeExpr });
 export const close = (fd) => ({ op: 'close', fd });
 export const loop = (count, body) => ({ op: 'loop', count, body: body.map((a) => ({ ast: a })) });
 export const whileLoop = (guard, body) => ({ op: 'while', guard, body: body.map((a) => ({ ast: a })) });
+export const ifThen = (guard, body) => ({ op: 'if', guard, body: body.map((a) => ({ ast: a })) });
+
+// --- Fonctions & appels (B9 récursion, B11 valeurs-fonction) ---
+// func() décrit une définition (params + corps + valeur de retour). call() est une
+// instruction top-level qui livre le retour dans `place` (jamais imbriquée dans une
+// expression : la pile d'appels reste visualisable pas-à-pas). ret() renvoie une valeur.
+export const func = (name, params, body) => ({ name, params, body: body.map((a) => ({ ast: a })) });
+export const call = (place, name, args) => ({ op: 'call', place, name, args });
+export const ret = (value) => ({ op: 'return', value });
