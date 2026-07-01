@@ -107,6 +107,14 @@ export class Game {
 		this.render();
 	}
 
+	moveBlock(from, to) {
+		if (to < 0 || to >= this.program.length || from === to) return;
+		const [item] = this.program.splice(from, 1);
+		this.program.splice(to, 0, item);
+		this.resetExecState();
+		this.render();
+	}
+
 	freshInterp() {
 		this.memory = new Memory(this.level.vars);
 		this.interp = new Interpreter(this.memory, this.program);
@@ -205,7 +213,7 @@ export class Game {
 			el('p', { class: 'mission-hint', text: 'Indice : ' + lv.hint })
 		);
 		renderMemory(this.elMemory, this.memory.snapshot(), this.memory.heap(), this.memory.changed);
-		renderProgram(this.elProgram, this.program, lv.slots, this.activeIndex, (i) => this.removeBlock(i));
+		renderProgram(this.elProgram, this.program, lv.slots, this.activeIndex, (i) => this.removeBlock(i), (from, to) => this.moveBlock(from, to));
 		renderPalette(this.elPalette, lv.bank, this.program.length >= lv.slots, (instr) => this.addBlock(instr));
 		const showHint = this.fails >= 2 && !(this.verdict && this.verdict.passed);
 		renderControls(this.elControls, {
