@@ -1,0 +1,37 @@
+/* MemoForge type system.
+   Two families only. VT323 is the CRT display face — used LARGE, for
+   room titles, region names, big values. IBM Plex Mono carries
+   everything else: body, UI labels, and all code/addresses (the code
+   IS the content, so the whole UI leans monospace). */
+
+:root {
+  --font-display: 'VT323', 'IBM Plex Mono', monospace;
+  --font-mono:    'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --font-body:    var(--font-mono);       /* body is mono too — it's a terminal */
+  --font-code:    var(--font-mono);
+
+  /* display scale (VT323 runs small per em — sizes are generous) */
+  --fs-display-1: 40px;   /* app / region hero */
+  --fs-display-2: 30px;   /* room title */
+  --fs-display-3: 24px;   /* section headline */
+
+  /* text scale (IBM Plex Mono) */
+  --fs-value:     38px;   /* the number inside a locker */
+  --fs-lg:        16px;
+  --fs-md:        14px;   /* body default — never below 14 (a11y) */
+  --fs-sm:        12px;   /* labels */
+  --fs-xs:        10px;   /* meta: addresses, kickers */
+  --fs-2xs:       9px;    /* dense chrome only */
+
+  --lh-tight:     1.0;
+  --lh-snug:      1.25;
+  --lh-body:      1.5;
+
+  --ls-kicker:    0.08em; /* uppercase kickers / section labels */
+  --ls-display:   0.01em;
+
+  --fw-regular:   400;
+  --fw-medium:    500;
+  --fw-semibold:  600;
+  --fw-bold:      700;
+}

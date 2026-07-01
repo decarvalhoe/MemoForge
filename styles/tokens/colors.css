@@ -1,0 +1,92 @@
+/* MemoForge color system — "Phosphore".
+   A CRT terminal: warm-black glass, phosphor-green signal, amber for
+   pointers/addresses, red for crashes. Dark is the default theme;
+   .theme-light is the accessible daytime variant (WCAG AA).
+
+   RULE: meaning is never carried by color alone — every stateful element
+   also carries a label/glyph. Green = value/success, Amber = pointer/address,
+   Red = crash/error. */
+
+:root {
+  /* ---- base ramp: the glass ---- */
+  --phos-black:      #060A06;  /* app background */
+  --phos-panel:      #0B110B;  /* raised surface */
+  --phos-panel-2:    #0E160E;  /* nested surface */
+  --phos-well:       #000000;  /* recessed well (a locker) */
+  --phos-line:       #1C2E1C;  /* hairline border */
+  --phos-line-2:     #244024;  /* stronger border */
+
+  /* ---- signal: phosphor green ---- */
+  --phos-green:      #46E08A;  /* primary accent / value / success */
+  --phos-green-dim:  #2E9E62;  /* hover-down / secondary */
+  --phos-green-soft: #0E2417;  /* tinted fill behind green */
+  --phos-ink:        #BFF2CF;  /* default text on glass */
+  --phos-muted:      #4F8A63;  /* secondary text */
+  --phos-faint:      #2F5B3E;  /* disabled / tertiary */
+
+  /* ---- pointer: amber ---- */
+  --phos-amber:      #E8B84B;  /* pointer, address, dynamic memory */
+  --phos-amber-soft: #241B07;  /* tinted fill behind amber */
+
+  /* ---- crash: red ---- */
+  --phos-red:        #FF6B5E;  /* crash, NULL deref, error */
+  --phos-red-soft:   #2A0F0C;  /* tinted fill behind red */
+
+  /* ================= semantic aliases ================= */
+  --bg:              var(--phos-black);
+  --surface:         var(--phos-panel);
+  --surface-nested:  var(--phos-panel-2);
+  --surface-well:    var(--phos-well);
+  --border:          var(--phos-line);
+  --border-strong:   var(--phos-line-2);
+
+  --text:            var(--phos-ink);
+  --text-muted:      var(--phos-muted);
+  --text-disabled:   var(--phos-faint);
+
+  --accent:          var(--phos-green);
+  --accent-hover:    var(--phos-green-dim);
+  --accent-fill:     var(--phos-green-soft);
+  --on-accent:       #041007;   /* text on a filled green button */
+
+  --value:           var(--phos-green);   /* a locker that holds/changed a value */
+  --pointer:         var(--phos-amber);   /* pointer / address / heap */
+  --pointer-fill:    var(--phos-amber-soft);
+  --success:         var(--phos-green);
+  --success-fill:    var(--phos-green-soft);
+  --danger:          var(--phos-red);     /* crash / NULL deref */
+  --danger-fill:     var(--phos-red-soft);
+
+  --focus-ring:      var(--phos-green);
+}
+
+/* ---------------- LIGHT THEME — "Phosphore / jour" ---------------- */
+/* Same roles, WCAG-AA contrast on paper-white. Kept deliberately
+   desaturated so it reads as "the same product in daylight". */
+.theme-light {
+  --bg:              #EAF3E9;
+  --surface:         #FFFFFF;
+  --surface-nested:  #F1F7F0;
+  --surface-well:    #FFFFFF;
+  --border:          #BFD8C2;
+  --border-strong:   #97BE9E;
+
+  --text:            #123322;
+  --text-muted:      #4E7A5C;
+  --text-disabled:   #9DBCA6;
+
+  --accent:          #0F7A3D;
+  --accent-hover:    #0B5C2D;
+  --accent-fill:     #DCEFE1;
+  --on-accent:       #FFFFFF;
+
+  --value:           #0F7A3D;
+  --pointer:         #B5731A;
+  --pointer-fill:    #FBEECF;
+  --success:         #0F7A3D;
+  --success-fill:    #DCEFE1;
+  --danger:          #C23A2B;
+  --danger-fill:     #FBE3E0;
+
+  --focus-ring:      #0F7A3D;
+}
