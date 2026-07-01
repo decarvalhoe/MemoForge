@@ -6,6 +6,13 @@
 	"description": "Jeu de puzzle pour comprendre les pointeurs et la mémoire C",
 	"scripts": {
 		"serve": "python -m http.server 8000",
-		"test": "node tests/smoke.mjs"
+		"test": "node --test --experimental-test-coverage --test-coverage-include=\"src/engine/**\" --test-coverage-lines=90 --test-coverage-branches=90 --test-coverage-functions=90",
+		"test:watch": "node --test --watch",
+		"lint": "eslint src/engine tests/engine tests/helpers.mjs"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"eslint": "^10.6.0",
+		"globals": "^17.7.0"
 	}
 }

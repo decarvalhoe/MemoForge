@@ -1,4 +1,4 @@
-# Dépendances (aucune pour l'instant — vanilla JS)
+# Dépendances (dev-only : ESLint ; le runtime reste vanilla, sans build)
 node_modules/
 
 # Artefacts OS / éditeur
