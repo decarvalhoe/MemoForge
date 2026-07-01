@@ -12,6 +12,7 @@ export class Memory {
 		this.allocated = new Set();
 		this.freed = new Set();
 		this.changed = new Set();
+		this.stdout = [];
 		this.nextHeap = HEAP_BASE;
 		let addr = 1000;
 		for (const v of varDefs) {
@@ -96,6 +97,20 @@ export class Memory {
 
 	clearChanged() {
 		this.changed = new Set();
+	}
+
+	// --- Flux de sortie (brique B1 : write(1, &c, 1)) ---
+	// write émet un octet. Un caractère est stocké tel quel ; un nombre est un code ASCII.
+	writeStdout(value) {
+		this.stdout.push(value);
+	}
+
+	// Rend le flux comme une chaîne, dans l'ordre d'émission : un nombre est converti en
+	// caractère (code ASCII), un caractère est concaténé tel quel.
+	outputString() {
+		return this.stdout
+			.map((v) => (typeof v === 'number' ? String.fromCharCode(v) : String(v)))
+			.join('');
 	}
 
 	snapshot() {

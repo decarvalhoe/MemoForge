@@ -49,6 +49,8 @@ export class Interpreter {
 		try {
 			if (instr.ast.op === 'free') {
 				this.mem.free(this.mem.getVar(instr.ast.ptr));
+			} else if (instr.ast.op === 'write') {
+				this.mem.writeStdout(this.evalExpr(instr.ast.arg));
 			} else {
 				const v = this.evalExpr(instr.ast.rhs);
 				this.writePlace(instr.ast.lhs, v);
