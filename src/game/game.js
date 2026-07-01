@@ -155,9 +155,18 @@ export class Game {
 		this.render();
 	}
 
+	// Construit la mémoire du niveau courant + installe ses fichiers éventuels (niveaux B12).
+	newMemory() {
+		const mem = new Memory(this.level.vars);
+		if (this.level.files) {
+			for (const [name, content] of Object.entries(this.level.files)) mem.setFile(name, content);
+		}
+		return mem;
+	}
+
 	resetExecState() {
 		clearTimeout(this._timer);
-		this.memory = new Memory(this.level.vars);
+		this.memory = this.newMemory();
 		this.interp = null;
 		this.verdict = null;
 		this.activeIndex = -1;
@@ -185,7 +194,7 @@ export class Game {
 	}
 
 	freshInterp() {
-		this.memory = new Memory(this.level.vars);
+		this.memory = this.newMemory();
 		this.interp = new Interpreter(this.memory, this.program);
 		this.verdict = null;
 		this.activeIndex = -1;

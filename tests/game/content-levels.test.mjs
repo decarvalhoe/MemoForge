@@ -3,6 +3,18 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { byId, runProgram, goalMet, solved } from '../helpers.mjs';
+import { Memory } from '../../src/engine/memory.js';
+import { Interpreter } from '../../src/engine/interpreter.js';
+
+// Runner local qui installe les fichiers du niveau (helpers.runProgram ne le fait pas).
+function runWithFiles(level, ids) {
+	const mem = new Memory(level.vars);
+	if (level.files) for (const [n, c] of Object.entries(level.files)) mem.setFile(n, c);
+	const program = ids.map((id) => level.bank.find((b) => b.id === id));
+	const interp = new Interpreter(mem, program);
+	interp.run();
+	return { mem, error: interp.error };
+}
 
 describe('s-1 — Sortie & ASCII (write / ft_putstr)', () => {
 	const L = byId['s-1'];
@@ -74,5 +86,25 @@ describe('l-1 — Listes (nœuds ->next, piège de libération)', () => {
 		const { mem } = runProgram(L, ['mk-n1', 'mk-n2', 'link', 'free-n1']);
 		assert.ok(mem.leaks().length > 0);
 		assert.equal(goalMet(L, mem), false);
+	});
+});
+
+describe('f-1 — Fichiers (open/read/write/close, B12)', () => {
+	const L = byId['f-1'];
+	test('open → read → write → close : affiche "Hi", 0 descripteur ouvert', () => {
+		const { mem, error } = runWithFiles(L, ['open', 'read', 'write', 'close']);
+		assert.equal(error, null);
+		assert.equal(mem.output, 'Hi');
+		assert.ok(L.goalCheck(mem));
+	});
+	test('oublier close → descripteur fuité, cible non atteinte', () => {
+		const { mem } = runWithFiles(L, ['open', 'read', 'write']);
+		assert.equal(mem.output, 'Hi');
+		assert.ok(mem.openDescriptors().length > 0);
+		assert.equal(L.goalCheck(mem), false);
+	});
+	test('lire après close → crash "lecture après close"', () => {
+		const { error } = runWithFiles(L, ['open', 'close', 'read']);
+		assert.match(error, /après close/);
 	});
 });
