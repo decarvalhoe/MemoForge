@@ -125,3 +125,15 @@ describe('dup-1 — Tas (ft_strdup, dimensionner malloc)', () => {
 		assert.equal(goalMet(L, mem), false);
 	});
 });
+
+describe('conv-3 — Conversion (extraction de chiffres, B4)', () => {
+	const L = byId['conv-3'];
+	test('u = n%10 (2), t = n/10 (4) → cible atteinte', () => {
+		assert.ok(solved(L, ['u-mod', 't-div']));
+	});
+	test('u = n/10 (4) au lieu de %10 → échoue', () => {
+		const { mem } = runProgram(L, ['u-div-bad', 't-div']);
+		assert.equal(mem.getVar('u'), 4);
+		assert.equal(goalMet(L, mem), false);
+	});
+});
