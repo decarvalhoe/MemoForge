@@ -238,5 +238,26 @@ export const LEVELS = [
 			{ id: 'free-n1', label: 'free(n1)', ast: freeNode(variable('n1')) },
 			{ id: 'free-n2', label: 'free(n2)', ast: freeNode(variable('n2')) }
 		]
+	},
+	{
+		id: 'str-2',
+		world: 'Chaînes & bornes',
+		title: 'Termine, puis mesure',
+		goalText: 'Mesure la longueur de « Hi » dans n (doit valoir 2). Mais d\'abord, borne la chaîne.',
+		hint: 'strlen s\'arrête sur \'\\0\'. Sans borne, elle part dans le vide (crash). Pose la borne AVANT de mesurer.',
+		vars: [
+			{ name: 'n', value: 0, kind: 'int' },
+			{ name: 'c0', value: 'H', kind: 'char' },
+			{ name: 'c1', value: 'i', kind: 'char' },
+			{ name: 'c2', value: 7, kind: 'char' }
+		],
+		slots: 2,
+		par: 2,
+		goal: { n: 2 },
+		bank: [
+			{ id: 'set-term', label: "c2 = '\\0'", ast: assign(variable('c2'), lit(0)) },
+			{ id: 'measure', label: 'n = strlen(&c0)', ast: assign(variable('n'), strlen(addr('c0'))) },
+			{ id: 'atoi-bad', label: 'n = atoi(&c0)', ast: assign(variable('n'), atoi(addr('c0'))) }
+		]
 	}
 ];

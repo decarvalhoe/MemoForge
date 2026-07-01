@@ -24,6 +24,19 @@ describe('str-1 — Chaînes (strcpy / sentinelle)', () => {
 	});
 });
 
+describe('str-2 — Chaînes (sentinelle : borner avant de mesurer)', () => {
+	const L = byId['str-2'];
+	test('borner puis strlen → n = 2', () => assert.ok(solved(L, ['set-term', 'measure'])));
+	test('mesurer AVANT de borner → crash "sans borne"', () => {
+		const { error } = runProgram(L, ['measure', 'set-term']);
+		assert.match(error, /sans borne/);
+	});
+	test('atoi sur "Hi" ne donne pas la longueur → échoue', () => {
+		const { mem } = runProgram(L, ['set-term', 'atoi-bad']);
+		assert.equal(goalMet(L, mem), false);
+	});
+});
+
 describe('conv-1 — Conversion (atoi)', () => {
 	const L = byId['conv-1'];
 	test('n = atoi("42") = 42', () => assert.ok(solved(L, ['atoi'])));
