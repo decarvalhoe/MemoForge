@@ -1,27 +1,35 @@
 import { el, clear } from './dom.js';
+import { button, medal, feedbackBanner } from './components/index.js';
 
+// Rend les contrôles + le verdict via les composants Button, FeedbackBanner et Medal.
+// Signature inchangée : game.js passe toujours { verdict } dans state.
 export function renderControls(container, handlers, state) {
 	clear(container);
+
+	const runBtn = button({ label: 'Exécuter', variant: 'primary', glyph: '>', onClick: handlers.onRun });
+	runBtn.style.flex = '1';
 	const bar = el('div', { class: 'controls-bar' }, [
-		el('button', { class: 'btn-primary', onclick: handlers.onRun }, ['Exécuter']),
-		el('button', { onclick: handlers.onStep }, ['Pas-à-pas']),
-		el('button', { onclick: handlers.onReset }, ['Réinitialiser'])
+		runBtn,
+		button({ label: 'Pas-à-pas', variant: 'ghost', onClick: handlers.onStep }),
+		button({ label: 'Réinitialiser', variant: 'ghost', onClick: handlers.onReset })
 	]);
 	container.appendChild(bar);
 
 	if (state.verdict) {
 		const v = state.verdict;
-		const banner = el('div', { class: 'verdict ' + (v.passed ? 'verdict-ok' : 'verdict-ko') }, [
-			el('div', { class: 'verdict-msg', text: v.message })
-		]);
-		const stars = el('div', { class: 'stars' });
-		for (const s of v.stars)
-			stars.appendChild(el('span', { class: 'star ' + (s.got ? 'star-on' : 'star-off') }, [
-				(s.got ? '★ ' : '☆ ') + s.label
-			]));
-		banner.appendChild(stars);
-		if (v.passed && handlers.onNext)
-			banner.appendChild(el('button', { class: 'btn-primary', onclick: handlers.onNext }, ['Niveau suivant →']));
-		container.appendChild(banner);
+		const tone = v.passed ? 'success' : (/crash/i.test(v.message) ? 'crash' : 'leak');
+		const banner = feedbackBanner({ tone, title: v.message });
+		const medals = el(
+			'div',
+			{ class: 'stars', style: 'display:flex;flex-direction:column;gap:6px;margin:10px 0' },
+			v.stars.map((s) => medal({ label: s.label, earned: s.got }))
+		);
+		const area = el('div', { style: 'margin-top:16px' }, [banner, medals]);
+		if (v.passed && handlers.onNext) {
+			const next = button({ label: 'Niveau suivant →', variant: 'primary', onClick: handlers.onNext });
+			next.style.marginTop = '4px';
+			area.appendChild(next);
+		}
+		container.appendChild(area);
 	}
 }
