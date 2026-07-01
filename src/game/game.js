@@ -8,7 +8,8 @@ import { renderPalette } from '../ui/paletteView.js';
 import { renderControls } from '../ui/controls.js';
 import { renderRegionMap } from '../ui/regionMapView.js';
 import { button } from '../ui/components/index.js';
-import { explainRun } from './pitfalls.js';
+import { explainRun, explainError, explainLeak } from './pitfalls.js';
+import { SANDBOX } from './sandbox.js';
 
 export class Game {
 	constructor(root) {
@@ -23,10 +24,11 @@ export class Game {
 		this.mood = 'think';             // humeur de la mascotte GLIF
 		this.fails = 0;                  // échecs consécutifs sur le niveau courant
 		this._timer = null;              // timer de l'exécution animée
+		this.sandboxMode = false;        // bac à sable (niveau sans cible)
 	}
 
 	get level() {
-		return LEVELS[this.levelIndex];
+		return this.sandboxMode ? SANDBOX : LEVELS[this.levelIndex];
 	}
 
 	start() {
@@ -58,6 +60,7 @@ export class Game {
 	// ---- navigation carte <-> salle ----
 	showMap() {
 		clearTimeout(this._timer);
+		this.sandboxMode = false;
 		this.view = 'map';
 		this.elMap.style.display = '';
 		this.elRoom.style.display = 'none';
@@ -73,11 +76,25 @@ export class Game {
 		this.loadLevel(i);
 	}
 
+	enterSandbox() {
+		clearTimeout(this._timer);
+		this.sandboxMode = true;
+		this.view = 'room';
+		this.elMap.style.display = 'none';
+		this.elRoom.style.display = '';
+		this.program = [];
+		this.mood = 'think';
+		this.fails = 0;
+		this.resetExecState();
+		this.render();
+	}
+
 	renderMap() {
-		renderRegionMap(this.elMap, this.solved, (id) => this.enterRoom(id));
+		renderRegionMap(this.elMap, this.solved, (id) => this.enterRoom(id), () => this.enterSandbox());
 	}
 
 	loadLevel(i) {
+		this.sandboxMode = false;
 		this.levelIndex = i;
 		this.program = [];
 		this.mood = 'think';
@@ -166,6 +183,16 @@ export class Game {
 	}
 
 	evaluate() {
+		if (this.level.sandbox) {
+			const err = this.interp ? this.interp.error : null;
+			const leaks = this.memory.leaks().length;
+			this.mood = err ? 'err' : 'think';
+			this.fails = 0;
+			const feedback = explainError(err) || explainLeak(leaks)
+				|| { tone: 'success', title: 'EXÉCUTÉ', hint: 'Aucune cible : observe la mémoire. Provoque une fuite, un double free, un déréf. de NULL…' };
+			this.verdict = { passed: false, sandbox: true, message: feedback.title, feedback, stars: [] };
+			return;
+		}
 		const goalMet = this.level.goalCheck
 			? this.level.goalCheck(this.memory)
 			: Object.entries(this.level.goal)
@@ -205,9 +232,10 @@ export class Game {
 		clear(this.elMission);
 		const back = button({ label: '← carte', variant: 'ghost', size: 'sm', onClick: () => this.showMap() });
 		back.style.marginBottom = '10px';
+		const tag = lv.sandbox ? 'bac à sable' : ('niveau ' + (this.levelIndex + 1) + ' / ' + LEVELS.length + ' · ' + lv.world);
 		this.elMission.append(
 			back,
-			el('div', { class: 'mission-tag', text: 'niveau ' + (this.levelIndex + 1) + ' / ' + LEVELS.length + ' · ' + lv.world }),
+			el('div', { class: 'mission-tag', text: tag }),
 			el('div', { class: 'mission-title', text: lv.title }),
 			el('p', { class: 'mission-goal', text: lv.goalText }),
 			el('p', { class: 'mission-hint', text: 'Indice : ' + lv.hint })
@@ -220,7 +248,7 @@ export class Game {
 			onRun: () => this.run(),
 			onStep: () => this.step(),
 			onReset: () => this.reset(),
-			onNext: this.levelIndex < LEVELS.length - 1 ? () => this.loadLevel(this.levelIndex + 1) : null
+			onNext: (!lv.sandbox && this.levelIndex < LEVELS.length - 1) ? () => this.loadLevel(this.levelIndex + 1) : null
 		}, { verdict: this.verdict, mood: this.mood, hint: showHint ? lv.hint : null });
 	}
 }
