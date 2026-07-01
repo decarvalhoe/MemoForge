@@ -108,3 +108,20 @@ describe('f-1 — Fichiers (open/read/write/close, B12)', () => {
 		assert.match(error, /après close/);
 	});
 });
+
+describe('dup-1 — Tas (ft_strdup, dimensionner malloc)', () => {
+	const L = byId['dup-1'];
+	test('malloc(3) → strcpy → write → free : "Hi", zéro fuite', () => {
+		assert.ok(solved(L, ['malloc-3', 'copy', 'show', 'free-p']));
+	});
+	test('malloc(1) trop petit → strcpy déborde → crash "adresse invalide"', () => {
+		const { error } = runProgram(L, ['malloc-1', 'copy']);
+		assert.match(error, /adresse invalide/);
+	});
+	test('oublier free → fuite, cible non atteinte', () => {
+		const { mem } = runProgram(L, ['malloc-3', 'copy', 'show']);
+		assert.equal(mem.output, 'Hi');
+		assert.ok(mem.leaks().length > 0);
+		assert.equal(goalMet(L, mem), false);
+	});
+});

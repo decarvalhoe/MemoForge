@@ -86,7 +86,7 @@ describe('progression — déverrouillage', () => {
 	test('une région sans niveau est résolue par vacuité et ne bloque pas la suite', () => {
 		// r7 (Récursivité) n'a pas encore de niveaux : une fois r1..r6 résolues, r7 est "coming"
 		// et r8 devient jouable malgré r7 vide.
-		const solved = idsOf(['1-1', '1-2', '1-3', '2-1', 's-1', '4-1', 'str-1', 'str-2', 'conv-1', 'conv-2', '3-1', '3-2']);
+		const solved = idsOf(['1-1', '1-2', '1-3', '2-1', 's-1', '4-1', 'str-1', 'str-2', 'conv-1', 'conv-2', '3-1', '3-2', 'dup-1']);
 		assert.ok(isRegionSolved('r7', solved), 'r7 vide doit être résolue par vacuité');
 		assert.equal(regionStatus('r7', solved), 'coming');
 		assert.ok(isRegionUnlocked('r8', solved), 'r8 doit être jouable malgré r7 vide');
