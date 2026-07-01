@@ -22,6 +22,7 @@ export class Game {
 		this.solved = new Set();         // ids de niveaux résolus (débloque les régions)
 		this.mood = 'think';             // humeur de la mascotte GLIF
 		this.fails = 0;                  // échecs consécutifs sur le niveau courant
+		this._timer = null;              // timer de l'exécution animée
 	}
 
 	get level() {
@@ -56,6 +57,7 @@ export class Game {
 
 	// ---- navigation carte <-> salle ----
 	showMap() {
+		clearTimeout(this._timer);
 		this.view = 'map';
 		this.elMap.style.display = '';
 		this.elRoom.style.display = 'none';
@@ -85,6 +87,7 @@ export class Game {
 	}
 
 	resetExecState() {
+		clearTimeout(this._timer);
 		this.memory = new Memory(this.level.vars);
 		this.interp = null;
 		this.verdict = null;
@@ -112,14 +115,36 @@ export class Game {
 	}
 
 	run() {
+		clearTimeout(this._timer);
 		this.freshInterp();
-		this.interp.run();
-		this.activeIndex = -1;
-		this.evaluate();
+		const reduce = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (reduce) {
+			this.interp.run();
+			this.activeIndex = -1;
+			this.evaluate();
+			this.render();
+			return;
+		}
+		this._animate();
+	}
+
+	// Exécution pas-à-pas animée : chaque instruction s'exécute avec un délai, le slot actif
+	// se met en surbrillance, puis le verdict tombe. Repli instantané si prefers-reduced-motion.
+	_animate() {
+		if (this.interp.done) {
+			this.activeIndex = -1;
+			this.evaluate();
+			this.render();
+			return;
+		}
+		const r = this.interp.step();
+		this.activeIndex = r.index;
 		this.render();
+		this._timer = setTimeout(() => this._animate(), 480);
 	}
 
 	step() {
+		clearTimeout(this._timer);
 		if (!this.interp || this.interp.done) this.freshInterp();
 		const r = this.interp.step();
 		this.activeIndex = r.index;
