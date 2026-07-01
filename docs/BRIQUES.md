@@ -15,22 +15,24 @@ devient une région-charnière franchissable pas à pas.
 
 ## Table de correspondance brique → mécanique → niveau
 
-Légende état moteur : ✅ modélisé · 🟡 partiel · ❌ à construire (cf. EPIC 2 de la roadmap).
+Légende état : ✅ livré (moteur + niveau jouable) · 🔨 en cours côté moteur.
+**État 2026-07-01** : B1–B8, B10, B12 livrées (18 niveaux) ; **B9** (récursion) et **B11**
+(pointeurs de fonction) arrivent avec les Phases 3 et 2 du refactor #20.
 
-| # | Brique (pattern) | Concept / module | Moteur | Capacité moteur à ajouter | Mécanique en jeu | Niveau ancré sur un vrai `ft_*` |
-|---|---|---|:--:|---|---|---|
-| **B1** | `write(1,&c,1)` | I/O ASCII · C00/C04 | ❌ | flux de sortie (« ruban console ») + op `write` | pousser un caractère sur le ruban, le voir s'afficher | `ft_putchar` → `ft_putstr` |
-| **B2** | `while (str[i])` + `'\0'` | parcours chaînes · C02/C03 | ❌ | chaîne = rangée de casiers + sentinelle `'\0'` + boucle | avancer un curseur jusqu'à la borne | `ft_strlen`, `ft_strcpy` |
-| **B3** | `c-'0'` / `c+'0'` | char↔chiffre · C04 | 🟡 | valeurs `char` typées + conversion | transmuter un casier char↔int | `ft_atoi`, `ft_putnbr` |
-| **B4** | `n % base` / `n / base` | extraction chiffres · C04 | ❌ | opérateurs `%` `/` + boucle d'émission | égrener les chiffres d'un nombre | `ft_putnbr_base` |
-| **B5** | `res = res*base + (c-'0')` | reconstruction nombre · C04 | ❌ | accumulateur + boucle bornée | empiler chiffre par chiffre | `ft_atoi_base` |
-| **B6** | `tmp=*a; *a=*b; *b=tmp` | swap · C01 | ✅ | — (présent) | échanger deux casiers via `tmp` | `ft_swap`, `ft_sort_int_tab` |
-| **B7** | `i < n && str[i]` | boucle bornée · C02/C03 | ❌ | construct `while`/`for` borné + garde | répéter une action sous condition | `ft_strncpy`, `ft_strlcat` |
-| **B8** | `malloc(len+1)` + test NULL + `'\0'` | alloc dynamique · C07 | 🟡 | `malloc` dimensionné + `NULL` explicite + copie | réserver une zone, la remplir, la borner | `ft_strdup`, `ft_split` |
-| **B9** | cas de base + appel récursif | récursivité · C05/C13 | ❌ | pile d'appels visualisée (frames) | empiler/dépiler des appels | `ft_recursive_factorial`, `ten_queens` |
-| **B10** | `->next` / `->left/right` | structures chaînées · C12/C13 | ❌ | nœuds `{data, next}` + suivi de pointeurs | se déplacer de nœud en nœud | `ft_list_push_back`, `btree_insert` |
-| **B11** | `int (*f)(int)` puis `f(x)` | pointeur de fonction · C11 | ❌ | valeurs-fonction passables + application | brancher une fonction dans une machine | `ft_foreach`, `ft_map`, `do-op` |
-| **B12** | `open`→`read`→`close` | syscalls fichiers · C10 | ❌ | modèle fichier (descripteur + buffer) | ouvrir, lire en boucle, fermer | `display_file`, `cat`, `hexdump` |
+| # | Brique (pattern) | Concept / module | État | Mécanique en jeu | Niveau(x) livré(s) |
+|---|---|---|:--:|---|---|
+| **B1** | `write(1,&c,1)` | I/O ASCII · C00/C04 | ✅ | pousser un octet sur le ruban console, le voir s'afficher | `s-1` (`ft_putstr`) |
+| **B2** | `while (str[i])` + `'\0'` | parcours chaînes · C02/C03 | ✅ | avancer un curseur jusqu'à la borne `'\0'` | `str-1`, `str-2`, `while-1` (`ft_strlen`/`strcpy`) |
+| **B3** | `c-'0'` / `c+'0'` | char↔chiffre · C04 | ✅ | transmuter un casier char↔int | `conv-1` (`ft_atoi`) |
+| **B4** | `n % base` / `n / base` | extraction chiffres · C04 | ✅ | égrener les chiffres d'un nombre | `conv-3` (cœur de `ft_putnbr`) |
+| **B5** | `res = res*base + (c-'0')` | reconstruction nombre · C04 | ✅ | reconstruire un nombre chiffre par chiffre | `conv-1`, `conv-2` (`atoi`/`putnbr_base`) |
+| **B6** | `tmp=*a; *a=*b; *b=tmp` | swap · C01 | ✅ | échanger deux casiers via `tmp` | `1-3`, `2-1` (`ft_swap`) |
+| **B7** | `i < n && str[i]` | boucle bornée · C02/C03 | ✅ | boucle à compteur **et** à garde | `strn-1` (`ft_strncpy`), `while-1` (strlen à la main) |
+| **B8** | `malloc(len+1)` + test NULL + `'\0'` | alloc dynamique · C07 | ✅ | réserver la bonne taille, remplir, libérer | `3-1`, `3-2`, `dup-1` (`ft_strdup`) |
+| **B9** | cas de base + appel récursif | récursivité · C05/C13 | 🔨 | pile d'appels (frames) — vue déjà câblée | à venir : `ft_recursive_factorial` |
+| **B10** | `->next` / `->left/right` | structures chaînées · C12/C13 | ✅ | se déplacer de nœud en nœud | `l-1` (`ft_list_push_back`, piège du maillon) |
+| **B11** | `int (*f)(int)` puis `f(x)` | pointeur de fonction · C11 | 🔨 | brancher une fonction dans une machine | à venir : `ft_foreach` / `do-op` |
+| **B12** | `open`→`read`→`close` | syscalls fichiers · C10 | ✅ | ouvrir, lire dans un buffer, fermer | `f-1` (`display_file`, pièges close) |
 
 ## Mondes du jeu (regroupement par concept, ordre de maîtrise)
 
