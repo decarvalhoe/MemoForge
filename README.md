@@ -1,5 +1,7 @@
 # MemoForge
 
+[![CI](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml/badge.svg)](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml)
+
 Jeu de puzzle de programmation pour comprendre **les pointeurs, `malloc`/`free` et les
 grands principes de la mémoire en C** — en manipulant un mur de casiers.
 
