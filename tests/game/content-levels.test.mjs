@@ -149,3 +149,17 @@ describe('strn-1 — Boucle bornée (ft_strncpy, B7)', () => {
 		assert.equal(goalMet(L, mem), false);
 	});
 });
+
+describe('while-1 — Boucle à garde (strlen à la main, B7)', () => {
+	const L = byId['while-1'];
+	test('tant que s[i] != 0 → s\'arrête sur le sentinel, i = 2', () => {
+		const { mem } = runProgram(L, ['w-sentinel']);
+		assert.equal(mem.getVar('i'), 2);
+		assert.ok(solved(L, ['w-sentinel']));
+	});
+	test('tant que i < 3 (nombre magique) ignore le sentinel → i = 3, échoue', () => {
+		const { mem } = runProgram(L, ['w-count3']);
+		assert.equal(mem.getVar('i'), 3);
+		assert.equal(goalMet(L, mem), false);
+	});
+});
