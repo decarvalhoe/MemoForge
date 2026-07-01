@@ -6,13 +6,31 @@
 	<title>MemoForge</title>
 	<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='13' font-size='14' font-family='monospace' fill='%2346E08A'%3EM%3C/text%3E%3C/svg%3E" />
 	<link rel="stylesheet" href="styles/main.css" />
+	<script>
+		// Applique le thème sauvegardé avant le premier paint (évite le flash de couleur).
+		try { if (localStorage.getItem('memoforge.theme') === 'light') document.documentElement.classList.add('theme-light'); } catch (e) {}
+	</script>
+	<style>
+		.theme-toggle {
+			position: fixed; top: 12px; right: 12px; z-index: 50;
+			min-height: 36px; padding: 6px 12px; cursor: pointer;
+			font-family: var(--font-mono); font-size: var(--fs-sm); font-weight: 600;
+			color: var(--text-muted); background: var(--surface-well);
+			border: 1px solid var(--border); border-radius: var(--radius-sm);
+			transition: border-color var(--dur), color var(--dur);
+		}
+		.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+		.theme-toggle:focus-visible { outline: none; box-shadow: var(--ring); }
+	</style>
 </head>
 <body>
+	<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Basculer entre thème clair et sombre" aria-pressed="false">☀ clair</button>
 	<main class="wrap">
 		<h1 class="brand">MemoForge</h1>
 		<p class="tagline">Comprends les pointeurs et la mémoire C en assemblant des programmes.</p>
 		<div id="app"></div>
 	</main>
 	<script type="module" src="src/main.js"></script>
+	<script type="module" src="src/ui/theme.js"></script>
 </body>
 </html>
