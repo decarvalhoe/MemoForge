@@ -1,17 +1,39 @@
 import { RuntimeError, WORD } from './memory.js';
 
 const MAX_STEPS = 100000;
+const MAX_DEPTH = 64;
 
 export class Interpreter {
-	constructor(memory, program) {
+	constructor(memory, program, functions = {}) {
 		this.mem = memory;
+		this.functions = functions;
 		this.error = null;
 		this.steps = 0;
 		this.iterStack = [];
 		this.frameIndex = 0;
 		this.instrIndex = 0;
-		this.stack = [{ label: 'main', blocks: [{ instrs: program, index: 0, loop: null }] }];
+		this.stack = [{ label: 'main', locals: null, blocks: [{ instrs: program, index: 0, loop: null }] }];
 		this.done = program.length === 0;
+	}
+
+	// Portée : dans une frame d'appel (locals != null), les variables résolvent d'abord
+	// les locales (params + slots déclarés à l'écriture), avec repli sur la mémoire globale
+	// en lecture. Les écritures restent locales (une fonction ne mute pas les globales
+	// directement — seulement via des adresses/pointeurs, qui passent par la mémoire).
+	readVar(name) {
+		const top = this.stack[this.stack.length - 1];
+		if (top.locals && top.locals.has(name))
+			return top.locals.get(name);
+		return this.mem.getVar(name);
+	}
+
+	writeVar(name, value) {
+		const top = this.stack[this.stack.length - 1];
+		if (top.locals) {
+			top.locals.set(name, value);
+			return;
+		}
+		this.mem.setVar(name, value);
 	}
 
 	evalExpr(e) {
@@ -19,7 +41,7 @@ export class Interpreter {
 		if (e.t === 'lit')
 			return e.v;
 		if (e.t === 'var')
-			return m.getVar(e.name);
+			return this.readVar(e.name);
 		if (e.t === 'addr')
 			return m.addrOf(e.name);
 		if (e.t === 'deref')
@@ -86,7 +108,7 @@ export class Interpreter {
 	writePlace(p, value) {
 		const m = this.mem;
 		if (p.t === 'var') {
-			m.setVar(p.name, value);
+			this.writeVar(p.name, value);
 			return;
 		}
 		if (p.t === 'deref') {
@@ -144,11 +166,22 @@ export class Interpreter {
 		frame.blocks.push({ instrs: body, index: 0, loop });
 	}
 
+	// Livre la valeur de retour d'une frame terminée dans la variable `place` de
+	// l'appelant, puis fait avancer l'appelant au-delà de son instruction d'appel.
+	deliverReturn(finished) {
+		this.writePlace(finished.resume.place, finished.ret);
+		const caller = this.stack[this.stack.length - 1];
+		const block = caller.blocks[caller.blocks.length - 1];
+		block.index += 1;
+	}
+
 	settle() {
 		while (this.stack.length > 0) {
 			const frame = this.stack[this.stack.length - 1];
 			if (frame.blocks.length === 0) {
 				this.stack.pop();
+				if (frame.resume)
+					this.deliverReturn(frame);
 				continue;
 			}
 			const block = frame.blocks[frame.blocks.length - 1];
@@ -174,7 +207,7 @@ export class Interpreter {
 
 	subtreeSize(instr) {
 		const ast = instr.ast;
-		if (ast.op === 'loop' || ast.op === 'while') {
+		if (ast.op === 'loop' || ast.op === 'while' || ast.op === 'if') {
 			let s = 1;
 			for (const b of ast.body)
 				s += this.subtreeSize(b);
@@ -205,6 +238,33 @@ export class Interpreter {
 		};
 	}
 
+	// Appel : évalue les arguments dans la portée courante (l'appelant), puis empile une
+	// frame liant les paramètres. On n'avance PAS l'instruction d'appel : elle sera
+	// franchie à la livraison du retour (deliverReturn), une fois la callee dépilée.
+	doCall(ast) {
+		const def = this.functions[ast.name];
+		if (!def)
+			throw new RuntimeError(`fonction inconnue : ${ast.name}`);
+		if (this.stack.length > MAX_DEPTH)
+			throw new RuntimeError('débordement de pile : récursion sans cas de base');
+		const vals = ast.args.map((a) => this.evalExpr(a));
+		const locals = new Map();
+		def.params.forEach((p, i) => locals.set(p, vals[i]));
+		this.stack.push({
+			label: `${ast.name}(${vals.join(', ')})`,
+			locals,
+			ret: 0,
+			resume: { place: ast.place },
+			blocks: [{ instrs: def.body, index: 0, loop: null }]
+		});
+	}
+
+	// Retour : fixe la valeur puis vide la frame → settle() la dépile et livre le retour.
+	doReturn(frame, ast) {
+		frame.ret = this.evalExpr(ast.value);
+		frame.blocks = [];
+	}
+
 	execInstr(frame, block, ast) {
 		if (ast.op === 'loop') {
 			const n = this.evalExpr(ast.count);
@@ -217,6 +277,14 @@ export class Interpreter {
 				this.enterLoop(frame, { kind: 'while', i: 0, n: null, guard: ast.guard }, ast.body);
 			else
 				block.index += 1;
+		} else if (ast.op === 'if') {
+			block.index += 1;
+			if (this.truthy(this.evalExpr(ast.guard)))
+				frame.blocks.push({ instrs: ast.body, index: 0, loop: null });
+		} else if (ast.op === 'call') {
+			this.doCall(ast);
+		} else if (ast.op === 'return') {
+			this.doReturn(frame, ast);
 		} else {
 			this.runOp(ast);
 			block.index += 1;
@@ -250,9 +318,14 @@ export class Interpreter {
 		return this.status();
 	}
 
+	localsVars(frame) {
+		return [...frame.locals].map(([name, value]) => ({ name, value, kind: 'int' }));
+	}
+
 	frames() {
 		return this.stack.map((frame) => {
-			const out = { label: frame.label, vars: this.mem.snapshot() };
+			const vars = frame.locals ? this.localsVars(frame) : this.mem.snapshot();
+			const out = { label: frame.label, vars };
 			for (let d = frame.blocks.length - 1; d >= 0; d--) {
 				if (frame.blocks[d].loop) {
 					out.loop = { i: frame.blocks[d].loop.i, n: frame.blocks[d].loop.n };
