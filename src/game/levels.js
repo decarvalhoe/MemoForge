@@ -1,5 +1,5 @@
 // Constructeurs d'AST fournis par la lane moteur (src/engine/ast.js) — cf. docs/COORDINATION.md.
-import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode, open, read, close, bin } from '../engine/ast.js';
+import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode, open, read, close, bin, loop, iter, load, store } from '../engine/ast.js';
 
 export const LEVELS = [
 	{
@@ -324,6 +324,28 @@ export const LEVELS = [
 			{ id: 'u-mod', label: 'u = n % 10', ast: assign(variable('u'), bin('%', variable('n'), lit(10))) },
 			{ id: 't-div', label: 't = n / 10', ast: assign(variable('t'), bin('/', variable('n'), lit(10))) },
 			{ id: 'u-div-bad', label: 'u = n / 10', ast: assign(variable('u'), bin('/', variable('n'), lit(10))) }
+		]
+	},
+	{
+		id: 'strn-1',
+		world: 'Chaînes & bornes',
+		title: 'Copie bornée (ft_strncpy)',
+		goalText: 'Copie EXACTEMENT les 2 premiers caractères de src (« Hi! ») dans dst, avec une boucle.',
+		hint: 'Boucle bornée : d[i] = s[i], répété n fois. Ici n = 2 — pas 3, sinon tu débordes sur le 3e caractère.',
+		vars: [
+			{ name: 's0', value: 'H', kind: 'char' },
+			{ name: 's1', value: 'i', kind: 'char' },
+			{ name: 's2', value: '!', kind: 'char' },
+			{ name: 'd0', value: 0, kind: 'char' },
+			{ name: 'd1', value: 0, kind: 'char' },
+			{ name: 'd2', value: 0, kind: 'char' }
+		],
+		slots: 1,
+		par: 1,
+		goalCheck: (mem) => mem.getVar('d0') === 'H' && mem.getVar('d1') === 'i' && mem.getVar('d2') === 0,
+		bank: [
+			{ id: 'loop-2', label: 'boucle 2× : d[i] = s[i]', ast: loop(lit(2), [assign(store(addr('d0'), iter()), load(addr('s0'), iter()))]) },
+			{ id: 'loop-3', label: 'boucle 3× : d[i] = s[i]', ast: loop(lit(3), [assign(store(addr('d0'), iter()), load(addr('s0'), iter()))]) }
 		]
 	}
 ];

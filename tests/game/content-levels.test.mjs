@@ -137,3 +137,15 @@ describe('conv-3 — Conversion (extraction de chiffres, B4)', () => {
 		assert.equal(goalMet(L, mem), false);
 	});
 });
+
+describe('strn-1 — Boucle bornée (ft_strncpy, B7)', () => {
+	const L = byId['strn-1'];
+	test('boucle 2× copie exactement 2 caractères → cible atteinte', () => {
+		assert.ok(solved(L, ['loop-2']));
+	});
+	test('boucle 3× déborde sur le 3e (d2 = "!") → échoue', () => {
+		const { mem } = runProgram(L, ['loop-3']);
+		assert.equal(mem.getVar('d2'), '!');
+		assert.equal(goalMet(L, mem), false);
+	});
+});
