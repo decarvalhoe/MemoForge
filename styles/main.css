@@ -153,6 +153,16 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 .verdict .btn-primary { margin-top: var(--sp-3); }
 
 @media (max-width: 680px) {
+	.wrap { padding: var(--sp-9) var(--sp-6) 4rem; }
 	.main { flex-direction: column; }
 	.side { flex: 1; }
+	.controls-bar { flex-wrap: wrap; }
+	.cells .mf-locker { min-width: 0; }
+}
+
+@media (max-width: 460px) {
+	.wrap { padding: var(--sp-8) var(--sp-5) 3rem; }
+	.brand { font-size: var(--fs-display-2); }
+	.controls-bar { flex-direction: column; }
+	.controls-bar .mf-btn { width: 100%; }
 }
