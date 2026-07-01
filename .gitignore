@@ -1,0 +1,14 @@
+# Dépendances (aucune pour l'instant — vanilla JS)
+node_modules/
+
+# Artefacts OS / éditeur
+.DS_Store
+Thumbs.db
+*.log
+
+# Python (serveur de dev local)
+__pycache__/
+*.pyc
+
+# Divers
+*.zip

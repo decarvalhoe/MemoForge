@@ -1,0 +1,11 @@
+{
+	"name": "memoforge",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"description": "Jeu de puzzle pour comprendre les pointeurs et la mémoire C",
+	"scripts": {
+		"serve": "python -m http.server 8000",
+		"test": "node tests/smoke.mjs"
+	}
+}
