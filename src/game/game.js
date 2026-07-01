@@ -8,6 +8,7 @@ import { renderPalette } from '../ui/paletteView.js';
 import { renderControls } from '../ui/controls.js';
 import { renderRegionMap } from '../ui/regionMapView.js';
 import { button } from '../ui/components/index.js';
+import { explainRun } from './pitfalls.js';
 
 export class Game {
 	constructor(root) {
@@ -19,6 +20,8 @@ export class Game {
 		this.activeIndex = -1;
 		this.view = 'map';               // 'map' | 'room'
 		this.solved = new Set();         // ids de niveaux résolus (débloque les régions)
+		this.mood = 'think';             // humeur de la mascotte GLIF
+		this.fails = 0;                  // échecs consécutifs sur le niveau courant
 	}
 
 	get level() {
@@ -75,6 +78,8 @@ export class Game {
 	loadLevel(i) {
 		this.levelIndex = i;
 		this.program = [];
+		this.mood = 'think';
+		this.fails = 0;
 		this.resetExecState();
 		this.render();
 	}
@@ -136,7 +141,16 @@ export class Game {
 		const clean = !error && this.memory.leaks().length === 0;
 		const minimal = goalMet && this.program.length <= this.level.par;
 		const passed = goalMet && !error;
-		if (passed) this.solved.add(this.level.id);   // débloque la progression sur la carte
+		const leaks = this.memory.leaks().length;
+		const feedback = explainRun({ error, leaks, goalMet });   // message pédagogique (pièges)
+		if (passed) {
+			this.solved.add(this.level.id);   // débloque la progression sur la carte
+			this.mood = 'win';
+			this.fails = 0;
+		} else {
+			this.mood = error ? 'err' : 'think';
+			this.fails += 1;
+		}
 		let message;
 		if (error) message = 'Crash : ' + error;
 		else if (goalMet) message = 'Réussi !';
@@ -144,6 +158,7 @@ export class Game {
 		this.verdict = {
 			passed,
 			message,
+			feedback,
 			stars: [
 				{ label: 'cible atteinte', got: goalMet },
 				{ label: 'sans erreur ni fuite', got: clean },
@@ -167,11 +182,12 @@ export class Game {
 		renderMemory(this.elMemory, this.memory.snapshot(), this.memory.heap(), this.memory.changed);
 		renderProgram(this.elProgram, this.program, lv.slots, this.activeIndex, (i) => this.removeBlock(i));
 		renderPalette(this.elPalette, lv.bank, this.program.length >= lv.slots, (instr) => this.addBlock(instr));
+		const showHint = this.fails >= 2 && !(this.verdict && this.verdict.passed);
 		renderControls(this.elControls, {
 			onRun: () => this.run(),
 			onStep: () => this.step(),
 			onReset: () => this.reset(),
 			onNext: this.levelIndex < LEVELS.length - 1 ? () => this.loadLevel(this.levelIndex + 1) : null
-		}, { verdict: this.verdict });
+		}, { verdict: this.verdict, mood: this.mood, hint: showHint ? lv.hint : null });
 	}
 }
