@@ -18,6 +18,8 @@ export const atoi = (src) => ({ t: 'atoi', src });
 export const bin = (op, a, b) => ({ t: 'bin', op, a, b });
 export const node = (data) => ({ t: 'node', data });
 export const field = (nodeExpr, name) => ({ t: 'field', node: nodeExpr, field: name });
+export const open = (name) => ({ t: 'open', name });
+export const read = (fd, dst, count) => ({ t: 'read', fd, dst, count });
 
 // --- Cibles (lhs) ---
 // var(name) et deref(name) servent aussi de cibles d'affectation.
@@ -29,3 +31,4 @@ export const write = (fd, src, count) => ({ op: 'write', fd, src, count });
 export const putnbrBase = (n, base) => ({ op: 'putnbr_base', n, base });
 export const strcpy = (dst, src) => ({ op: 'strcpy', dst, src });
 export const freeNode = (nodeExpr) => ({ op: 'free_node', node: nodeExpr });
+export const close = (fd) => ({ op: 'close', fd });

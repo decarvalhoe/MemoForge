@@ -31,6 +31,10 @@ export class Interpreter {
 			return m.createNode(this.evalExpr(e.data));
 		if (e.t === 'field')
 			return m.nodeField(this.evalExpr(e.node), e.field);
+		if (e.t === 'open')
+			return m.open(e.name);
+		if (e.t === 'read')
+			return m.read(this.evalExpr(e.fd), this.evalExpr(e.dst), this.evalExpr(e.count));
 		throw new RuntimeError('expression inconnue');
 	}
 
@@ -90,6 +94,8 @@ export class Interpreter {
 				this.mem.strcpy(this.evalExpr(ast.dst), this.evalExpr(ast.src));
 			} else if (ast.op === 'free_node') {
 				this.mem.freeNode(this.evalExpr(ast.node));
+			} else if (ast.op === 'close') {
+				this.mem.close(this.evalExpr(ast.fd));
 			} else {
 				this.writePlace(ast.lhs, this.evalExpr(ast.rhs));
 			}

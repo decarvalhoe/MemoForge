@@ -19,6 +19,9 @@ export class Memory {
 		this.refs = new Map();
 		this.changed = new Set();
 		this.output = '';
+		this.files = new Map();
+		this.fileSystem = new Map();
+		this.nextFd = 3;
 		this.nextHeap = HEAP_BASE;
 		let addr = 1000;
 		for (const v of varDefs) {
@@ -231,6 +234,53 @@ export class Memory {
 		if (next !== 0)
 			this.refs.set(next, (this.refs.get(next) || 0) - 1);
 		this.free(addr);
+	}
+
+	setFile(name, content) {
+		this.fileSystem.set(name, content);
+	}
+
+	open(name) {
+		if (!this.fileSystem.has(name))
+			return -1;
+		const fd = this.nextFd;
+		this.nextFd += 1;
+		this.files.set(fd, { content: this.fileSystem.get(name), pos: 0, closed: false });
+		return fd;
+	}
+
+	read(fd, dst, count) {
+		const f = this.files.get(fd);
+		if (!f)
+			throw new RuntimeError('descripteur de fichier invalide');
+		if (f.closed)
+			throw new RuntimeError('lecture après close');
+		let n = 0;
+		let a = dst;
+		while (n < count && f.pos < f.content.length) {
+			this.writeAddr(a, f.content[f.pos]);
+			f.pos += 1;
+			a += WORD;
+			n += 1;
+		}
+		return n;
+	}
+
+	close(fd) {
+		const f = this.files.get(fd);
+		if (!f)
+			throw new RuntimeError('descripteur de fichier invalide');
+		if (f.closed)
+			throw new RuntimeError('double close');
+		f.closed = true;
+	}
+
+	openDescriptors() {
+		const open = [];
+		for (const [fd, f] of this.files)
+			if (!f.closed)
+				open.push(fd);
+		return open;
 	}
 
 	leaks() {
