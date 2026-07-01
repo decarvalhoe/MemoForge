@@ -66,6 +66,8 @@ export class Interpreter {
 			return m.readAddr(this.evalExpr(e.base) + this.evalExpr(e.index) * WORD);
 		if (e.t === 'iter')
 			return this.currentIter();
+		if (e.t === 'fnref')
+			return e.name;
 		throw new RuntimeError('expression inconnue');
 	}
 
@@ -238,25 +240,37 @@ export class Interpreter {
 		};
 	}
 
-	// Appel : évalue les arguments dans la portée courante (l'appelant), puis empile une
-	// frame liant les paramètres. On n'avance PAS l'instruction d'appel : elle sera
-	// franchie à la livraison du retour (deliverReturn), une fois la callee dépilée.
-	doCall(ast) {
-		const def = this.functions[ast.name];
+	// Empile une frame d'appel : lie les paramètres aux valeurs, mémorise la `place` où
+	// livrer le retour. On n'avance PAS l'instruction d'appel : elle sera franchie à la
+	// livraison du retour (deliverReturn), une fois la callee dépilée.
+	pushCall(name, vals, place) {
+		const def = this.functions[name];
 		if (!def)
-			throw new RuntimeError(`fonction inconnue : ${ast.name}`);
+			throw new RuntimeError(`fonction inconnue : ${name}`);
 		if (this.stack.length > MAX_DEPTH)
 			throw new RuntimeError('débordement de pile : récursion sans cas de base');
-		const vals = ast.args.map((a) => this.evalExpr(a));
 		const locals = new Map();
 		def.params.forEach((p, i) => locals.set(p, vals[i]));
 		this.stack.push({
-			label: `${ast.name}(${vals.join(', ')})`,
+			label: `${name}(${vals.join(', ')})`,
 			locals,
 			ret: 0,
-			resume: { place: ast.place },
+			resume: { place },
 			blocks: [{ instrs: def.body, index: 0, loop: null }]
 		});
+	}
+
+	// Appel direct (par nom) et appel indirect (via valeur-fonction, B11) : les arguments
+	// sont évalués dans la portée de l'appelant, puis une frame est empilée.
+	doCall(ast) {
+		const vals = ast.args.map((a) => this.evalExpr(a));
+		this.pushCall(ast.name, vals, ast.place);
+	}
+
+	doApply(ast) {
+		const name = this.evalExpr(ast.fn);
+		const vals = ast.args.map((a) => this.evalExpr(a));
+		this.pushCall(name, vals, ast.place);
 	}
 
 	// Retour : fixe la valeur puis vide la frame → settle() la dépile et livre le retour.
@@ -283,6 +297,8 @@ export class Interpreter {
 				frame.blocks.push({ instrs: ast.body, index: 0, loop: null });
 		} else if (ast.op === 'call') {
 			this.doCall(ast);
+		} else if (ast.op === 'apply') {
+			this.doApply(ast);
 		} else if (ast.op === 'return') {
 			this.doReturn(frame, ast);
 		} else {
