@@ -72,6 +72,17 @@ describe('progression — déverrouillage', () => {
 		assert.equal(regionStatus('r2', solved), 'current');
 	});
 
+	test('déblocage TRANSITIF : une région à contenu non résolue en amont bloque la suite (pas d\'îlots)', () => {
+		// r1 résolue mais r2 (Tableaux) non → r4 (Chaînes) et r6 (Tas) doivent rester VERROUILLÉS,
+		// même si r3/r5 sont vides (vacuité). Régression du bug révélé par la carte.
+		const solved = idsOf(['1-1', '1-2', '1-3']);
+		assert.equal(isRegionUnlocked('r2', solved), true, 'r2 jouable');
+		assert.equal(isRegionUnlocked('r4', solved), false, 'r4 ne doit PAS sauter r2');
+		assert.equal(isRegionUnlocked('r6', solved), false, 'r6 ne doit PAS sauter r2');
+		assert.equal(regionStatus('r4', solved), 'locked');
+		assert.equal(regionStatus('r6', solved), 'locked');
+	});
+
 	test('une région sans niveau est résolue par vacuité et ne bloque pas la suite', () => {
 		// r3 n'a pas encore de niveaux : dès que r2 est résolue, r3 est "coming" et r4 devient jouable.
 		const solved = idsOf(['1-1', '1-2', '1-3', '2-1']);
