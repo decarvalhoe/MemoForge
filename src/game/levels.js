@@ -1,10 +1,5 @@
-const lit = (v) => ({ t: 'lit', v });
-const variable = (name) => ({ t: 'var', name });
-const addr = (name) => ({ t: 'addr', name });
-const deref = (name) => ({ t: 'deref', name });
-const assign = (lhs, rhs) => ({ lhs, rhs });
-const malloc = () => ({ t: 'malloc' });
-const freeOp = (name) => ({ op: 'free', ptr: name });
+// Constructeurs d'AST fournis par la lane moteur (src/engine/ast.js) — cf. docs/COORDINATION.md.
+import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy } from '../engine/ast.js';
 
 export const LEVELS = [
 	{
@@ -143,6 +138,84 @@ export const LEVELS = [
 			{ id: 'c1-i', label: "c1 = 'i'", ast: assign(variable('c1'), lit('i')) },
 			{ id: 'c2-nul', label: "c2 = '\\0'", ast: assign(variable('c2'), lit(0)) },
 			{ id: 'c0-i', label: "c0 = 'i'", ast: assign(variable('c0'), lit('i')) }
+		]
+	},
+	{
+		id: 's-1',
+		world: 'Sortie & ASCII',
+		title: 'Affiche « Hi »',
+		goalText: 'Fais apparaître Hi sur la sortie. write(1, &c, 1) émet UN octet lu à une adresse.',
+		hint: 'Comme ft_putchar : write(1, &c0, 1) puis write(1, &c1, 1). L\'ordre compte (Hi ≠ iH).',
+		vars: [
+			{ name: 'c0', value: 'H', kind: 'char' },
+			{ name: 'c1', value: 'i', kind: 'char' }
+		],
+		slots: 2,
+		par: 2,
+		goalCheck: (mem) => mem.output === 'Hi',
+		bank: [
+			{ id: 'w-c0', label: 'write(1, &c0, 1)', ast: write(1, addr('c0'), lit(1)) },
+			{ id: 'w-c1', label: 'write(1, &c1, 1)', ast: write(1, addr('c1'), lit(1)) },
+			{ id: 'w-c0-2', label: 'write(1, &c0, 2)', ast: write(1, addr('c0'), lit(2)) }
+		]
+	},
+	{
+		id: 'str-1',
+		world: 'Chaînes & bornes',
+		title: 'Copie la chaîne',
+		goalText: 'Copie src (« Hi ») dans dst. strcpy recopie octet par octet jusqu\'à la borne \'\\0\'.',
+		hint: 'strcpy(&d0, &s0) : la destination reçoit \'H\', \'i\', \'\\0\'. La borne fait partie de la copie.',
+		vars: [
+			{ name: 's0', value: 'H', kind: 'char' },
+			{ name: 's1', value: 'i', kind: 'char' },
+			{ name: 's2', value: 0, kind: 'char' },
+			{ name: 'd0', value: 0, kind: 'char' },
+			{ name: 'd1', value: 0, kind: 'char' },
+			{ name: 'd2', value: 0, kind: 'char' }
+		],
+		slots: 1,
+		par: 1,
+		goalCheck: (mem) => mem.getVar('d0') === 'H' && mem.getVar('d1') === 'i' && mem.getVar('d2') === 0,
+		bank: [
+			{ id: 'cpy', label: 'strcpy(&d0, &s0)', ast: strcpy(addr('d0'), addr('s0')) },
+			{ id: 'cpy-bad', label: 'strcpy(&d0, &d0)', ast: strcpy(addr('d0'), addr('d0')) }
+		]
+	},
+	{
+		id: 'conv-1',
+		world: 'Conversion nombre↔texte',
+		title: 'atoi : texte → nombre',
+		goalText: 'Convertis la chaîne « 42 » en l\'entier 42 dans n.',
+		hint: 'atoi lit les chiffres : res = res*10 + (c - \'0\'). Fais n = atoi(&c0).',
+		vars: [
+			{ name: 'c0', value: '4', kind: 'char' },
+			{ name: 'c1', value: '2', kind: 'char' },
+			{ name: 'c2', value: 0, kind: 'char' },
+			{ name: 'n', value: 0, kind: 'int' }
+		],
+		slots: 1,
+		par: 1,
+		goal: { n: 42 },
+		bank: [
+			{ id: 'atoi', label: 'n = atoi(&c0)', ast: assign(variable('n'), atoi(addr('c0'))) },
+			{ id: 'len', label: 'n = strlen(&c0)', ast: assign(variable('n'), strlen(addr('c0'))) }
+		]
+	},
+	{
+		id: 'conv-2',
+		world: 'Conversion nombre↔texte',
+		title: 'putnbr_base : nombre → hexa',
+		goalText: 'Affiche 42 en base 16 (hexadécimal) : la sortie doit être « 2a ».',
+		hint: 'putnbr_base(n, base) émet n dans la base donnée. La base 16 = "0123456789abcdef".',
+		vars: [
+			{ name: 'n', value: 42, kind: 'int' }
+		],
+		slots: 1,
+		par: 1,
+		goalCheck: (mem) => mem.output === '2a',
+		bank: [
+			{ id: 'hex', label: 'putnbr_base(n, hex)', ast: putnbrBase(variable('n'), lit('0123456789abcdef')) },
+			{ id: 'bin', label: 'putnbr_base(n, bin)', ast: putnbrBase(variable('n'), lit('01')) }
 		]
 	}
 ];
