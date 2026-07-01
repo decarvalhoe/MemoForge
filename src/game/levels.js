@@ -282,5 +282,28 @@ export const LEVELS = [
 			{ id: 'write', label: 'write(1, &buf0, n)', ast: write(1, addr('buf0'), variable('n')) },
 			{ id: 'close', label: 'close(fd)', ast: close(variable('fd')) }
 		]
+	},
+	{
+		id: 'dup-1',
+		world: 'Mémoire dynamique — le Tas',
+		title: 'Duplique la chaîne (ft_strdup)',
+		goalText: 'Réserve la bonne taille, copie « Hi », affiche-la, puis libère. Zéro fuite.',
+		hint: 'malloc(len + 1) — n\'oublie pas la place du \'\\0\' ! Trop petit → strcpy déborde. Puis free.',
+		vars: [
+			{ name: 's0', value: 'H', kind: 'char' },
+			{ name: 's1', value: 'i', kind: 'char' },
+			{ name: 's2', value: 0, kind: 'char' },
+			{ name: 'p', value: 0, kind: 'ptr' }
+		],
+		slots: 4,
+		par: 4,
+		goalCheck: (mem) => mem.output === 'Hi' && mem.leaks().length === 0,
+		bank: [
+			{ id: 'malloc-3', label: 'p = malloc(3)', ast: assign(variable('p'), malloc(lit(3))) },
+			{ id: 'malloc-1', label: 'p = malloc(1)', ast: assign(variable('p'), malloc(lit(1))) },
+			{ id: 'copy', label: 'strcpy(p, &s0)', ast: strcpy(variable('p'), addr('s0')) },
+			{ id: 'show', label: 'write(1, p, 2)', ast: write(1, variable('p'), lit(2)) },
+			{ id: 'free-p', label: 'free(p)', ast: freeOp('p') }
+		]
 	}
 ];
