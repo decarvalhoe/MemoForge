@@ -1,0 +1,24 @@
+name: EPIC
+description: Un chantier majeur regroupant plusieurs tâches
+title: "EPIC N — "
+labels: ["epic"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Objectif
+      description: Ce que cet EPIC rend possible, et pourquoi maintenant.
+    validations:
+      required: true
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tâches
+      description: Les issues rattachées, une par ligne.
+      placeholder: |
+        - [ ] #NN
+  - type: input
+    id: refs
+    attributes:
+      label: Références
+      value: "docs/ROADMAP.md · ancrage pédagogique : docs/BRIQUES.md"

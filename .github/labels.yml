@@ -1,0 +1,59 @@
+# Jeu de labels du projet MemoForge.
+# Source de vérité déclarative ; appliquer avec un outil de sync de labels
+# (ex. github-label-sync) ou manuellement.
+
+# Type de chantier
+- name: epic
+  color: "5319e7"
+  description: Chantier majeur regroupant plusieurs tâches
+
+# Épics (0 → 5)
+- name: epic-0
+  color: "ededed"
+  description: Fondations projet (infra AAA)
+- name: epic-1
+  color: "ededed"
+  description: Design-system en couche composant
+- name: epic-2
+  color: "ededed"
+  description: Moteur v2 (les 12 briques)
+- name: epic-3
+  color: "ededed"
+  description: Contenu (la carte de la piscine)
+- name: epic-4
+  color: "ededed"
+  description: Boucle de jeu & pédagogie
+- name: epic-5
+  color: "ededed"
+  description: Polish, a11y, perf, release
+
+# Domaines
+- name: engine
+  color: "1d76db"
+  description: Moteur mémoire / interpréteur
+- name: ui
+  color: "0e8a16"
+  description: Interface et rendu
+- name: design-system
+  color: "0e8a16"
+  description: Tokens, primitives, composants
+- name: infra
+  color: "c5def5"
+  description: Outillage, CI, build
+- name: test
+  color: "bfdadc"
+  description: Tests et couverture
+- name: content
+  color: "fbca04"
+  description: Niveaux, mondes, pédagogie
+- name: docs
+  color: "d4c5f9"
+  description: Documentation et ADR
+- name: a11y
+  color: "f9d0c4"
+  description: Accessibilité
+
+# Divers
+- name: bug
+  color: "d73a4a"
+  description: Comportement incorrect

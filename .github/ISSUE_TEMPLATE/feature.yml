@@ -1,0 +1,30 @@
+name: Tâche / feature
+description: Une unité de travail livrable, rattachée à un EPIC
+title: "EX-Y · "
+labels: []
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Description
+      description: Ce qu'il faut faire, en une ou deux phrases.
+    validations:
+      required: true
+  - type: textarea
+    id: ac
+    attributes:
+      label: Critères d'acceptation (AC)
+      description: Conditions vérifiables de « terminé ».
+      placeholder: "AC : ..."
+    validations:
+      required: true
+  - type: input
+    id: epic
+    attributes:
+      label: EPIC parent
+      placeholder: "#41"
+  - type: input
+    id: refs
+    attributes:
+      label: Références
+      value: "docs/ROADMAP.md · ancrage pédagogique : docs/BRIQUES.md"
