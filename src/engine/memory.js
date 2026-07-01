@@ -12,6 +12,7 @@ export class Memory {
 		this.allocated = new Set();
 		this.freed = new Set();
 		this.changed = new Set();
+		this.output = '';
 		this.nextHeap = HEAP_BASE;
 		let addr = 1000;
 		for (const v of varDefs) {
@@ -56,6 +57,38 @@ export class Memory {
 		if (!this.cells.has(addr))
 			throw new RuntimeError('adresse invalide');
 		this.cells.set(addr, value);
+	}
+
+	emit(fd, addr, count) {
+		if (fd !== 1)
+			throw new RuntimeError('flux inconnu (seul fd 1 est géré)');
+		let a = addr;
+		let n = 0;
+		while (n < count) {
+			const v = this.readAddr(a);
+			this.output += (typeof v === 'string') ? v : String.fromCharCode(v & 0xff);
+			a += WORD;
+			n += 1;
+		}
+		return count;
+	}
+
+	isTerminator(v) {
+		return v === 0 || v === '\0';
+	}
+
+	strlen(addr) {
+		if (addr === 0)
+			throw new RuntimeError('déréférencement de NULL');
+		let a = addr;
+		let len = 0;
+		while (this.cells.has(a) && !this.freed.has(a)) {
+			if (this.isTerminator(this.cells.get(a)))
+				return len;
+			len += 1;
+			a += WORD;
+		}
+		throw new RuntimeError("chaîne sans borne : pas de '\\0'");
 	}
 
 	allocate() {
