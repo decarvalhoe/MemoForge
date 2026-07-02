@@ -5,9 +5,8 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { LEVELS } from '../../src/game/levels.js';
-import { goalMet } from '../helpers.mjs';
+import { goalMet, interpFor } from '../helpers.mjs';
 import { Memory } from '../../src/engine/memory.js';
-import { Interpreter } from '../../src/engine/interpreter.js';
 
 // Chemins canoniques gagnants (golden), un par niveau.
 const SOLUTIONS = {
@@ -28,7 +27,9 @@ const SOLUTIONS = {
 	'dup-1': ['malloc-3', 'copy', 'show', 'free-p'],
 	'conv-3': ['u-mod', 't-div'],
 	'strn-1': ['loop-2'],
-	'while-1': ['w-sentinel']
+	'while-1': ['w-sentinel'],
+	'rec-1': ['base', 'rec', 'comb'],
+	'rec-2': ['base', 'rec', 'comb']
 };
 
 function freshMem(level) {
@@ -45,7 +46,7 @@ function runIds(level, ids) {
 		assert.ok(item, `bank id manquant : ${level.id}/${id}`);
 		return item;
 	});
-	const interp = new Interpreter(freshMem(level), program);
+	const interp = interpFor(level, program, freshMem(level));
 	interp.run();
 	return { mem: interp.mem, error: interp.error };
 }
@@ -70,7 +71,7 @@ describe('Surface du mini-langage : aucune brique ne repose sur un nœud AST inc
 	for (const level of LEVELS) {
 		test(`${level.id} — banque exécutable sans nœud inconnu`, () => {
 			for (const item of level.bank) {
-				const interp = new Interpreter(freshMem(level), [item]);
+				const interp = interpFor(level, [item], freshMem(level));
 				interp.run();
 				if (interp.error)
 					assert.doesNotMatch(

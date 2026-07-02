@@ -16,8 +16,8 @@ devient une région-charnière franchissable pas à pas.
 ## Table de correspondance brique → mécanique → niveau
 
 Légende état : ✅ livré (moteur + niveau jouable) · ⚙️ moteur livré, niveau à venir · 🔨 en cours côté moteur.
-**État 2026-07-01** : B1–B8, B10, B12 livrées (18 niveaux) ; **B9** (récursion) — moteur livré
-(frames d'appel + `if`/`call`/`return`, E2-6/#16), niveau jouable à venir (E3-4) ; **B11**
+**État 2026-07-02** : B1–B10, B12 livrées (20 niveaux) — dont **B9** (récursion) jouable en
+`rec-1`/`rec-2` (E3-4/#24, mécanique « écris le corps », cf. docs/GAME-DESIGN.md) ; **B11**
 (pointeurs de fonction) — moteur livré (`funcRef`/`apply`, E2-8/#18), niveau à venir (E3-5).
 
 | # | Brique (pattern) | Concept / module | État | Mécanique en jeu | Niveau(x) livré(s) |
@@ -30,7 +30,7 @@ Légende état : ✅ livré (moteur + niveau jouable) · ⚙️ moteur livré, n
 | **B6** | `tmp=*a; *a=*b; *b=tmp` | swap · C01 | ✅ | échanger deux casiers via `tmp` | `1-3`, `2-1` (`ft_swap`) |
 | **B7** | `i < n && str[i]` | boucle bornée · C02/C03 | ✅ | boucle à compteur **et** à garde | `strn-1` (`ft_strncpy`), `while-1` (strlen à la main) |
 | **B8** | `malloc(len+1)` + test NULL + `'\0'` | alloc dynamique · C07 | ✅ | réserver la bonne taille, remplir, libérer | `3-1`, `3-2`, `dup-1` (`ft_strdup`) |
-| **B9** | cas de base + appel récursif | récursivité · C05/C13 | ⚙️ | pile d'appels (frames) — moteur + vue câblés | moteur : `ft_recursive_factorial` (tests) · niveau à venir (E3-4) |
+| **B9** | cas de base + appel récursif | récursivité · C05/C13 | ✅ | écrire le CORPS de la fonction — la pile monte/déborde à l'écran | `rec-1`, `rec-2` (`ft_recursive_factorial`) |
 | **B10** | `->next` / `->left/right` | structures chaînées · C12/C13 | ✅ | se déplacer de nœud en nœud | `l-1` (`ft_list_push_back`, piège du maillon) |
 | **B11** | `int (*f)(int)` puis `f(x)` | pointeur de fonction · C11 | ⚙️ | brancher une fonction dans une machine (`funcRef`/`apply`) | moteur : `ft_foreach` / `do-op` (tests) · niveau à venir (E3-5) |
 | **B12** | `open`→`read`→`close` | syscalls fichiers · C10 | ✅ | ouvrir, lire dans un buffer, fermer | `f-1` (`display_file`, pièges close) |
