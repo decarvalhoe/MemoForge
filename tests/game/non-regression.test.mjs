@@ -12,7 +12,9 @@ import { Memory } from '../../src/engine/memory.js';
 const SOLUTIONS = {
 	'1-1': ['set-n'],
 	'1-2': ['p-addr-n', 'star-p-42'],
-	'1-3': ['tmp-a', 'a-b', 'b-tmp'],
+	'1-3': ['save', 'copy', 'restore'],
+	'ptr-1': ['deref-set'],
+	'ptr-2': ['set-div', 'set-mod'],
 	'2-1': ['tmp-t0', 't0-t2', 't2-tmp'],
 	'3-1': ['p-malloc', 'star-p-7', 'free-p'],
 	'3-2': ['p-malloc', 'q-malloc', 'free-p', 'free-q'],

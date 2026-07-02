@@ -9,6 +9,8 @@ import {
 } from '../../src/game/world.js';
 
 const idsOf = (arr) => new Set(arr);
+// Dérivé de world.js → robuste aux ajouts de niveaux dans une région.
+const levelsOf = (...regionIds) => idsOf(regionIds.flatMap((id) => REGIONS.find((r) => r.id === id).levelIds));
 
 describe('REGIONS — invariants structurels', () => {
 	test('tout levelId référencé existe dans LEVELS', () => {
@@ -65,7 +67,7 @@ describe('progression — déverrouillage', () => {
 	});
 
 	test('résoudre tous les niveaux de r1 déverrouille r2', () => {
-		const solved = idsOf(['1-1', '1-2', '1-3']);
+		const solved = levelsOf('r1');
 		assert.ok(isRegionSolved('r1', solved));
 		assert.ok(isRegionUnlocked('r2', solved));
 		assert.equal(regionStatus('r1', solved), 'solved');
@@ -75,7 +77,7 @@ describe('progression — déverrouillage', () => {
 	test('déblocage TRANSITIF : une région à contenu non résolue en amont bloque la suite (pas d\'îlots)', () => {
 		// r1 résolue mais r2 (Tableaux) non → r4 (Chaînes) et r6 (Tas) doivent rester VERROUILLÉS,
 		// même si r3/r5 sont vides (vacuité). Régression du bug révélé par la carte.
-		const solved = idsOf(['1-1', '1-2', '1-3']);
+		const solved = levelsOf('r1');
 		assert.equal(isRegionUnlocked('r2', solved), true, 'r2 jouable');
 		assert.equal(isRegionUnlocked('r4', solved), false, 'r4 ne doit PAS sauter r2');
 		assert.equal(isRegionUnlocked('r6', solved), false, 'r6 ne doit PAS sauter r2');
@@ -99,6 +101,6 @@ describe('progression — déverrouillage', () => {
 
 	test('currentRegion suit la première région jouable non résolue', () => {
 		assert.equal(currentRegion(idsOf([])).id, 'r1');
-		assert.equal(currentRegion(idsOf(['1-1', '1-2', '1-3'])).id, 'r2');
+		assert.equal(currentRegion(levelsOf('r1')).id, 'r2');
 	});
 });

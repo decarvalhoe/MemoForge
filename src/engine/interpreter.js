@@ -52,7 +52,7 @@ export class Interpreter {
 		if (e.t === 'addr')
 			return m.addrOf(e.name);
 		if (e.t === 'deref')
-			return m.readAddr(m.getVar(e.name));
+			return m.readAddr(this.readVar(e.name));
 		if (e.t === 'malloc')
 			return m.allocate(e.size === undefined ? 1 : this.evalExpr(e.size));
 		if (e.t === 'strlen')
@@ -121,7 +121,7 @@ export class Interpreter {
 			return;
 		}
 		if (p.t === 'deref') {
-			this.storeAt(m.getVar(p.name), value);
+			this.storeAt(this.readVar(p.name), value);
 			return;
 		}
 		if (p.t === 'store') {
