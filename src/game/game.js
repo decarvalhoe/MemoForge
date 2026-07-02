@@ -17,6 +17,7 @@ import { renderLibft } from '../ui/libftView.js';
 import { WORD } from '../engine/memory.js';
 import { valgrindReport, measureLeaks } from './valgrind.js';
 import { renderValgrind } from '../ui/valgrindView.js';
+import { renderBytes } from '../ui/bytesView.js';
 
 export class Game {
 	constructor(root) {
@@ -64,7 +65,7 @@ export class Game {
 		this.elPalette = el('div', { class: 'palette' });
 		this.elControls = el('div', { class: 'controls' });
 		this.elMainSection = el('div', { class: 'main' }, [
-			el('section', { class: 'panel' }, [el('h2', { text: 'mur de casiers' }), this.elMemory, this.elCallStack, this.elValgrind = el('div', { class: 'valgrind' })]),
+			el('section', { class: 'panel' }, [el('h2', { text: 'mur de casiers' }), this.elMemory, this.elBytes = el('div', { class: 'bytes' }), this.elCallStack, this.elValgrind = el('div', { class: 'valgrind' })]),
 			el('aside', { class: 'side' }, [
 				el('h2', { text: 'ton programme' }), this.elProgram,
 				el('h2', { text: 'palette' }), this.elPalette,
@@ -355,6 +356,7 @@ export class Game {
 		const frames = this.interp && typeof this.interp.frames === 'function' ? this.interp.frames() : null;
 		renderCallStack(this.elCallStack, frames);
 		renderValgrind(this.elValgrind, this.valgrind);
+		renderBytes(this.elBytes, this.memory.snapshot(), lv.showBytes || []);
 		renderProgram(this.elProgram, this.program, lv.slots, this.activeIndex, (i) => this.removeBlock(i), (from, to) => this.moveBlock(from, to));
 		renderPalette(this.elPalette, lv.bank, this.program.length >= lv.slots, (instr) => this.addBlock(instr));
 		renderLibft(this.elLibft, forgedNames(this.libft));

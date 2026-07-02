@@ -63,7 +63,7 @@ export const CATALOG = [
 	{ fn: 'ft_strlowcase', module: 'C02', concept: 'majuscule + 32', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
 	{ fn: 'ft_strcapitalize', module: 'C02', concept: 'casse contextuelle', tier: 'char', deps: ['ft_strupcase', 'ft_strlowcase'], statut: 'a-forger', level: null, issue: '#108' },
 	{ fn: 'ft_putstr_non_printable', module: 'C02', concept: 'échappement hexa', tier: 'octet', deps: ['ft_putchar'], statut: 'a-forger', level: null, issue: '#105' },
-	{ fn: 'ft_print_memory', module: 'C02', concept: 'hexdump — le modèle octet', tier: 'octet', deps: [], statut: 'a-forger', level: null, issue: '#105' },
+	{ fn: 'ft_print_memory', module: 'C02', concept: 'hexdump — le modèle octet', tier: 'ready', deps: [], statut: 'jouable', level: 'mem-1' },
 
 	// ── C03 · comparaison, concaténation, recherche ───────────────────────────
 	{ fn: 'ft_strcmp', module: 'C03', concept: 'comparer code par code', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
