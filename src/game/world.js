@@ -26,7 +26,7 @@ export const REGIONS = [
 	{ id: 'r3', name: 'Sortie & ASCII', addr: 'write · 0x0080', module: 'C00/C04', briques: ['B1', 'B3'], levelIds: ['s-1'], unlock: 'r2' },
 	{ id: 'r4', name: 'Chaînes & bornes', addr: "'\\0' · 0x00C0", module: 'C02/C03', briques: ['B2', 'B7'], levelIds: ['4-1', 'str-1', 'str-2', 'strn-1', 'while-1'], unlock: 'r3' },
 	{ id: 'r5', name: 'Conversion nombre↔texte', addr: '0x0100', module: 'C04', briques: ['B3', 'B4', 'B5'], levelIds: ['conv-1', 'conv-2', 'conv-3'], unlock: 'r4' },
-	{ id: 'r6', name: 'Mémoire dynamique — le Tas', addr: 'malloc/free · 0x1388', module: 'C07', briques: ['B8'], levelIds: ['3-1', '3-2', 'dup-1'], unlock: 'r5' },
+	{ id: 'r6', name: 'Mémoire dynamique — le Tas', addr: 'malloc/free · 0x1388', module: 'C07', briques: ['B8'], levelIds: ['3-1', '3-2', 'dup-1', 'range-1'], unlock: 'r5' },
 	{ id: 'r7', name: 'Récursivité', addr: 'la pile · 0x2000', module: 'C05', briques: ['B9'], levelIds: ['rec-1', 'rec-2'], unlock: 'r6' },
 	{ id: 'r9', name: 'Listes & arbres', addr: '->next · 0x4000', module: 'C12/C13', briques: ['B10'], levelIds: ['l-1'], unlock: 'r7' },
 	{ id: 'r10', name: 'Fichiers & syscalls', addr: 'fd · 0x5000', module: 'C10', briques: ['B12'], levelIds: ['f-1'], unlock: 'r9' }

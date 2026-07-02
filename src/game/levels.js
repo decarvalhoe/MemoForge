@@ -137,25 +137,46 @@ export const LEVELS = [
 		]
 	},
 	{
+		// ÉCRIS ft_rev_int_tab (C01) — renversement INDEXÉ : tab[i] ≡ *(tab + i), et
+		// l'arithmétique de pointeur scale par sizeof(int) (M11). Deux curseurs i et j se
+		// croisent, on échange tab[i] et tab[j] via tmp.
 		id: '2-1',
 		world: 'Tableaux & échange',
-		title: 'Inverse le tableau',
-		goalText: 'Inverse [1, 2, 3] en [3, 2, 1] : t0 doit valoir 3 et t2 doit valoir 1.',
-		hint: 'Inverser les extrémités, c\'est l\'opération à deux cases déjà vue au swap — avec le même piège de la valeur perdue (cours M4).',
+		title: 'Écris ft_rev_int_tab',
+		goalText: 'Écris le CORPS de ft_rev_int_tab(tab, size). main renverse [1, 2, 3] en place : t0 doit valoir 3 et t2 valoir 1.',
+		hint: 'Deux curseurs partent des extrémités et se croisent : à chaque tour, qu\'échanges-tu, et que devient l\'ancienne valeur si tu n\'as pas de tmp ? (cours M11)',
+		assembleInto: 'ft_rev_int_tab',
+		params: ['tab', 'size'],
+		driverText: 'main (verrouillé) : ft_rev_int_tab(&t0, 3)',
+		driver: [{ id: 'drv', label: 'ft_rev_int_tab(&t0, 3)', ast: call(variable('done'), 'ft_rev_int_tab', [addr('t0'), lit(3)]) }],
 		vars: [
 			{ name: 't0', value: 1, kind: 'int' },
 			{ name: 't1', value: 2, kind: 'int' },
 			{ name: 't2', value: 3, kind: 'int' },
-			{ name: 'tmp', value: 0, kind: 'int' }
+			{ name: 'done', value: 0, kind: 'int' }
 		],
 		slots: 3,
 		par: 3,
 		goal: { t0: 3, t1: 2, t2: 1 },
 		bank: [
-			{ id: 'tmp-t0', label: 'tmp = t0', ast: assign(variable('tmp'), variable('t0')) },
-			{ id: 't0-t2', label: 't0 = t2', ast: assign(variable('t0'), variable('t2')) },
-			{ id: 't2-tmp', label: 't2 = tmp', ast: assign(variable('t2'), variable('tmp')) },
-			{ id: 't2-t0', label: 't2 = t0', ast: assign(variable('t2'), variable('t0')) }
+			{ id: 'i0', label: 'i = 0', ast: assign(variable('i'), lit(0)) },
+			{ id: 'j0', label: 'j = size - 1', ast: assign(variable('j'), bin('-', variable('size'), lit(1))) },
+			{ id: 'loop', label: 'tant que i < j : tmp = tab[i] ; tab[i] = tab[j] ; tab[j] = tmp ; i = i+1 ; j = j-1',
+				ast: whileLoop(bin('<', variable('i'), variable('j')), [
+					assign(variable('tmp'), load(variable('tab'), variable('i'))),
+					assign(store(variable('tab'), variable('i')), load(variable('tab'), variable('j'))),
+					assign(store(variable('tab'), variable('j')), variable('tmp')),
+					assign(variable('i'), bin('+', variable('i'), lit(1))),
+					assign(variable('j'), bin('-', variable('j'), lit(1)))
+				]) },
+			{ id: 'loop-bad', label: 'tant que i < size : … (i va trop loin)',
+				ast: whileLoop(bin('<', variable('i'), variable('size')), [
+					assign(variable('tmp'), load(variable('tab'), variable('i'))),
+					assign(store(variable('tab'), variable('i')), load(variable('tab'), variable('j'))),
+					assign(store(variable('tab'), variable('j')), variable('tmp')),
+					assign(variable('i'), bin('+', variable('i'), lit(1))),
+					assign(variable('j'), bin('-', variable('j'), lit(1)))
+				]) }
 		]
 	},
 	{
@@ -434,6 +455,47 @@ export const LEVELS = [
 			{ id: 'copy', label: 'ft_strcpy(dst, src)', ast: call(variable('cp'), 'ft_strcpy', [variable('dst'), variable('src')]) },
 			{ id: 'ret', label: 'return dst', ast: ret(variable('dst')) },
 			{ id: 'alloc-bad', label: 'dst = malloc(len)', ast: assign(variable('dst'), malloc(variable('len'))) }
+		]
+	},
+	{
+		// ÉCRIS ft_range (C07) — un tableau DYNAMIQUE : malloc(size) puis remplissage
+		// indexé arr[i] = min + i. Le pont M11 (tab[i] ≡ *(tab+i)) × M7 (le tas).
+		id: 'range-1',
+		world: 'Mémoire dynamique — le Tas',
+		title: 'Écris ft_range',
+		goalText: 'Écris le CORPS de ft_range(min, max). main appelle ft_range(2, 5) : p doit pointer un tableau [2, 3, 4] sur le tas.',
+		hint: 'Combien de cases entre min et max ? Une fois le bloc réservé, comment remplir la case d\'indice i pour qu\'elle vaille min + i ? (cours M11/M7)',
+		assembleInto: 'ft_range',
+		params: ['min', 'max'],
+		driverText: 'main (verrouillé) : p = ft_range(2, 5)',
+		driver: [{ id: 'drv', label: 'p = ft_range(2, 5)', ast: call(variable('p'), 'ft_range', [lit(2), lit(5)]) }],
+		vars: [{ name: 'p', value: 0, kind: 'ptr' }],
+		slots: 5,
+		par: 5,
+		goalCheck: (mem) => {
+			const p = mem.getVar('p');
+			if (!p) return false;
+			try {
+				return mem.readAddr(p) === 2 && mem.readAddr(p + 4) === 3 && mem.readAddr(p + 8) === 4;
+			} catch {
+				return false;
+			}
+		},
+		bank: [
+			{ id: 'size', label: 'size = max - min', ast: assign(variable('size'), bin('-', variable('max'), variable('min'))) },
+			{ id: 'alloc', label: 'arr = malloc(size)', ast: assign(variable('arr'), malloc(variable('size'))) },
+			{ id: 'i0', label: 'i = 0', ast: assign(variable('i'), lit(0)) },
+			{ id: 'fill', label: 'tant que i < size : arr[i] = min + i ; i = i+1',
+				ast: whileLoop(bin('<', variable('i'), variable('size')), [
+					assign(store(variable('arr'), variable('i')), bin('+', variable('min'), variable('i'))),
+					assign(variable('i'), bin('+', variable('i'), lit(1)))
+				]) },
+			{ id: 'ret', label: 'return arr', ast: ret(variable('arr')) },
+			{ id: 'fill-bad', label: 'tant que i < size : arr[i] = i ; i = i+1',
+				ast: whileLoop(bin('<', variable('i'), variable('size')), [
+					assign(store(variable('arr'), variable('i')), variable('i')),
+					assign(variable('i'), bin('+', variable('i'), lit(1)))
+				]) }
 		]
 	},
 	{
