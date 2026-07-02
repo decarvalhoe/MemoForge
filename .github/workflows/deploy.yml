@@ -1,0 +1,46 @@
+name: Deploy (GitHub Pages)
+
+# Déploie l'artefact de prod (dist/, cf. scripts/build.mjs) sur GitHub Pages à chaque
+# push sur main. La qualité est garantie en amont par ci.yml (lint, 314 tests, couverture
+# engine >= 90 %, écrans clés + budgets perf sur dist/) — ce workflow ne fait que publier.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build → Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Build (artefact statique dist/)
+        run: node scripts/build.mjs
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

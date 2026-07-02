@@ -1,6 +1,9 @@
 # MemoForge
 
 [![CI](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml/badge.svg)](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml)
+[![Deploy](https://github.com/decarvalhoe/MemoForge/actions/workflows/deploy.yml/badge.svg)](https://github.com/decarvalhoe/MemoForge/actions/workflows/deploy.yml)
+
+**▶ Jouer : <https://decarvalhoe.github.io/MemoForge/>** · [CHANGELOG](CHANGELOG.md)
 
 Jeu web de puzzle pour comprendre **les pointeurs, `malloc`/`free`, les chaînes et la
 mémoire du langage C** — en assemblant de petits programmes sur un **mur de casiers**.
