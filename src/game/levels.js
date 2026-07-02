@@ -499,6 +499,34 @@ export const LEVELS = [
 		]
 	},
 	{
+		// Libère le résultat d'un ft_split (C07/M9) : un tableau de N chaînes = N blocs de
+		// chaîne + 1 bloc de tableau. Il faut N+1 free. Le piège classique : libérer les
+		// chaînes mais OUBLIER le tableau (fuite du conteneur). Regarde le rapport valgrind.
+		id: 'split-1',
+		world: 'Mémoire dynamique — le Tas',
+		title: 'Libère un tableau de chaînes (N+1 free)',
+		goalText: 'ft_split a rendu un tableau de 2 chaînes (déjà alloué). Libère TOUT sans fuite : les 2 chaînes ET le tableau. Vise « 0 bytes lost ».',
+		hint: 'Un tableau de N chaînes, c\'est combien de blocs alloués en tout ? Combien de free faut-il, et lequel oublie-t-on le plus souvent ? (cours M9)',
+		vars: [
+			{ name: 's0', value: 0, kind: 'ptr' },
+			{ name: 's1', value: 0, kind: 'ptr' },
+			{ name: 'tab', value: 0, kind: 'ptr' }
+		],
+		slots: 8,
+		par: 8,
+		goalCheck: (mem) => mem.leaks().length === 0 && mem.freed.size >= 3,
+		bank: [
+			{ id: 'a0', label: 's0 = malloc(1)  (1re chaîne)', ast: assign(variable('s0'), malloc(lit(1))) },
+			{ id: 'a1', label: 's1 = malloc(1)  (2e chaîne)', ast: assign(variable('s1'), malloc(lit(1))) },
+			{ id: 'at', label: 'tab = malloc(2)  (le tableau)', ast: assign(variable('tab'), malloc(lit(2))) },
+			{ id: 'l0', label: 'tab[0] = s0', ast: assign(store(variable('tab'), lit(0)), variable('s0')) },
+			{ id: 'l1', label: 'tab[1] = s1', ast: assign(store(variable('tab'), lit(1)), variable('s1')) },
+			{ id: 'f0', label: 'free(s0)', ast: freeOp('s0') },
+			{ id: 'f1', label: 'free(s1)', ast: freeOp('s1') },
+			{ id: 'ft', label: 'free(tab)', ast: freeOp('tab') }
+		]
+	},
+	{
 		id: 'conv-3',
 		world: 'Conversion nombre↔texte',
 		title: 'Extrais les chiffres',
