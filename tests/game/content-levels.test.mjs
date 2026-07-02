@@ -27,11 +27,14 @@ describe('s-1 — Sortie & ASCII (write / ft_putstr)', () => {
 	});
 });
 
-describe('str-1 — Chaînes (strcpy / sentinelle)', () => {
+describe('str-1 — Écris ft_strcpy (forge depuis zéro)', () => {
 	const L = byId['str-1'];
-	test('strcpy(&d0,&s0) recopie "Hi\\0"', () => assert.ok(solved(L, ['cpy'])));
-	test('strcpy(&d0,&d0) ne copie rien → échoue', () => {
-		const { mem } = runProgram(L, ['cpy-bad']);
+	test('init → copy → term → return : recopie "Hi\\0" dans dst', () => {
+		assert.ok(solved(L, ['init', 'copy', 'term', 'ret']));
+	});
+	test('oublier la sentinelle (pas de term) → dst[2] reste « X » → échoue', () => {
+		const { mem } = runProgram(L, ['init', 'copy', 'ret']);
+		assert.equal(mem.getVar('d2'), 'X');
 		assert.equal(goalMet(L, mem), false);
 	});
 });
@@ -49,12 +52,14 @@ describe('str-2 — Chaînes (sentinelle : borner avant de mesurer)', () => {
 	});
 });
 
-describe('conv-1 — Conversion (atoi)', () => {
+describe('conv-1 — Écris ft_atoi (forge depuis zéro)', () => {
 	const L = byId['conv-1'];
-	test('n = atoi("42") = 42', () => assert.ok(solved(L, ['atoi'])));
-	test('strlen donne la longueur (2), pas la valeur → échoue', () => {
-		const { mem } = runProgram(L, ['len']);
-		assert.equal(mem.getVar('n'), 2);
+	test('res=0 → i=0 → scan → return : atoi("42") = 42', () => {
+		assert.ok(solved(L, ['r0', 'i0', 'scan', 'ret']));
+	});
+	test('oublier le « - \'0\' » (scan-bad) → additionne des codes ASCII → échoue', () => {
+		const { mem } = runProgram(L, ['r0', 'i0', 'scan-bad', 'ret']);
+		assert.notEqual(mem.getVar('n'), 42);
 		assert.equal(goalMet(L, mem), false);
 	});
 });
@@ -109,20 +114,18 @@ describe('f-1 — Fichiers (open/read/write/close, B12)', () => {
 	});
 });
 
-describe('dup-1 — Tas (ft_strdup, dimensionner malloc)', () => {
+describe('dup-1 — Écris ft_strdup (réutilise ta libft)', () => {
 	const L = byId['dup-1'];
-	test('malloc(3) → strcpy → write → free : "Hi", zéro fuite', () => {
-		assert.ok(solved(L, ['malloc-3', 'copy', 'show', 'free-p']));
+	test('len(ft_strlen) → size+1 → malloc → ft_strcpy → return : copie "Hi" sur le tas', () => {
+		assert.ok(solved(L, ['len', 'size', 'alloc', 'copy', 'ret']));
 	});
-	test('malloc(1) trop petit → strcpy déborde → crash "adresse invalide"', () => {
-		const { error } = runProgram(L, ['malloc-1', 'copy']);
+	test('malloc(len) sans le +1 → ft_strcpy déborde du bloc → crash "adresse invalide"', () => {
+		const { error } = runProgram(L, ['len', 'size', 'alloc-bad', 'copy', 'ret']);
 		assert.match(error, /adresse invalide/);
 	});
-	test('oublier free → fuite, cible non atteinte', () => {
-		const { mem } = runProgram(L, ['malloc-3', 'copy', 'show']);
-		assert.equal(mem.output, 'Hi');
-		assert.ok(mem.leaks().length > 0);
-		assert.equal(goalMet(L, mem), false);
+	test('sans allouer (pas de malloc) → dst reste NULL → crash', () => {
+		const { error } = runProgram(L, ['len', 'copy', 'ret']);
+		assert.ok(error);
 	});
 });
 
@@ -150,16 +153,16 @@ describe('strn-1 — Boucle bornée (ft_strncpy, B7)', () => {
 	});
 });
 
-describe('while-1 — Boucle à garde (strlen à la main, B7)', () => {
+describe('while-1 — Écris ft_strlen (forge depuis zéro)', () => {
 	const L = byId['while-1'];
-	test('tant que s[i] != 0 → s\'arrête sur le sentinel, i = 2', () => {
-		const { mem } = runProgram(L, ['w-sentinel']);
-		assert.equal(mem.getVar('i'), 2);
-		assert.ok(solved(L, ['w-sentinel']));
+	test('init → scan(sentinelle) → return : ft_strlen("Hi") = 2', () => {
+		const { mem } = runProgram(L, ['init', 'scan', 'ret']);
+		assert.equal(mem.getVar('n'), 2);
+		assert.ok(solved(L, ['init', 'scan', 'ret']));
 	});
-	test('tant que i < 3 (nombre magique) ignore le sentinel → i = 3, échoue', () => {
-		const { mem } = runProgram(L, ['w-count3']);
-		assert.equal(mem.getVar('i'), 3);
+	test('boucle « len < 3 » (nombre magique) ignore la sentinelle → n = 3, échoue', () => {
+		const { mem } = runProgram(L, ['init', 'scan-bad', 'ret']);
+		assert.equal(mem.getVar('n'), 3);
 		assert.equal(goalMet(L, mem), false);
 	});
 });
