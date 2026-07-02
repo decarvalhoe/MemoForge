@@ -110,7 +110,7 @@ export const CATALOG = [
 
 	// ── C11/C12/C13 · fonctions-valeur, listes (bonus days) ───────────────────
 	{ fn: 'ft_foreach', module: 'C11', concept: 'appliquer f(x)', tier: 'ready', deps: [], statut: 'optionnel', level: null },
-	{ fn: 't_list · push/size/clear', module: 'C12', concept: '->next sur le tas', tier: 'ready', deps: [], statut: 'a-refondre', level: 'l-1', issue: '#101' },
+	{ fn: 't_list · push/size/clear', module: 'C12', concept: '->next sur le tas', tier: 'ready', deps: [], statut: 'jouable', level: 'l-1' },
 
 	// ── libft · Part 1 (fonctions de <ctype.h>/<string.h>/<stdlib.h> à refaire) ─
 	{ fn: 'ft_isalpha', module: 'libft-1', concept: 'plage alpha', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },

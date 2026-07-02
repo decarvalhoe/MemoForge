@@ -16,7 +16,6 @@ export class Memory {
 		this.freed = new Set();
 		this.blocks = new Map();
 		this.usedHeap = 0;
-		this.refs = new Map();
 		this.changed = new Set();
 		this.output = '';
 		this.files = new Map();
@@ -213,26 +212,15 @@ export class Memory {
 	setNodeField(addr, field, value) {
 		if (addr === 0)
 			throw new RuntimeError('déréférencement de NULL');
-		if (field !== 'next') {
-			this.writeAddr(addr, value);
-			return;
-		}
-		const old = this.readAddr(addr + WORD);
-		if (old !== 0)
-			this.refs.set(old, (this.refs.get(old) || 0) - 1);
-		this.writeAddr(addr + WORD, value);
-		if (value !== 0)
-			this.refs.set(value, (this.refs.get(value) || 0) + 1);
+		this.writeAddr(addr + (field === 'next' ? WORD : 0), value);
 	}
 
+	// Comme free() en C : libère le bloc du nœud, sans se soucier de ce qui le chaîne. Le
+	// piège M12 n'est donc PAS ici — c'est de LIRE ->next d'un nœud déjà libéré (use-after-
+	// free), détecté par readAddr sur un casier de `freed`. D'où : sauver ->next AVANT free.
 	freeNode(addr) {
-		if ((this.refs.get(addr) || 0) > 0)
-			throw new RuntimeError('libération d\'un nœud encore chaîné (encore référencé)');
-		if (this.blocks.get(addr) === undefined)
+		if (addr === 0 || this.blocks.get(addr) === undefined)
 			throw new RuntimeError('free invalide (adresse non allouée)');
-		const next = this.readAddr(addr + WORD);
-		if (next !== 0)
-			this.refs.set(next, (this.refs.get(next) || 0) - 1);
 		this.free(addr);
 	}
 
