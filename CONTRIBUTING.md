@@ -1,5 +1,7 @@
 # Contribuer à MemoForge
 
+**🌐 Français · [English](CONTRIBUTING.en.md)**
+
 Merci de contribuer. Le projet est **vanilla (modules ES, sans build)** et vise une
 qualité « AAA » : logique testée, UI découplée.
 

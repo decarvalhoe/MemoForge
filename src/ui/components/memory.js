@@ -1,6 +1,7 @@
 // Composants « memory » du design-system MemoForge (vanilla).
 // Miroir de components/memory du prototype : Locker, CodeBrick, Medal.
 import { el } from '../dom.js';
+import { t } from '../../game/i18n.js';
 
 const STATE_LABELS = { normal: 'normal', changed: 'modifié', pointer: 'pointeur', allocated: 'alloué', freed: 'libéré' };
 
@@ -16,7 +17,7 @@ export function locker({ name, address = null, value = null, kind = null, state 
 	if (address != null)
 		children.push(el('div', { class: 'mf-locker__addr', text: 'n° ' + address + (kind ? ' · ' + kind : '') }));
 	children.push(el('div', { class: 'mf-locker__val', text: value == null ? '—' : String(value) }));
-	children.push(el('div', { class: 'mf-locker__state', text: stateLabel || STATE_LABELS[state] || '' }));
+	children.push(el('div', { class: 'mf-locker__state', text: t(stateLabel || STATE_LABELS[state] || '') }));
 	return el('div', { class: cls }, children);
 }
 
