@@ -312,3 +312,18 @@ describe('arg-1/arg-2 — Arguments du programme (argv, C06)', () => {
 		assert.ok(error || goalMet(byId['arg-2'], mem) === false);
 	});
 });
+
+describe('mem-2/mem-3 — Mémoire brute (memset, memcpy)', () => {
+	test('ft_memset : remplit n cases avec val → 65,65,65', () => {
+		assert.ok(solved(byId['mem-2'], ['i0', 'loop', 'ret']));
+	});
+	test('ft_memset qui écrit l\'indice i au lieu de val → échoue', () => {
+		assert.equal(goalMet(byId['mem-2'], runProgram(byId['mem-2'], ['i0', 'loop-bad', 'ret']).mem), false);
+	});
+	test('ft_memcpy : copie n cases de src → 1,2,3', () => {
+		assert.ok(solved(byId['mem-3'], ['i0', 'loop', 'ret']));
+	});
+	test('ft_memcpy qui ignore src (dst[i]=i) → échoue', () => {
+		assert.equal(goalMet(byId['mem-3'], runProgram(byId['mem-3'], ['i0', 'loop-bad', 'ret']).mem), false);
+	});
+});
