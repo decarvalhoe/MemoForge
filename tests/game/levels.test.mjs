@@ -14,11 +14,34 @@ describe('niveau 1-2 — via le pointeur', () => {
 	test('mauvais ordre plante (NULL)', () => assert.ok(runProgram(L, ['star-p-42', 'p-addr-n']).error));
 });
 
-describe('niveau 1-3 — échange a/b', () => {
+describe('niveau 1-3 — écris ft_swap (par adresse)', () => {
 	const L = byId['1-3'];
-	test('tmp=a; a=b; b=tmp échange bien', () => assert.ok(solved(L, ['tmp-a', 'a-b', 'b-tmp'])));
-	test('a=b; b=a échoue (pas de tmp)', () => {
-		const { mem } = runProgram(L, ['a-b', 'b-a']);
+	test('tmp=*pa; *pa=*pb; *pb=tmp échange a et b de l\'appelant', () => {
+		assert.ok(solved(L, ['save', 'copy', 'restore']));
+	});
+	test('sans tmp (*pa=*pb; *pb=*pa) → les deux valent b, échoue', () => {
+		const { mem } = runProgram(L, ['copy', 'nosave']);
+		assert.equal(mem.getVar('a'), mem.getVar('b'));
+		assert.equal(goalMet(L, mem), false);
+	});
+});
+
+describe('niveau ptr-1 — écris ft_ft (modifie via le pointeur)', () => {
+	const L = byId['ptr-1'];
+	test('*nbr = 42 écrit dans le x de l\'appelant', () => assert.ok(solved(L, ['deref-set'])));
+	test('nbr = 42 ne change que la copie locale → x reste 0, échoue', () => {
+		const { mem } = runProgram(L, ['var-set']);
+		assert.equal(mem.getVar('x'), 0);
+		assert.equal(goalMet(L, mem), false);
+	});
+});
+
+describe('niveau ptr-2 — écris ft_div_mod (deux retours)', () => {
+	const L = byId['ptr-2'];
+	test('*div et *mod rendent q=3 et r=1', () => assert.ok(solved(L, ['set-div', 'set-mod'])));
+	test('div = a/b (dans la copie) ne rend pas q → échoue', () => {
+		const { mem } = runProgram(L, ['div-bad', 'set-mod']);
+		assert.equal(mem.getVar('q'), 0);
 		assert.equal(goalMet(L, mem), false);
 	});
 });

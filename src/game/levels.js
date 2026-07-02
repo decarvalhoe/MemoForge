@@ -60,24 +60,80 @@ export const LEVELS = [
 		]
 	},
 	{
+		// ÉCRIS ft_swap (C01 ex02) — le cas qui rend le pointeur indispensable : pour
+		// échanger deux variables de l'appelant, une fonction reçoit leurs ADRESSES et
+		// écrit à travers (*pa, *pb). Sans tmp, une valeur est perdue (M4).
 		id: '1-3',
 		world: 'Casiers & adresses',
-		title: 'Échange a et b',
-		goalText: 'Inverse les valeurs : a doit valoir 3 et b doit valoir 7.',
-		hint: 'Si tu écrases a en premier, où retrouver son ancienne valeur pour la donner à b ? À quoi peut servir tmp ? (cours M4)',
+		title: 'Écris ft_swap (par adresse)',
+		goalText: 'Écris le CORPS de ft_swap(pa, pb). main échange a (7) et b (3) via leurs adresses : à la fin a = 3 et b = 7.',
+		hint: 'Si tu écrases *pa en premier, où retrouver son ancienne valeur pour la donner à *pb ? À quoi peut servir tmp ? (cours M4)',
+		assembleInto: 'ft_swap',
+		params: ['pa', 'pb'],
+		driverText: 'main (verrouillé) : ft_swap(&a, &b)',
+		driver: [{ id: 'drv', label: 'ft_swap(&a, &b)', ast: call(variable('done'), 'ft_swap', [addr('a'), addr('b')]) }],
 		vars: [
 			{ name: 'a', value: 7, kind: 'int' },
 			{ name: 'b', value: 3, kind: 'int' },
-			{ name: 'tmp', value: 0, kind: 'int' }
+			{ name: 'done', value: 0, kind: 'int' }
 		],
 		slots: 3,
 		par: 3,
 		goal: { a: 3, b: 7 },
 		bank: [
-			{ id: 'tmp-a', label: 'tmp = a', ast: assign(variable('tmp'), variable('a')) },
-			{ id: 'a-b', label: 'a = b', ast: assign(variable('a'), variable('b')) },
-			{ id: 'b-tmp', label: 'b = tmp', ast: assign(variable('b'), variable('tmp')) },
-			{ id: 'b-a', label: 'b = a', ast: assign(variable('b'), variable('a')) }
+			{ id: 'save', label: 'tmp = *pa', ast: assign(variable('tmp'), deref('pa')) },
+			{ id: 'copy', label: '*pa = *pb', ast: assign(deref('pa'), deref('pb')) },
+			{ id: 'restore', label: '*pb = tmp', ast: assign(deref('pb'), variable('tmp')) },
+			{ id: 'nosave', label: '*pb = *pa', ast: assign(deref('pb'), deref('pa')) }
+		]
+	},
+	{
+		// ft_ft (C01 ex00) : la fonction reçoit un pointeur et écrit À TRAVERS lui (*nbr).
+		// Écrire dans le paramètre (nbr = 42) ne change qu'une copie locale de l'adresse.
+		id: 'ptr-1',
+		world: 'Casiers & adresses',
+		title: 'Écris ft_ft (modifie via le pointeur)',
+		goalText: 'Écris le CORPS de ft_ft(nbr). main appelle ft_ft(&x) : x doit valoir 42 à la fin.',
+		hint: 'Pour changer le x de l\'appelant, écris-tu dans le pointeur (nbr), ou dans la case qu\'il désigne (*nbr) ? (cours M4)',
+		assembleInto: 'ft_ft',
+		params: ['nbr'],
+		driverText: 'main (verrouillé) : ft_ft(&x)',
+		driver: [{ id: 'drv', label: 'ft_ft(&x)', ast: call(variable('done'), 'ft_ft', [addr('x')]) }],
+		vars: [
+			{ name: 'x', value: 0, kind: 'int' },
+			{ name: 'done', value: 0, kind: 'int' }
+		],
+		slots: 1,
+		par: 1,
+		goal: { x: 42 },
+		bank: [
+			{ id: 'deref-set', label: '*nbr = 42', ast: assign(deref('nbr'), lit(42)) },
+			{ id: 'var-set', label: 'nbr = 42', ast: assign(variable('nbr'), lit(42)) }
+		]
+	},
+	{
+		// ft_div_mod (C01 ex03) : « retourner » DEUX résultats via deux pointeurs de sortie.
+		id: 'ptr-2',
+		world: 'Casiers & adresses',
+		title: 'Écris ft_div_mod (deux retours)',
+		goalText: 'Écris le CORPS de ft_div_mod(a, b, div, mod). main appelle (13, 4, &q, &r) : q doit valoir 3 et r valoir 1.',
+		hint: 'Une fonction ne rend qu\'une valeur avec return. Comment en rendre DEUX à l\'appelant ? Par où passent q et r ? (cours M4)',
+		assembleInto: 'ft_div_mod',
+		params: ['a', 'b', 'div', 'mod'],
+		driverText: 'main (verrouillé) : ft_div_mod(13, 4, &q, &r)',
+		driver: [{ id: 'drv', label: 'ft_div_mod(13, 4, &q, &r)', ast: call(variable('done'), 'ft_div_mod', [lit(13), lit(4), addr('q'), addr('r')]) }],
+		vars: [
+			{ name: 'q', value: 0, kind: 'int' },
+			{ name: 'r', value: 0, kind: 'int' },
+			{ name: 'done', value: 0, kind: 'int' }
+		],
+		slots: 2,
+		par: 2,
+		goal: { q: 3, r: 1 },
+		bank: [
+			{ id: 'set-div', label: '*div = a / b', ast: assign(deref('div'), bin('/', variable('a'), variable('b'))) },
+			{ id: 'set-mod', label: '*mod = a % b', ast: assign(deref('mod'), bin('%', variable('a'), variable('b'))) },
+			{ id: 'div-bad', label: 'div = a / b', ast: assign(variable('div'), bin('/', variable('a'), variable('b'))) }
 		]
 	},
 	{

@@ -75,7 +75,7 @@ describe('CATALOG — couverture du cursus', () => {
 	test('les entrées « à refondre » ciblent bien les briques magiques actuelles', () => {
 		// Garde-fou du réalignement : ces niveaux existent encore mais doivent être refaits.
 		const aRefondre = new Set(entriesByStatut('a-refondre').map((e) => e.level));
-		for (const id of ['conv-2', 'conv-3', 'l-1', '1-3', '2-1'])
+		for (const id of ['conv-2', 'conv-3', 'l-1', '2-1'])
 			assert.ok(aRefondre.has(id), `niveau à refondre non catalogué : ${id}`);
 	});
 
