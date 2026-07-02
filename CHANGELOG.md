@@ -3,6 +3,26 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) · versioning :
 [SemVer](https://semver.org/lang/fr/). Démo : <https://decarvalhoe.github.io/MemoForge/>.
 
+## [1.2.0] — 2026-07-02
+
+Expansion de contenu (EPIC 7) : **la libft se forge**. 27 → **44 niveaux**, 18 → **38
+fonctions jouables**, **plus aucune brique magique**.
+
+### Ajouté (20 fonctions « écris depuis zéro »)
+- **Sortie** : `ft_putstr` (via ton `ft_strlen`), `ft_print_alphabet`, `ft_print_numbers`.
+- **Conversion** : `ft_putnbr` et `ft_putnbr_base` **récursifs** (refonte des 2 derniers
+  niveaux « magiques » — a-refondre = 0).
+- **Caractères** : `ft_isdigit`/`ft_isalpha` (ET = produit, OU = somme), `ft_toupper`.
+- **Chaînes** : `ft_strcmp`, `ft_strcat`, `ft_substr`, et **`ft_strjoin`** — le capstone qui
+  compose `ft_strlen` + `ft_strcpy` + `ft_strcat` forgés.
+- **Maths (C05)** : `ft_power`, **`ft_fibonacci`** (double récursion), `ft_is_prime`.
+- **Listes/callbacks** : `ft_lstsize`, `ft_lstlast`, `ft_foreach`, `ft_lstiter`.
+
+### Notes
+Le budget de poids est relevé à 280 KB (croissance du contenu ; toujours 0 dépendance
+runtime). Le catalogue reste le backlog vivant (56 fonctions restantes, surtout les tiers
+octet/argv → EPIC 8).
+
 ## [1.1.0] — 2026-07-02
 
 Réalignement complet sur le **cours mémoire (M1→M12)** et les **exercices officiels de 42**,
