@@ -195,9 +195,29 @@ export class Game {
 		this.render();
 	}
 
+	// Niveaux-fonction (Mondes 6-7, cf. docs/GAME-DESIGN.md §4) : le programme du joueur
+	// devient le CORPS de level.assembleInto, et l'interpréteur exécute le lanceur
+	// verrouillé level.driver. Niveau à plat sinon (comportement historique).
+	buildInterp() {
+		const lv = this.level;
+		const functions = { ...(lv.functions || {}) };
+		if (lv.assembleInto) {
+			functions[lv.assembleInto] = { name: lv.assembleInto, params: lv.params || [], body: this.program };
+			return new Interpreter(this.memory, lv.driver, functions);
+		}
+		return new Interpreter(this.memory, this.program, functions);
+	}
+
+	// Slot du joueur à surligner pour un statut de step(). Dans un niveau-fonction, seul
+	// le corps assemblé lui appartient : on ne surligne que dedans (frameIndex > 0).
+	activeSlot(r) {
+		if (!this.level.assembleInto) return r.index;
+		return r.frameIndex > 0 ? r.instrIndex : -1;
+	}
+
 	freshInterp() {
 		this.memory = this.newMemory();
-		this.interp = new Interpreter(this.memory, this.program);
+		this.interp = this.buildInterp();
 		this.verdict = null;
 		this.activeIndex = -1;
 	}
@@ -226,7 +246,7 @@ export class Game {
 			return;
 		}
 		const r = this.interp.step();
-		this.activeIndex = r.index;
+		this.activeIndex = this.activeSlot(r);
 		this.render();
 		this._timer = setTimeout(() => this._animate(), 480);
 	}
@@ -235,7 +255,7 @@ export class Game {
 		clearTimeout(this._timer);
 		if (!this.interp || this.interp.done) this.freshInterp();
 		const r = this.interp.step();
-		this.activeIndex = r.index;
+		this.activeIndex = this.activeSlot(r);
 		if (this.interp.done) this.evaluate();
 		this.render();
 	}
@@ -308,6 +328,7 @@ export class Game {
 			el('div', { class: 'mission-title', text: lv.title }),
 			el('p', { class: 'mission-goal', text: lv.goalText })
 		];
+		if (lv.driverText) parts.push(el('p', { class: 'mission-goal', text: '⚙ ' + lv.driverText }));
 		if (!this.examMode) parts.push(el('p', { class: 'mission-hint', text: 'Indice : ' + lv.hint }));
 		this.elMission.append(...parts);
 		renderMemory(this.elMemory, this.memory.snapshot(), this.memory.heap(), this.memory.changed, this.memory.output);

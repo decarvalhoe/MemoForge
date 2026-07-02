@@ -84,14 +84,14 @@ describe('progression — déverrouillage', () => {
 	});
 
 	test('une région sans niveau est résolue par vacuité et ne bloque pas la suite', () => {
-		// r7 (Récursivité) n'a pas encore de niveaux : une fois r1..r6 résolues, r7 est "coming"
-		// et r8 devient jouable malgré r7 vide.
-		// Dérivé de world.js (r1..r6) → robuste aux ajouts de niveaux dans ces régions.
-		const solved = idsOf(['r1', 'r2', 'r3', 'r4', 'r5', 'r6'].flatMap((id) => REGIONS.find((r) => r.id === id).levelIds));
-		assert.ok(isRegionSolved('r7', solved), 'r7 vide doit être résolue par vacuité');
-		assert.equal(regionStatus('r7', solved), 'coming');
-		assert.ok(isRegionUnlocked('r8', solved), 'r8 doit être jouable malgré r7 vide');
+		// r8 (Pointeurs de fonction) n'a pas encore de niveaux : une fois r1..r7 résolues,
+		// r8 est "coming" et r9 devient jouable malgré r8 vide.
+		// Dérivé de world.js (r1..r7) → robuste aux ajouts de niveaux dans ces régions.
+		const solved = idsOf(['r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7'].flatMap((id) => REGIONS.find((r) => r.id === id).levelIds));
+		assert.ok(isRegionSolved('r8', solved), 'r8 vide doit être résolue par vacuité');
 		assert.equal(regionStatus('r8', solved), 'coming');
+		assert.ok(isRegionUnlocked('r9', solved), 'r9 doit être jouable malgré r8 vide');
+		assert.equal(regionStatus('r9', solved), 'current');
 	});
 
 	test('currentRegion suit la première région jouable non résolue', () => {

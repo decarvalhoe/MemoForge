@@ -1,5 +1,5 @@
 // Constructeurs d'AST fournis par la lane moteur (src/engine/ast.js) — cf. docs/COORDINATION.md.
-import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode, open, read, close, bin, loop, whileLoop, iter, load, store } from '../engine/ast.js';
+import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode, open, read, close, bin, loop, whileLoop, iter, load, store, ifThen, call, ret } from '../engine/ast.js';
 
 export const LEVELS = [
 	{
@@ -346,6 +346,52 @@ export const LEVELS = [
 		bank: [
 			{ id: 'loop-2', label: 'boucle 2× : d[i] = s[i]', ast: loop(lit(2), [assign(store(addr('d0'), iter()), load(addr('s0'), iter()))]) },
 			{ id: 'loop-3', label: 'boucle 3× : d[i] = s[i]', ast: loop(lit(3), [assign(store(addr('d0'), iter()), load(addr('s0'), iter()))]) }
+		]
+	},
+	{
+		// Niveau-fonction (docs/GAME-DESIGN.md §4) : le joueur écrit le CORPS de fact(n),
+		// main est un lanceur verrouillé. La pile d'appels à l'écran est la conséquence
+		// réelle de son assemblage — et son débordement, le piège emblématique.
+		id: 'rec-1',
+		world: 'Récursivité',
+		title: 'Écris fact(n) — le cas de base d\'abord',
+		goalText: 'Tu écris le CORPS de fact(n). main appelle fact(3) : à la fin, r doit valoir 6. Regarde la pile monter… puis se dérouler.',
+		hint: 'Une récursion = un cas de base (si n ≤ 1, réponds 1) posé AVANT l\'appel fact(n-1). Sans lui, la pile déborde.',
+		assembleInto: 'fact',
+		params: ['n'],
+		driverText: 'main (verrouillé) : r = fact(3)',
+		driver: [{ id: 'drv', label: 'r = fact(3)', ast: call(variable('r'), 'fact', [lit(3)]) }],
+		vars: [{ name: 'r', value: 0, kind: 'int' }],
+		slots: 3,
+		par: 3,
+		goal: { r: 6 },
+		bank: [
+			{ id: 'base', label: 'si (n <= 1) : return 1', ast: ifThen(bin('<=', variable('n'), lit(1)), [ret(lit(1))]) },
+			{ id: 'rec', label: 't = fact(n - 1)', ast: call(variable('t'), 'fact', [bin('-', variable('n'), lit(1))]) },
+			{ id: 'comb', label: 'return n * t', ast: ret(bin('*', variable('n'), variable('t'))) },
+			{ id: 'rec-bad', label: 't = fact(n)', ast: call(variable('t'), 'fact', [variable('n')]) }
+		]
+	},
+	{
+		id: 'rec-2',
+		world: 'Récursivité',
+		title: 'fact(5) — sans filet',
+		goalText: 'Même machine, appel plus profond : main appelle fact(5), r doit valoir 120. Toutes les pièces se ressemblent — une seule combinaison est juste.',
+		hint: 'Vérifie CHAQUE pièce : le cas de base doit répondre 1 (pas 0), et la combinaison doit multiplier n PAR t (le retour de fact(n-1)).',
+		assembleInto: 'fact',
+		params: ['n'],
+		driverText: 'main (verrouillé) : r = fact(5)',
+		driver: [{ id: 'drv', label: 'r = fact(5)', ast: call(variable('r'), 'fact', [lit(5)]) }],
+		vars: [{ name: 'r', value: 0, kind: 'int' }],
+		slots: 3,
+		par: 3,
+		goal: { r: 120 },
+		bank: [
+			{ id: 'base', label: 'si (n <= 1) : return 1', ast: ifThen(bin('<=', variable('n'), lit(1)), [ret(lit(1))]) },
+			{ id: 'base-bad', label: 'si (n <= 1) : return 0', ast: ifThen(bin('<=', variable('n'), lit(1)), [ret(lit(0))]) },
+			{ id: 'rec', label: 't = fact(n - 1)', ast: call(variable('t'), 'fact', [bin('-', variable('n'), lit(1))]) },
+			{ id: 'comb', label: 'return n * t', ast: ret(bin('*', variable('n'), variable('t'))) },
+			{ id: 'comb-bad', label: 'return n', ast: ret(variable('n')) }
 		]
 	},
 	{

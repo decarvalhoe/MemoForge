@@ -24,7 +24,11 @@ export const PITFALLS = [
 	{ id: 'bad-addr', match: /adresse invalide/, tone: 'crash', title: 'CRASH — adresse invalide',
 		hint: "Ce pointeur ne contient pas l'adresse d'un casier valide." },
 	{ id: 'unknown-var', match: /variable inconnue/, tone: 'crash', title: 'ERREUR — variable inconnue',
-		hint: 'Cette variable n\'existe pas dans ce niveau.' }
+		hint: 'Cette variable n\'existe pas dans ce niveau.' },
+	{ id: 'stack-overflow', match: /débordement de pile/, tone: 'crash', title: 'CRASH — la pile déborde (stack overflow)',
+		hint: 'Chaque appel empile une frame, et rien ne les arrête. Pose le cas de base AVANT l\'appel récursif, et fais rétrécir n (fact(n-1), pas fact(n)).' },
+	{ id: 'unknown-func', match: /fonction inconnue/, tone: 'crash', title: 'ERREUR — fonction inconnue',
+		hint: 'Cette valeur n\'est pas une fonction branchable : branche d\'abord une vraie fonction avant de l\'appliquer.' }
 ];
 
 const GENERIC_CRASH = { tone: 'crash', title: 'CRASH', hint: "L'exécution s'est arrêtée sur une erreur." };
