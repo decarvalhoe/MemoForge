@@ -3,7 +3,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import {
 	emptyLibft, forge, hasForged, recall, forgedNames,
-	functionsFor, missing, loadLibft, saveLibft
+	functionsFor, missing, loadLibft, saveLibft, depStatus
 } from '../../src/game/libft.js';
 import { Memory } from '../../src/engine/memory.js';
 import { Interpreter } from '../../src/engine/interpreter.js';
@@ -86,5 +86,19 @@ describe('bout-en-bout — forger ft_strlen puis l\'appeler dans un autre niveau
 		i.run();
 		assert.equal(i.error, null);
 		assert.equal(m.getVar('n'), 2);
+	});
+});
+
+describe('depStatus (E9-1) — statut des dépendances de forge', () => {
+	test('marque forgé / non forgé pour chaque dépendance', () => {
+		const inv = forge(emptyLibft(), 'ft_strlen', ['s'], []);
+		const st = depStatus(inv, ['ft_strlen', 'ft_strcpy']);
+		assert.deepEqual(st, [
+			{ name: 'ft_strlen', forged: true },
+			{ name: 'ft_strcpy', forged: false }
+		]);
+	});
+	test('liste vide → aucun statut', () => {
+		assert.deepEqual(depStatus(emptyLibft(), []), []);
 	});
 });

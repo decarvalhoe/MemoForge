@@ -12,7 +12,7 @@ import { button } from '../ui/components/index.js';
 import { explainRun, explainError, explainLeak } from './pitfalls.js';
 import { SANDBOX } from './sandbox.js';
 import { EXAM } from './exam.js';
-import { loadLibft, saveLibft, forge, functionsFor, forgedNames } from './libft.js';
+import { loadLibft, saveLibft, forge, functionsFor, forgedNames, depStatus } from './libft.js';
 import { renderLibft } from '../ui/libftView.js';
 import { WORD } from '../engine/memory.js';
 import { valgrindReport, measureLeaks } from './valgrind.js';
@@ -355,6 +355,11 @@ export class Game {
 			el('p', { class: 'mission-goal', text: lv.goalText })
 		];
 		if (lv.driverText) parts.push(el('p', { class: 'mission-goal', text: '⚙ ' + lv.driverText }));
+		// E9-1 : dépendances de forge — montre lesquelles sont TIENNES (forgées) ou en référence.
+		if (lv.usesLibft && lv.usesLibft.length) {
+			const deps = depStatus(this.libft, lv.usesLibft).map((d) => `${d.forged ? '✓' : '○'} ${d.name}${d.forged ? '' : ' (réf)'}`).join(' · ');
+			parts.push(el('p', { class: 'mission-goal', text: '🔧 réutilise ta libft : ' + deps }));
+		}
 		if (!this.examMode) parts.push(el('p', { class: 'mission-hint', text: 'Indice : ' + lv.hint }));
 		this.elMission.append(...parts);
 		renderMemory(this.elMemory, this.memory.snapshot(), this.memory.heap(), this.memory.changed, this.memory.output);
