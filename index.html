@@ -3,31 +3,22 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<!-- CSP stricte (E10-5) : tout depuis 'self'. Seule exception documentée : les webfonts
+	     Google Fonts (feuille + binaires). Aucun 'unsafe-inline' — styles et script de thème
+	     sont externalisés. Les en-têtes non disponibles en <meta> (X-Content-Type-Options,
+	     Permissions-Policy) sont documentés dans docs/SECURITY.md (à poser côté serveur/CDN). -->
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
+	<meta name="referrer" content="no-referrer" />
 	<title>MemoForge</title>
 	<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='13' font-size='14' font-family='monospace' fill='%2346E08A'%3EM%3C/text%3E%3C/svg%3E" />
 	<link rel="stylesheet" href="styles/main.css" />
 	<link rel="stylesheet" href="styles/components.css" />
 	<link rel="stylesheet" href="styles/views.css" />
-	<script>
-		// Applique le thème sauvegardé avant le premier paint (évite le flash de couleur).
-		try { if (localStorage.getItem('memoforge.theme') === 'light') document.documentElement.classList.add('theme-light'); } catch (e) {}
-	</script>
-	<style>
-		.theme-toggle {
-			position: fixed; top: 12px; right: 12px; z-index: 50;
-			min-height: 36px; padding: 6px 12px; cursor: pointer;
-			font-family: var(--font-mono); font-size: var(--fs-sm); font-weight: 600;
-			color: var(--text-muted); background: var(--surface-well);
-			border: 1px solid var(--border); border-radius: var(--radius-sm);
-			transition: border-color var(--dur), color var(--dur);
-		}
-		.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
-		.theme-toggle:focus-visible { outline: none; box-shadow: var(--ring); }
-	</style>
+	<script src="src/theme-init.js"></script>
 </head>
 <body>
 	<a href="#app" id="skip-link" class="skip-link">Aller au contenu</a>
-	<button id="lang-toggle" class="theme-toggle" type="button" aria-label="Change language / Changer de langue" style="right: 96px">EN</button>
+	<button id="lang-toggle" class="theme-toggle theme-toggle--lang" type="button" aria-label="Change language / Changer de langue">EN</button>
 	<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Basculer entre thème clair et sombre" aria-pressed="false">☀ clair</button>
 	<main class="wrap">
 		<h1 class="brand">MemoForge</h1>

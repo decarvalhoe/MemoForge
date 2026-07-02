@@ -218,7 +218,14 @@ async function shoot(page, screen) {
 		}
 	}, screen.lang || 'fr');
 	await page.goto(`http://127.0.0.1:${PORT}${screen.url}`, { waitUntil: 'networkidle0' });
-	await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; animation: none !important; caret-color: transparent !important; }' });
+	// Normalisation du rendu (pas d'anim/transition/caret) via une feuille CONSTRUITE
+	// (adoptedStyleSheets, CSSOM) : compatible avec la CSP stricte de la page, contrairement
+	// à un <style> injecté (bloqué par style-src 'self').
+	await page.evaluate(() => {
+		const sheet = new CSSStyleSheet();
+		sheet.replaceSync('*, *::before, *::after { transition: none !important; animation: none !important; caret-color: transparent !important; }');
+		document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+	});
 	if (screen.prepare) await page.evaluate(screen.prepare);
 	const result = await page.evaluate(screen.verify);
 	const outFile = path.join(OUT_DIR, `${screen.name}.png`);
@@ -314,9 +321,39 @@ const A11Y_VIEWS = [
 	{ name: 'salle rec-1', lang: 'fr', prepare: () => { window.__memoforge.enterRoom('rec-1'); } }
 ];
 
+// Vérifie que la CSP stricte n'émet AUCUNE violation sur les vues réelles (AC #166) :
+// écoute l'événement securitypolicyviolation, installé avant tout chargement de ressource.
+async function checkCSP(page) {
+	let failures = 0;
+	for (const view of [
+		{ name: 'carte', prepare: null },
+		{ name: 'salle rec-1', prepare: () => window.__memoforge.enterRoom('rec-1') }
+	]) {
+		await page.evaluateOnNewDocument(() => {
+			window.__csp = [];
+			document.addEventListener('securitypolicyviolation', (e) => {
+				window.__csp.push(`${e.violatedDirective} ← ${e.blockedURI}`);
+			});
+		});
+		await page.goto(`http://127.0.0.1:${PORT}/`, { waitUntil: 'networkidle0' });
+		if (view.prepare) await page.evaluate(view.prepare);
+		const violations = await page.evaluate(() => window.__csp || []);
+		if (violations.length) {
+			failures += 1;
+			console.error(`✖ CSP ${view.name} — ${violations.length} violation(s) : ${[...new Set(violations)].join(' · ')}`);
+		} else {
+			console.log(`✔ CSP ${view.name} — aucune violation (script/style/img/font depuis 'self')`);
+		}
+	}
+	return failures;
+}
+
 // Lance axe-core sur chaque vue et échoue sur toute violation serious/critical (WCAG 2.x AA).
 async function checkA11y(page) {
 	let failures = 0;
+	// axe s'injecte comme script inline → bloqué par script-src 'self'. On désactive la CSP
+	// UNIQUEMENT pour cet audit (axe est un outil de test, pas du code de prod).
+	await page.setBypassCSP(true);
 	for (const view of A11Y_VIEWS) {
 		await page.evaluateOnNewDocument((lang) => {
 			try { window.localStorage.setItem('memoforge.lang', lang || 'fr'); } catch { /* ignore */ }
@@ -376,6 +413,7 @@ async function main() {
 			}
 		}
 		failures += await checkPerfBudget(page);
+		failures += await checkCSP(page);
 		failures += await checkA11y(page);
 	} finally {
 		await browser.close();

@@ -152,6 +152,19 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 .star-off { color: var(--text-muted); opacity: .6; }
 .verdict .btn-primary { margin-top: var(--sp-3); }
 
+/* Boutons flottants langue/thème (déplacés de l'inline <style> d'index.html pour la CSP). */
+.theme-toggle {
+	position: fixed; top: 12px; right: 12px; z-index: 50;
+	min-height: 36px; padding: 6px 12px; cursor: pointer;
+	font-family: var(--font-mono); font-size: var(--fs-sm); font-weight: 600;
+	color: var(--text-muted); background: var(--surface-well);
+	border: 1px solid var(--border); border-radius: var(--radius-sm);
+	transition: border-color var(--dur), color var(--dur);
+}
+.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+.theme-toggle:focus-visible { outline: none; box-shadow: var(--ring); }
+.theme-toggle--lang { right: 96px; }
+
 /* Focus clavier visible sur TOUS les éléments interactifs (WCAG 2.4.7). Un seul anneau
    cohérent (--ring) pour boutons, liens, salles et champs. */
 .mf-room-link:focus-visible,
