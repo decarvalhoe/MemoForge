@@ -1,4 +1,5 @@
 import { el, clear } from './dom.js';
+import { t } from '../game/i18n.js';
 
 // « Ta libft » (E6-8) : l'inventaire des ft_ forgées par le joueur, affiché comme des
 // jetons. C'est la matérialisation de la progression — ta boîte à outils qui grandit.
@@ -8,7 +9,7 @@ export function renderLibft(container, names = []) {
 	clear(container);
 	if (!names.length)
 		return;
-	container.appendChild(el('h2', { text: 'ta libft' }));
+	container.appendChild(el('h2', { text: t('ta libft') }));
 	const strip = el('div', { class: 'libft-strip', style: 'display:flex;flex-wrap:wrap;gap:6px' });
 	for (const name of names)
 		strip.appendChild(el('span', {

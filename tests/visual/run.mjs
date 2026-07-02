@@ -185,6 +185,20 @@ const SCREENS = [
 		}
 	},
 	{
+		// Carte en anglais (E10-1 / #162) : garde contre la fuite « tu es ici / verrouillé »
+		// qui restait en français sur la carte EN. Les notes de statut DOIVENT être traduites.
+		name: 'en-carte',
+		url: '/',
+		lang: 'en',
+		verify: () => {
+			const cards = document.querySelectorAll('.mf-region').length;
+			const txt = document.body.innerText;
+			return cards >= 9 && /you are here/i.test(txt) && !/tu es ici|verrouill/i.test(txt)
+				&& txt.includes('Recursion')
+				|| `carte EN : notes de statut non traduites ou carte incomplète (${cards} salles)`;
+		}
+	},
+	{
 		name: 'styleguide',
 		url: '/styleguide.html',
 		verify: () => document.querySelectorAll('h2').length >= 3 || 'styleguide sans sections'

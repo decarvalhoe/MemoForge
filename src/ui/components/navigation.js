@@ -1,8 +1,11 @@
 // Composants « navigation » du design-system MemoForge (vanilla).
 // Miroir de components/navigation du prototype : RegionCard.
 import { el } from '../dom.js';
+import { t } from '../../game/i18n.js';
 
 const GLYPHS = { solved: '★★★', current: '◊', locked: '🔒' };
+// Clés source (français) ; t() les traduit au rendu (pas à l'import : la langue n'est
+// appliquée qu'après initLang()).
 const DEFAULT_NOTE = { solved: 'résolu', current: 'tu es ici', locked: 'verrouillé' };
 
 /**
@@ -16,6 +19,6 @@ export function regionCard({ id = null, title, status = 'locked', note = null } 
 	titleChildren.push(document.createTextNode(title));
 	return el('div', { class: 'mf-region mf-region--' + status }, [
 		el('div', { class: 'mf-region__title' }, titleChildren),
-		el('div', { class: 'mf-region__note', text: (GLYPHS[status] || '') + ' ' + (note || DEFAULT_NOTE[status] || '') })
+		el('div', { class: 'mf-region__note', text: (GLYPHS[status] || '') + ' ' + t(note || DEFAULT_NOTE[status] || '') })
 	]);
 }

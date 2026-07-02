@@ -21,14 +21,14 @@ export function renderProgram(container, program, slots, activeIndex, onRemove, 
 			brick.style.flex = '1';
 
 			const up = el('button', {
-				style: MOVE_STYLE, title: 'monter', 'aria-label': 'monter l\'instruction',
+				style: MOVE_STYLE, title: t('monter'), 'aria-label': t('monter l\'instruction'),
 				disabled: i === 0 ? 'true' : null, onclick: () => onMove && onMove(i, i - 1)
 			}, ['▲']);
 			const down = el('button', {
-				style: MOVE_STYLE, title: 'descendre', 'aria-label': 'descendre l\'instruction',
+				style: MOVE_STYLE, title: t('descendre'), 'aria-label': t('descendre l\'instruction'),
 				disabled: i === program.length - 1 ? 'true' : null, onclick: () => onMove && onMove(i, i + 1)
 			}, ['▼']);
-			const remove = el('button', { class: 'slot-remove', title: 'retirer', onclick: () => onRemove(i) }, ['×']);
+			const remove = el('button', { class: 'slot-remove', title: t('retirer'), onclick: () => onRemove(i) }, ['×']);
 
 			const rowEl = el('div', { class: 'mf-slot', style: 'display:flex;gap:6px;align-items:stretch', draggable: 'true' }, [brick, up, down, remove]);
 			rowEl.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', String(i)); e.dataTransfer.effectAllowed = 'move'; });
