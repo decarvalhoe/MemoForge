@@ -2,17 +2,19 @@
 
 # MemoForge
 
+**🌐 Français · [English](README.en.md)**
+
 **Comprends les pointeurs et la mémoire C — en assemblant des programmes qui s'exécutent vraiment.**
 
 [![CI](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml/badge.svg)](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml)
 [![Deploy](https://github.com/decarvalhoe/MemoForge/actions/workflows/deploy.yml/badge.svg)](https://github.com/decarvalhoe/MemoForge/actions/workflows/deploy.yml)
-![Version](https://img.shields.io/badge/version-1.0.0-46E08A)
+![Version](https://img.shields.io/badge/version-1.3.0-46E08A)
 ![Couverture moteur](https://img.shields.io/badge/couverture_moteur-100%25-46E08A)
 ![Dépendances runtime](https://img.shields.io/badge/d%C3%A9pendances_runtime-0-46E08A)
 
 ### [▶ Jouer / Play now](https://decarvalhoe.github.io/MemoForge/) · FR / EN
 
-*Jeu de puzzle web pour la Piscine C de l'École 42 — vanilla JS, 130 KB, aucune installation.*
+*Jeu de puzzle web pour la Piscine C de l'École 42 — vanilla JS · FR/EN · aucune installation.*
 
 <img src="docs/assets/carte-ram.png" alt="La carte de la RAM : chaque région est un concept de la Piscine, à progression verrouillée" width="820">
 
@@ -47,7 +49,7 @@ MemoForge suit le **cours mémoire M1→M12** et les **exercices officiels de 42
 l'**esprit libft** : les `ft_` qu'on utilise, on les **écrit soi-même**. Tu n'as jamais un
 bloc `strcpy` tout fait — tu assembles son corps à partir des primitives, et une fois forgée,
 la fonction entre dans **ta libft** et resert (ton `ft_strdup` appelle **ton** `ft_strlen`).
-**44 niveaux** sur la carte de la RAM ([`docs/BRIQUES.md`](docs/BRIQUES.md)) :
+**44 niveaux** (FR / EN) sur la carte de la RAM ([`docs/BRIQUES.md`](docs/BRIQUES.md)) :
 
 | Concept (cours) | Ce que tu écris depuis zéro |
 |---|---|
@@ -104,10 +106,10 @@ Chaque PR passe quatre barrières en CI :
 
 | Barrière | Contenu |
 |---|---|
-| **Tests** | 314 tests `node:test` — moteur, niveaux (chaque appât vérifié comme *enseignant*), monde, médailles, pièges, a11y · **couverture moteur ≥ 90 % exigée (100 % effective)** |
+| **Tests** | 621 tests `node:test` — moteur, niveaux (chaque appât vérifié comme *enseignant*), monde, médailles, pièges, a11y · **couverture moteur ≥ 90 % exigée (100 % effective)** |
 | **Non-régression** | balayage data-driven : chaque niveau doit rester résoluble par son chemin canonique |
-| **Écrans clés** | harnais Puppeteer : 4 écrans capturés, invariants structurels + comparaison pixel ([`docs/TESTING.md`](docs/TESTING.md)) |
-| **Budgets perf** | poids ≤ 200 KB, rendu ≤ 16 ms — mesurés et appliqués ([`docs/PERF.md`](docs/PERF.md)) |
+| **Écrans clés** | harnais Puppeteer : 8 écrans capturés (dont mobile et EN), invariants structurels + comparaison pixel ([`docs/TESTING.md`](docs/TESTING.md)) |
+| **Budgets perf** | poids ≤ 280 KB, rendu ≤ 16 ms — mesurés et appliqués ([`docs/PERF.md`](docs/PERF.md)) |
 
 L'artefact de prod (`npm run build` → `dist/`) est revérifié par le même harnais avant
 d'être déployé sur Pages.

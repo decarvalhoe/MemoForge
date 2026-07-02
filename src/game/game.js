@@ -161,7 +161,7 @@ export class Game {
 		// E9-4 : rappel discret et privé du niveau le plus retravaillé (stats locales).
 		const top = hardest(this.stats, 1)[0];
 		if (top)
-			this.elMap.appendChild(el('p', { class: 'mission-hint', style: 'text-align:center;margin-top:12px', text: `🔁 le plus retravaillé : ${top.id} (${top.fails} essais avant réussite) · stats locales, jamais envoyées` }));
+			this.elMap.appendChild(el('p', { class: 'mission-hint', style: 'text-align:center;margin-top:12px', text: `🔁 ${t('le plus retravaillé : ')}${top.id} (${top.fails} ${t('essais avant réussite')}) · ${t('stats locales, jamais envoyées')}` }));
 	}
 
 	loadLevel(i) {
@@ -298,7 +298,7 @@ export class Game {
 			this.mood = err ? 'err' : 'think';
 			this.fails = 0;
 			const feedback = explainError(err) || explainLeak(leaks)
-				|| { tone: 'success', title: 'EXÉCUTÉ', hint: 'Aucune cible : observe la mémoire. Provoque une fuite, un double free, un déréf. de NULL…' };
+				|| { tone: 'success', title: t('EXÉCUTÉ'), hint: t('Aucune cible : observe la mémoire. Provoque une fuite, un double free, un déréf. de NULL…') };
 			this.verdict = { passed: false, sandbox: true, message: feedback.title, feedback, stars: [] };
 			return;
 		}
@@ -370,7 +370,7 @@ export class Game {
 		if (lv.driverText) parts.push(el('p', { class: 'mission-goal', text: '⚙ ' + lv.driverText }));
 		// E9-1 : dépendances de forge — montre lesquelles sont TIENNES (forgées) ou en référence.
 		if (lv.usesLibft && lv.usesLibft.length) {
-			const deps = depStatus(this.libft, lv.usesLibft).map((d) => `${d.forged ? '✓' : '○'} ${d.name}${d.forged ? '' : ' (réf)'}`).join(' · ');
+			const deps = depStatus(this.libft, lv.usesLibft).map((d) => `${d.forged ? '✓' : '○'} ${d.name}${d.forged ? '' : ' ' + t('(réf)')}`).join(' · ');
 			parts.push(el('p', { class: 'mission-goal', text: '🔧 ' + t('réutilise ta libft : ') + deps }));
 		}
 		if (!this.examMode) parts.push(el('p', { class: 'mission-hint', text: t('Indice : ') + lv.hint }));
@@ -402,12 +402,12 @@ export class Game {
 		this.elControls.style.display = 'none';
 		const total = EXAM.levelIds.length;
 		this.elMission.append(
-			el('div', { class: 'mission-tag', text: 'examen terminé' }),
-			el('div', { class: 'mission-title', text: `Score : ${this.examSolved} / ${total}` }),
-			el('p', { class: 'mission-goal', text: `Temps : ${this.examElapsed()}` }),
+			el('div', { class: 'mission-tag', text: t('examen terminé') }),
+			el('div', { class: 'mission-title', text: `${t('Score : ')}${this.examSolved} / ${total}` }),
+			el('p', { class: 'mission-goal', text: `${t('Temps : ')}${this.examElapsed()}` }),
 			el('div', { style: 'display:flex;gap:8px;margin-top:14px' }, [
-				button({ label: 'recommencer', variant: 'primary', onClick: () => this.enterExam() }),
-				button({ label: '← carte', variant: 'ghost', onClick: () => this.showMap() })
+				button({ label: t('recommencer'), variant: 'primary', onClick: () => this.enterExam() }),
+				button({ label: t('← carte'), variant: 'ghost', onClick: () => this.showMap() })
 			])
 		);
 	}
