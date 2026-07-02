@@ -7,7 +7,7 @@ export const LEVELS = [
 		world: 'Casiers & adresses',
 		title: 'Mets 42 dans n',
 		goalText: 'À la fin, le casier n doit contenir 42.',
-		hint: 'n est une variable normale : on écrit directement dedans.',
+		hint: 'Le CPU ne connaît que des adresses, jamais le nom « n » (cours M1). Parmi les briques, laquelle écrit dans le casier lui-même, et lesquelles supposent que n contienne déjà une adresse ?',
 		vars: [{ name: 'n', value: 0, kind: 'int' }],
 		slots: 1,
 		par: 1,
@@ -23,7 +23,7 @@ export const LEVELS = [
 		world: 'Casiers & adresses',
 		title: 'Atteins n à travers le pointeur p',
 		goalText: 'n doit valoir 42 — mais tu n\'as pas le droit d\'y toucher directement : passe par p.',
-		hint: 'D\'abord faire pointer p sur n (p = &n), ENSUITE écrire via *p. L\'ordre compte.',
+		hint: 'Au moment où tu écris à travers p, que doit-il contenir ? Un pointeur qui ne vise encore rien, c\'est NULL — et le déréférencer plante (cours M4).',
 		vars: [
 			{ name: 'n', value: 0, kind: 'int' },
 			{ name: 'p', value: 0, kind: 'ptr' }
@@ -43,7 +43,7 @@ export const LEVELS = [
 		world: 'Casiers & adresses',
 		title: 'Échange a et b',
 		goalText: 'Inverse les valeurs : a doit valoir 3 et b doit valoir 7.',
-		hint: 'Sauvegarde une valeur dans tmp AVANT de l\'écraser, sinon elle est perdue.',
+		hint: 'Si tu écrases a en premier, où retrouver son ancienne valeur pour la donner à b ? À quoi peut servir tmp ? (cours M4)',
 		vars: [
 			{ name: 'a', value: 7, kind: 'int' },
 			{ name: 'b', value: 3, kind: 'int' },
@@ -64,7 +64,7 @@ export const LEVELS = [
 		world: 'Tableaux & échange',
 		title: 'Inverse le tableau',
 		goalText: 'Inverse [1, 2, 3] en [3, 2, 1] : t0 doit valoir 3 et t2 doit valoir 1.',
-		hint: 'Inverser = échanger le premier et le dernier. C\'est un swap, avec tmp.',
+		hint: 'Inverser les extrémités, c\'est l\'opération à deux cases déjà vue au swap — avec le même piège de la valeur perdue (cours M4).',
 		vars: [
 			{ name: 't0', value: 1, kind: 'int' },
 			{ name: 't1', value: 2, kind: 'int' },
@@ -86,7 +86,7 @@ export const LEVELS = [
 		world: 'Mémoire dynamique',
 		title: 'Réserve, écris, libère',
 		goalText: 'Réserve un casier, écris 7 dedans, puis libère-le. Objectif : zéro fuite.',
-		hint: 'malloc D\'ABORD (sinon *p plante sur NULL), et n\'oublie jamais free à la fin.',
+		hint: 'Pour écrire dans *p sans crash, p doit viser un vrai casier : d\'où vient cette adresse ? Et un bloc du tas t\'appartient jusqu\'à quand ? (cours M7-M8)',
 		vars: [{ name: 'p', value: 0, kind: 'ptr' }],
 		slots: 3,
 		par: 3,
@@ -103,7 +103,7 @@ export const LEVELS = [
 		world: 'Mémoire dynamique',
 		title: 'Chaque malloc a son free',
 		goalText: 'Réserve deux casiers et libère-les TOUS LES DEUX. Objectif : zéro fuite.',
-		hint: 'Un free par malloc. Libérer deux fois le même casier = crash (double free).',
+		hint: 'Règle du tas : à chaque malloc, un seul free — ni zéro (fuite), ni deux (double free, cours M8). Combien de blocs as-tu réservés ?',
 		vars: [
 			{ name: 'p', value: 0, kind: 'ptr' },
 			{ name: 'q', value: 0, kind: 'ptr' }
@@ -123,8 +123,8 @@ export const LEVELS = [
 		id: '4-1',
 		world: 'Chaînes & fin',
 		title: 'Écris la chaîne "Hi"',
-		goalText: 'Range \'H\', puis \'i\', puis la borne de fin \'\\0\' (valeur 0) dans c0, c1, c2.',
-		hint: 'Une chaîne se termine TOUJOURS par \'\\0\'. Sans cette borne, ce n\'est pas une vraie chaîne C.',
+		goalText: 'Forme la chaîne « Hi » dans c0, c1, c2 — sans oublier ce qui marque la fin d\'une vraie chaîne C.',
+		hint: 'Une chaîne C n\'en est une que terminée par sa sentinelle \'\\0\' (valeur 0, cours M10). L\'as-tu posée au bon endroit ?',
 		vars: [
 			{ name: 'c0', value: 0, kind: 'int' },
 			{ name: 'c1', value: 0, kind: 'int' },
@@ -145,7 +145,7 @@ export const LEVELS = [
 		world: 'Sortie & ASCII',
 		title: 'Affiche « Hi »',
 		goalText: 'Fais apparaître Hi sur la sortie. write(1, &c, 1) émet UN octet lu à une adresse.',
-		hint: 'Comme ft_putchar : write(1, &c0, 1) puis write(1, &c1, 1). L\'ordre compte (Hi ≠ iH).',
+		hint: 'write émet les octets dans l\'ordre où tu les lui donnes (cours M3). Le ruban console garde cet ordre : compare Hi et iH.',
 		vars: [
 			{ name: 'c0', value: 'H', kind: 'char' },
 			{ name: 'c1', value: 'i', kind: 'char' }
@@ -164,7 +164,7 @@ export const LEVELS = [
 		world: 'Chaînes & bornes',
 		title: 'Copie la chaîne',
 		goalText: 'Copie src (« Hi ») dans dst. strcpy recopie octet par octet jusqu\'à la borne \'\\0\'.',
-		hint: 'strcpy(&d0, &s0) : la destination reçoit \'H\', \'i\', \'\\0\'. La borne fait partie de la copie.',
+		hint: 'Copier une chaîne = recopier octet par octet jusqu\'où ? La sentinelle \'\\0\' fait-elle partie de la copie ? (cours M10)',
 		vars: [
 			{ name: 's0', value: 'H', kind: 'char' },
 			{ name: 's1', value: 'i', kind: 'char' },
@@ -186,7 +186,7 @@ export const LEVELS = [
 		world: 'Conversion nombre↔texte',
 		title: 'atoi : texte → nombre',
 		goalText: 'Convertis la chaîne « 42 » en l\'entier 42 dans n.',
-		hint: 'atoi lit les chiffres : res = res*10 + (c - \'0\'). Fais n = atoi(&c0).',
+		hint: 'Un chiffre-caractère vaut son code ASCII : que donne « c moins \'0\' » ? Comment empiler les chiffres pour reformer le nombre ? (cours M2)',
 		vars: [
 			{ name: 'c0', value: '4', kind: 'char' },
 			{ name: 'c1', value: '2', kind: 'char' },
@@ -206,7 +206,7 @@ export const LEVELS = [
 		world: 'Conversion nombre↔texte',
 		title: 'putnbr_base : nombre → hexa',
 		goalText: 'Affiche 42 en base 16 (hexadécimal) : la sortie doit être « 2a ».',
-		hint: 'putnbr_base(n, base) émet n dans la base donnée. La base 16 = "0123456789abcdef".',
+		hint: 'Afficher en base B, c\'est extraire les chiffres par deux opérations arithmétiques. Combien de symboles compte la base 16 ? (cours M2)',
 		vars: [
 			{ name: 'n', value: 42, kind: 'int' }
 		],
@@ -223,7 +223,7 @@ export const LEVELS = [
 		world: 'Listes & arbres',
 		title: 'Chaîne deux maillons, puis libère',
 		goalText: 'Crée n1 et n2, chaîne-les (n1->next = n2), puis libère les deux SANS fuite ni crash.',
-		hint: 'On ne libère pas un maillon encore pointé : libère la TÊTE (n1) d\'abord — ça détache n2 — puis n2.',
+		hint: 'Pour libérer un nœud sans perdre la suite de la liste, que dois-tu lire et garder juste avant le free ? (cours M8/M12)',
 		vars: [
 			{ name: 'n1', value: 0, kind: 'ptr' },
 			{ name: 'n2', value: 0, kind: 'ptr' }
@@ -244,7 +244,7 @@ export const LEVELS = [
 		world: 'Chaînes & bornes',
 		title: 'Termine, puis mesure',
 		goalText: 'Mesure la longueur de « Hi » dans n (doit valoir 2). Mais d\'abord, borne la chaîne.',
-		hint: 'strlen s\'arrête sur \'\\0\'. Sans borne, elle part dans le vide (crash). Pose la borne AVANT de mesurer.',
+		hint: 'strlen compte jusqu\'à la sentinelle \'\\0\' (cours M10). Si la chaîne n\'a pas de borne, où s\'arrête le comptage ?',
 		vars: [
 			{ name: 'n', value: 0, kind: 'int' },
 			{ name: 'c0', value: 'H', kind: 'char' },
@@ -265,7 +265,7 @@ export const LEVELS = [
 		world: 'Fichiers & syscalls',
 		title: 'Affiche le fichier',
 		goalText: 'Ouvre le fichier, lis son contenu dans le buffer, écris-le sur la sortie, puis FERME-le.',
-		hint: 'Ordre : open → read (dans le buffer) → write(1, …) → close. Oublier close = descripteur fuité.',
+		hint: 'Un fichier se manipule par son descripteur (fd) : d\'où vient-il, et que ne doit-il plus rester d\'ouvert à la fin pour ne pas fuiter ?',
 		files: { 'hi.txt': 'Hi' },
 		vars: [
 			{ name: 'fd', value: 0, kind: 'int' },
@@ -288,7 +288,7 @@ export const LEVELS = [
 		world: 'Mémoire dynamique — le Tas',
 		title: 'Duplique la chaîne (ft_strdup)',
 		goalText: 'Réserve la bonne taille, copie « Hi », affiche-la, puis libère. Zéro fuite.',
-		hint: 'malloc(len + 1) — n\'oublie pas la place du \'\\0\' ! Trop petit → strcpy déborde. Puis free.',
+		hint: 'Combien d\'octets pour loger « Hi » ET sa sentinelle \'\\0\' ? Un bloc trop court déborde à la copie (cours M7/M10).',
 		vars: [
 			{ name: 's0', value: 'H', kind: 'char' },
 			{ name: 's1', value: 'i', kind: 'char' },
@@ -311,7 +311,7 @@ export const LEVELS = [
 		world: 'Conversion nombre↔texte',
 		title: 'Extrais les chiffres',
 		goalText: 'Sépare 42 : u = les unités (2), t = les dizaines (4). C\'est le cœur de putnbr.',
-		hint: 'n % 10 donne le dernier chiffre (unités) ; n / 10 enlève ce chiffre (dizaines).',
+		hint: 'Quel calcul isole le dernier chiffre d\'un nombre ? Lequel retire ce chiffre ? C\'est le cœur de putnbr (cours M2).',
 		vars: [
 			{ name: 'n', value: 42, kind: 'int' },
 			{ name: 'u', value: 0, kind: 'int' },
@@ -331,7 +331,7 @@ export const LEVELS = [
 		world: 'Chaînes & bornes',
 		title: 'Copie bornée (ft_strncpy)',
 		goalText: 'Copie EXACTEMENT les 2 premiers caractères de src (« Hi! ») dans dst, avec une boucle.',
-		hint: 'Boucle bornée : d[i] = s[i], répété n fois. Ici n = 2 — pas 3, sinon tu débordes sur le 3e caractère.',
+		hint: 'Combien de caractères dois-tu copier — donc combien de tours de boucle ? Un tour de trop touche le caractère suivant (cours M11).',
 		vars: [
 			{ name: 's0', value: 'H', kind: 'char' },
 			{ name: 's1', value: 'i', kind: 'char' },
@@ -356,7 +356,7 @@ export const LEVELS = [
 		world: 'Récursivité',
 		title: 'Écris fact(n) — le cas de base d\'abord',
 		goalText: 'Tu écris le CORPS de fact(n). main appelle fact(3) : à la fin, r doit valoir 6. Regarde la pile monter… puis se dérouler.',
-		hint: 'Une récursion = un cas de base (si n ≤ 1, réponds 1) posé AVANT l\'appel fact(n-1). Sans lui, la pile déborde.',
+		hint: 'Qu\'est-ce qui arrête une fonction qui s\'appelle elle-même ? Et l\'appel doit-il rapprocher n de cet arrêt, ou l\'en éloigner ? (cours M6)',
 		assembleInto: 'fact',
 		params: ['n'],
 		driverText: 'main (verrouillé) : r = fact(3)',
@@ -377,7 +377,7 @@ export const LEVELS = [
 		world: 'Récursivité',
 		title: 'fact(5) — sans filet',
 		goalText: 'Même machine, appel plus profond : main appelle fact(5), r doit valoir 120. Toutes les pièces se ressemblent — une seule combinaison est juste.',
-		hint: 'Vérifie CHAQUE pièce : le cas de base doit répondre 1 (pas 0), et la combinaison doit multiplier n PAR t (le retour de fact(n-1)).',
+		hint: 'Deux pièces se ressemblent, une seule est juste : que doit valoir le cas de base pour ne pas tout annuler ? La combinaison utilise-t-elle le retour de l\'appel ? (cours M6)',
 		assembleInto: 'fact',
 		params: ['n'],
 		driverText: 'main (verrouillé) : r = fact(5)',
@@ -402,7 +402,7 @@ export const LEVELS = [
 		world: 'Pointeurs de fonction',
 		title: 'do_op — la machine à opérations',
 		goalText: 'Tu écris le CORPS de do_op(f, a, b). main la branche deux fois : avec add (r1 = 10) puis avec sub (r2 = 4). Ta machine doit marcher pour LES DEUX.',
-		hint: 'Utilise le paramètre f — c\'est lui qui change à chaque branchement. Si tu câbles add en dur, la machine ne saura jamais soustraire.',
+		hint: 'La machine reçoit son opération par le paramètre f. Si tu figes une opération dans le corps, que devient l\'autre branchement de main ?',
 		assembleInto: 'do_op',
 		params: ['f', 'a', 'b'],
 		driverText: 'main (verrouillé) : r1 = do_op(add, 7, 3) · r2 = do_op(sub, 7, 3)',
@@ -432,7 +432,7 @@ export const LEVELS = [
 		world: 'Pointeurs de fonction',
 		title: 'ft_foreach — applique f à chaque case',
 		goalText: 'Tu écris le CORPS de foreach(f, base, n). main branche emit (qui affiche un nombre) sur le tableau [1, 2, 3] : la sortie doit être « 123 ».',
-		hint: 'Applique f à CHAQUE ÉLÉMENT tab[i] — pas à base (l\'adresse du tableau). Une adresse affichée, ça fait un très grand nombre…',
+		hint: 'f attend une valeur : lui donnes-tu une case du tableau, ou l\'adresse du tableau elle-même ? Que vaut une adresse lue comme un nombre ? (cours M11)',
 		assembleInto: 'foreach',
 		params: ['f', 'base', 'n'],
 		driverText: 'main (verrouillé) : foreach(emit, &a0, 3)',
@@ -459,7 +459,7 @@ export const LEVELS = [
 		world: 'Chaînes & bornes',
 		title: 'Compte les caractères (strlen à la main)',
 		goalText: 'Avance i tant que tu n\'as pas atteint la borne \'\\0\'. À la fin, i = la longueur (2).',
-		hint: 'Boucle À GARDE : tant que s[i] != \'\\0\', avance. C\'est le sentinel qui arrête — pas un nombre magique.',
+		hint: 'Qu\'est-ce qui marque la fin d\'une chaîne (cours M10) ? Ta boucle s\'arrête sur ce signal — pas sur un nombre choisi au hasard.',
 		vars: [
 			{ name: 'i', value: 0, kind: 'int' },
 			{ name: 's0', value: 'H', kind: 'char' },
