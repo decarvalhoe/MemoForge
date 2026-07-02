@@ -28,7 +28,7 @@ export const REGIONS = [
 	{ id: 'r5', name: 'Conversion nombre↔texte', addr: '0x0100', module: 'C04', briques: ['B3', 'B4', 'B5'], levelIds: ['conv-1', 'conv-2', 'conv-3'], unlock: 'r4' },
 	{ id: 'r6', name: 'Mémoire dynamique — le Tas', addr: 'malloc/free · 0x1388', module: 'C07', briques: ['B8'], levelIds: ['3-1', '3-2', 'dup-1'], unlock: 'r5' },
 	{ id: 'r7', name: 'Récursivité', addr: 'la pile · 0x2000', module: 'C05', briques: ['B9'], levelIds: ['rec-1', 'rec-2'], unlock: 'r6' },
-	{ id: 'r8', name: 'Pointeurs de fonction', addr: '0x3000', module: 'C11', briques: ['B11'], levelIds: [], unlock: 'r7' },
+	{ id: 'r8', name: 'Pointeurs de fonction', addr: '0x3000', module: 'C11', briques: ['B11'], levelIds: ['fn-1', 'fn-2'], unlock: 'r7' },
 	{ id: 'r9', name: 'Listes & arbres', addr: '->next · 0x4000', module: 'C12/C13', briques: ['B10'], levelIds: ['l-1'], unlock: 'r8' },
 	{ id: 'r10', name: 'Fichiers & syscalls', addr: 'fd · 0x5000', module: 'C10', briques: ['B12'], levelIds: ['f-1'], unlock: 'r9' }
 ];
