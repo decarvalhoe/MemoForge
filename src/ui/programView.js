@@ -1,4 +1,5 @@
 import { el, clear } from './dom.js';
+import { t } from '../game/i18n.js';
 import { codeBrick } from './components/index.js';
 
 const MOVE_STYLE = 'min-height:auto;padding:0 6px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.9rem';
@@ -41,7 +42,7 @@ export function renderProgram(container, program, slots, activeIndex, onRemove, 
 		} else {
 			container.appendChild(el('div', { class: 'slot slot-empty' }, [
 				el('span', { class: 'slot-num', text: String(i + 1) }),
-				el('span', { class: 'slot-hint', text: 'slot libre' })
+				el('span', { class: 'slot-hint', text: t('slot libre') })
 			]));
 		}
 	}

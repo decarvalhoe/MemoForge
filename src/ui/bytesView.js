@@ -1,4 +1,5 @@
 import { el, clear } from './dom.js';
+import { t } from '../game/i18n.js';
 import { explain } from '../game/bytes.js';
 
 // Explorateur d'octets (E6-7, cours M1/M2) : montre qu'un int s'étale sur 4 cases d'octet
