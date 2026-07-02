@@ -35,6 +35,8 @@ const SOLUTIONS = {
 	'l-1': ['mk-n1', 'mk-n2', 'link', 'save', 'free-n1', 'free-nxt'],
 	'lst-1': ['cur', 'cnt', 'walk', 'ret'],
 	'lst-2': ['cur', 'walk', 'ret'],
+	'each-1': ['loop'],
+	'each-2': ['cur', 'walk'],
 	'str-2': ['set-term', 'measure'],
 	'f-1': ['open', 'read', 'write', 'close'],
 	'dup-1': ['len', 'size', 'alloc', 'copy', 'ret'],

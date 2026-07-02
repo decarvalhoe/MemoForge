@@ -281,3 +281,18 @@ describe('lst-1/lst-2 — Listes (parcours ->next)', () => {
 		assert.equal(goalMet(byId['lst-2'], runProgram(byId['lst-2'], ['cur', 'walk-bad', 'ret']).mem), false);
 	});
 });
+
+describe('each-1/each-2 — Callbacks (apply f)', () => {
+	test('ft_foreach : f(base[i]) sur chaque élément → "123"', () => {
+		assert.ok(solved(byId['each-1'], ['loop']));
+	});
+	test('ft_foreach f(base) (l\'adresse) au lieu de base[i] → échoue', () => {
+		assert.equal(goalMet(byId['each-1'], runProgram(byId['each-1'], ['loop-bad']).mem), false);
+	});
+	test('ft_lstiter : f(cur->data) à chaque nœud → "12"', () => {
+		assert.ok(solved(byId['each-2'], ['cur', 'walk']));
+	});
+	test('ft_lstiter f(cur) (le nœud, pas la donnée) → échoue', () => {
+		assert.equal(goalMet(byId['each-2'], runProgram(byId['each-2'], ['cur', 'walk-bad']).mem), false);
+	});
+});

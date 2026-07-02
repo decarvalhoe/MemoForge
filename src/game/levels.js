@@ -1,5 +1,5 @@
 // Constructeurs d'AST fournis par la lane moteur (src/engine/ast.js) — cf. docs/COORDINATION.md.
-import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, node, field, freeNode, open, read, close, bin, loop, whileLoop, iter, load, store, ifThen, call, ret, func } from '../engine/ast.js';
+import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, node, field, freeNode, open, read, close, bin, loop, whileLoop, iter, load, store, ifThen, call, ret, func, funcRef, apply } from '../engine/ast.js';
 
 // Implémentations de référence de la libft, injectées comme REPLI dans les niveaux qui
 // réutilisent une ft_ (ex. ft_strdup appelle ft_strlen + ft_strcpy). Le joueur qui a déjà
@@ -1190,6 +1190,63 @@ export const LEVELS = [
 			{ id: 'ret', label: 'return cur', ast: ret(variable('cur')) },
 			{ id: 'walk-bad', label: 'tant que cur != 0 : cur = cur->next  (dépasse la fin)',
 				ast: whileLoop(bin('!=', variable('cur'), lit(0)), [assign(variable('cur'), field(variable('cur'), 'next'))]) }
+		]
+	},
+	{
+		// ÉCRIS ft_foreach (libft/C11) : appliquer la fonction f à CHAQUE élément du tableau.
+		// f est un paramètre valeur-fonction ; on lui passe tab[i], pas base (l'adresse).
+		id: 'each-1',
+		world: 'Listes & arbres',
+		title: 'Écris ft_foreach (applique f)',
+		goalText: 'Écris le CORPS de ft_foreach(f, base, n). main branche emit (affiche un chiffre) sur [1, 2, 3] : la sortie doit être « 123 ».',
+		hint: 'f attend une VALEUR. À chaque tour, lui passes-tu une case du tableau, ou l\'adresse du tableau elle-même ? (cours M11)',
+		assembleInto: 'ft_foreach',
+		params: ['f', 'base', 'n'],
+		functions: { emit: func('emit', ['x'], [assign(variable('d'), bin('+', variable('x'), lit('0'))), write(1, addr('d'), lit(1))]) },
+		driverText: 'main (verrouillé) : ft_foreach(emit, &a0, 3)',
+		driver: [{ id: 'drv', label: 'ft_foreach(emit, &a0, 3)', ast: call(variable('done'), 'ft_foreach', [funcRef('emit'), addr('a0'), lit(3)]) }],
+		vars: [
+			{ name: 'a0', value: 1, kind: 'int' }, { name: 'a1', value: 2, kind: 'int' }, { name: 'a2', value: 3, kind: 'int' },
+			{ name: 'done', value: 0, kind: 'int' }
+		],
+		slots: 1,
+		par: 1,
+		goalCheck: (mem) => mem.output === '123',
+		bank: [
+			{ id: 'loop', label: 'boucle n× : f(base[i])', ast: loop(variable('n'), [apply(variable('_'), variable('f'), [load(variable('base'), iter())])]) },
+			{ id: 'loop-bad', label: 'boucle n× : f(base)  (l\'adresse, pas l\'élément)', ast: loop(variable('n'), [apply(variable('_'), variable('f'), [variable('base')])]) }
+		]
+	},
+	{
+		// ÉCRIS ft_lstiter (libft bonus) : appliquer f à la donnée de CHAQUE nœud, en suivant
+		// ->next. Combine le parcours de liste (M12) et la valeur-fonction.
+		id: 'each-2',
+		world: 'Listes & arbres',
+		title: 'Écris ft_lstiter (applique f à chaque nœud)',
+		goalText: 'La liste h1 → h2 (données 1, 2) est construite. Écris le CORPS de ft_lstiter(head, f) : main branche emit → la sortie doit être « 12 ».',
+		hint: 'On avance de nœud en nœud via ->next. À chaque nœud, sur quoi appliques-tu f : le nœud lui-même, ou sa donnée (->data) ? (cours M12)',
+		assembleInto: 'ft_lstiter',
+		params: ['head', 'f'],
+		functions: { emit: func('emit', ['x'], [assign(variable('d'), bin('+', variable('x'), lit('0'))), write(1, addr('d'), lit(1))]) },
+		driverText: 'main (verrouillé) : h1→h2 · ft_lstiter(h1, emit)',
+		driver: [
+			{ id: 'b1', label: 'h1 = node(1)', ast: assign(variable('h1'), node(lit(1))) },
+			{ id: 'b2', label: 'h2 = node(2)', ast: assign(variable('h2'), node(lit(2))) },
+			{ id: 'bl', label: 'h1->next = h2', ast: assign(field(variable('h1'), 'next'), variable('h2')) },
+			{ id: 'bc', label: 'ft_lstiter(h1, emit)', ast: call(variable('done'), 'ft_lstiter', [variable('h1'), funcRef('emit')]) }
+		],
+		vars: [
+			{ name: 'h1', value: 0, kind: 'ptr' }, { name: 'h2', value: 0, kind: 'ptr' }, { name: 'done', value: 0, kind: 'int' }
+		],
+		slots: 2,
+		par: 2,
+		goalCheck: (mem) => mem.output === '12',
+		bank: [
+			{ id: 'cur', label: 'cur = head', ast: assign(variable('cur'), variable('head')) },
+			{ id: 'walk', label: 'tant que cur != 0 : f(cur->data) ; cur = cur->next',
+				ast: whileLoop(bin('!=', variable('cur'), lit(0)), [apply(variable('_'), variable('f'), [field(variable('cur'), 'data')]), assign(variable('cur'), field(variable('cur'), 'next'))]) },
+			{ id: 'walk-bad', label: 'tant que cur != 0 : f(cur) ; cur = cur->next  (le nœud, pas la donnée)',
+				ast: whileLoop(bin('!=', variable('cur'), lit(0)), [apply(variable('_'), variable('f'), [variable('cur')]), assign(variable('cur'), field(variable('cur'), 'next'))]) }
 		]
 	}
 ];
