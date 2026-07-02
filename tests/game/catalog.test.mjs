@@ -72,11 +72,9 @@ describe('CATALOG — couverture du cursus', () => {
 			assert.ok(levelIds.has(e.level), `niveau jouable manquant : ${e.fn} → ${e.level}`);
 	});
 
-	test('les entrées « à refondre » ciblent bien les briques magiques actuelles', () => {
-		// Garde-fou du réalignement : ces niveaux existent encore mais doivent être refaits.
-		const aRefondre = new Set(entriesByStatut('a-refondre').map((e) => e.level));
-		for (const id of ['conv-2', 'conv-3'])
-			assert.ok(aRefondre.has(id), `niveau à refondre non catalogué : ${id}`);
+	test('plus aucune brique magique « à refondre » (réalignement EPIC 6/7 terminé)', () => {
+		// Toutes les fonctions autrefois données toutes faites sont désormais forgées.
+		assert.deepEqual(entriesByStatut('a-refondre'), []);
 	});
 
 	test('coverageSummary compte toutes les entrées', () => {

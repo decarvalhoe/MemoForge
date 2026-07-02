@@ -38,7 +38,7 @@ export const CATALOG = [
 	{ fn: 'ft_print_reverse_alphabet', module: 'C00', concept: 'boucle descendante', tier: 'ready', deps: ['ft_putchar'], statut: 'a-forger', level: null, issue: '#107' },
 	{ fn: 'ft_print_numbers', module: 'C00', concept: "chiffre + '0'", tier: 'char', deps: ['ft_putchar'], statut: 'jouable', level: 'io-3' },
 	{ fn: 'ft_is_negative', module: 'C00', concept: 'branche if', tier: 'ready', deps: ['ft_putchar'], statut: 'a-forger', level: null, issue: '#107' },
-	{ fn: 'ft_putnbr', module: 'C00', concept: 'extraction chiffres (récursif)', tier: 'char', deps: ['ft_putchar'], statut: 'a-refondre', level: 'conv-3', issue: '#107' },
+	{ fn: 'ft_putnbr', module: 'C00', concept: 'extraction chiffres (récursif)', tier: 'char', deps: [], statut: 'jouable', level: 'conv-3' },
 
 	// ── C01 · pointeurs, par adresse ──────────────────────────────────────────
 	{ fn: 'ft_ft', module: 'C01', concept: 'passer une adresse', tier: 'ready', deps: [], statut: 'jouable', level: 'ptr-1' },
@@ -74,7 +74,7 @@ export const CATALOG = [
 
 	// ── C04 · conversion nombre ↔ texte ───────────────────────────────────────
 	{ fn: 'ft_atoi', module: 'C04', concept: "res = res*10 + (c-'0')", tier: 'char', deps: [], statut: 'jouable', level: 'conv-1' },
-	{ fn: 'ft_putnbr_base', module: 'C04', concept: 'n%base / n/base', tier: 'char', deps: ['ft_putchar'], statut: 'a-refondre', level: 'conv-2', issue: '#107' },
+	{ fn: 'ft_putnbr_base', module: 'C04', concept: 'n%base / n/base', tier: 'char', deps: [], statut: 'jouable', level: 'conv-2' },
 	{ fn: 'ft_atoi_base', module: 'C04', concept: 'reconstruire en base', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
 
 	// ── C05 · récursivité (prêt aujourd'hui) ──────────────────────────────────
