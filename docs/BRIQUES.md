@@ -16,9 +16,9 @@ devient une région-charnière franchissable pas à pas.
 ## Table de correspondance brique → mécanique → niveau
 
 Légende état : ✅ livré (moteur + niveau jouable) · ⚙️ moteur livré, niveau à venir · 🔨 en cours côté moteur.
-**État 2026-07-02** : B1–B10, B12 livrées (20 niveaux) — dont **B9** (récursion) jouable en
-`rec-1`/`rec-2` (E3-4/#24, mécanique « écris le corps », cf. docs/GAME-DESIGN.md) ; **B11**
-(pointeurs de fonction) — moteur livré (`funcRef`/`apply`, E2-8/#18), niveau à venir (E3-5).
+**État 2026-07-02** : **les 12 briques sont livrées et jouables** (22 niveaux). B9 (récursion,
+`rec-1`/`rec-2`) et B11 (pointeurs de fonction, `fn-1`/`fn-2`) utilisent la mécanique
+« écris le corps de la fonction » — cf. docs/GAME-DESIGN.md §4.
 
 | # | Brique (pattern) | Concept / module | État | Mécanique en jeu | Niveau(x) livré(s) |
 |---|---|---|:--:|---|---|
@@ -32,7 +32,7 @@ Légende état : ✅ livré (moteur + niveau jouable) · ⚙️ moteur livré, n
 | **B8** | `malloc(len+1)` + test NULL + `'\0'` | alloc dynamique · C07 | ✅ | réserver la bonne taille, remplir, libérer | `3-1`, `3-2`, `dup-1` (`ft_strdup`) |
 | **B9** | cas de base + appel récursif | récursivité · C05/C13 | ✅ | écrire le CORPS de la fonction — la pile monte/déborde à l'écran | `rec-1`, `rec-2` (`ft_recursive_factorial`) |
 | **B10** | `->next` / `->left/right` | structures chaînées · C12/C13 | ✅ | se déplacer de nœud en nœud | `l-1` (`ft_list_push_back`, piège du maillon) |
-| **B11** | `int (*f)(int)` puis `f(x)` | pointeur de fonction · C11 | ⚙️ | brancher une fonction dans une machine (`funcRef`/`apply`) | moteur : `ft_foreach` / `do-op` (tests) · niveau à venir (E3-5) |
+| **B11** | `int (*f)(int)` puis `f(x)` | pointeur de fonction · C11 | ✅ | écrire le corps de la machine qui reçoit `f` — branchée avec 2 fonctions | `fn-1` (`do_op`), `fn-2` (`ft_foreach`) |
 | **B12** | `open`→`read`→`close` | syscalls fichiers · C10 | ✅ | ouvrir, lire dans un buffer, fermer | `f-1` (`display_file`, pièges close) |
 
 ## Mondes du jeu (regroupement par concept, ordre de maîtrise)

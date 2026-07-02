@@ -29,7 +29,9 @@ const SOLUTIONS = {
 	'strn-1': ['loop-2'],
 	'while-1': ['w-sentinel'],
 	'rec-1': ['base', 'rec', 'comb'],
-	'rec-2': ['base', 'rec', 'comb']
+	'rec-2': ['base', 'rec', 'comb'],
+	'fn-1': ['apply-f', 'ret-res'],
+	'fn-2': ['loop-each']
 };
 
 function freshMem(level) {
