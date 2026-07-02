@@ -63,5 +63,7 @@ profond de `fact(3)`, styleguide.
   (Chrome/Edge Windows, google-chrome/chromium Linux). Préinstallé sur le runner CI.
 - **Déterminisme** : écrans pilotés via `window.__memoforge` (exposé par `src/main.js`),
   animations neutralisées, viewport fixe 1280×900.
+- **Layout mobile** (E9-2) : un écran `mobile-salle` capturé à 375 px vérifie que le mur de
+  casiers et le programme s'empilent (flex column) — verrouillé contre les régressions.
 - **Budget de perf** (E5-3) : le harnais applique aussi `docs/PERF.md` — poids de l'app,
   rendu salle/carte mesurés dans Chrome ; dépassement = échec.
