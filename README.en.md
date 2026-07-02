@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml/badge.svg)](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml)
 [![Deploy](https://github.com/decarvalhoe/MemoForge/actions/workflows/deploy.yml/badge.svg)](https://github.com/decarvalhoe/MemoForge/actions/workflows/deploy.yml)
-![Version](https://img.shields.io/badge/version-1.3.1-46E08A)
+![Version](https://img.shields.io/badge/version-1.4.0-46E08A)
 ![Engine coverage](https://img.shields.io/badge/engine_coverage-100%25-46E08A)
 ![Runtime dependencies](https://img.shields.io/badge/runtime_dependencies-0-46E08A)
 
@@ -105,9 +105,10 @@ Every PR passes four gates in CI:
 
 | Gate | Content |
 |---|---|
-| **Tests** | 621 `node:test` tests — engine, levels (each lure verified as *teaching*), world, medals, pitfalls, a11y · **engine coverage ≥ 90 % required (100 % effective)** |
+| **Tests** | 655 `node:test` tests — engine, levels (each lure verified as *teaching*), world, medals, pitfalls, a11y, i18n guard · **engine coverage ≥ 90 % required (100 % effective)** |
 | **Non-regression** | data-driven sweep: every level must stay solvable via its canonical path |
-| **Key screens** | Puppeteer harness: 8 screens captured (incl. mobile and EN), structural invariants + pixel diff ([`docs/TESTING.md`](docs/TESTING.md)) |
+| **Key screens** | Puppeteer harness: 9 screens captured (incl. mobile, EN, EN map), structural invariants + pixel diff ([`docs/TESTING.md`](docs/TESTING.md)) |
+| **A11y & security** | axe-core (WCAG 2.x AA, 0 violations) + strict-CSP guard, both enforced in CI ([`docs/A11Y.md`](docs/A11Y.md), [`docs/SECURITY.md`](docs/SECURITY.md)) |
 | **Perf budgets** | weight ≤ 280 KB, render ≤ 16 ms — measured and enforced ([`docs/PERF.md`](docs/PERF.md)) |
 
 The production artifact (`npm run build` → `dist/`) is re-verified by the same harness before
