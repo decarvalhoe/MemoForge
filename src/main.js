@@ -22,6 +22,9 @@ if (langBtn) {
 // Traduit la tagline statique de l'accueil.
 const tagline = document.querySelector('.tagline');
 if (tagline) tagline.textContent = t(tagline.textContent.trim());
+// Traduit le lien d'évitement (a11y).
+const skip = document.getElementById('skip-link');
+if (skip) skip.textContent = t(skip.textContent.trim());
 
 // Point d'ancrage du harnais de tests visuels (tests/visual, E0-6) : permet de piloter
 // les écrans clés de façon déterministe (enterRoom, addBlock, step) sans clics fragiles.

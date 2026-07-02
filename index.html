@@ -25,12 +25,13 @@
 	</style>
 </head>
 <body>
+	<a href="#app" id="skip-link" class="skip-link">Aller au contenu</a>
 	<button id="lang-toggle" class="theme-toggle" type="button" aria-label="Change language / Changer de langue" style="right: 96px">EN</button>
 	<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Basculer entre thème clair et sombre" aria-pressed="false">☀ clair</button>
 	<main class="wrap">
 		<h1 class="brand">MemoForge</h1>
 		<p class="tagline">Comprends les pointeurs et la mémoire C en assemblant des programmes.</p>
-		<div id="app"></div>
+		<div id="app" tabindex="-1"></div>
 	</main>
 	<script type="module" src="src/main.js"></script>
 	<script type="module" src="src/ui/theme.js"></script>

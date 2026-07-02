@@ -305,6 +305,44 @@ async function checkPerfBudget(page) {
 	return failures;
 }
 
+// ---------------------------------------------------------------- audit a11y (axe-core)
+const AXE_PATH = path.join(ROOT, 'node_modules', 'axe-core', 'axe.min.js');
+// Vues auditées : carte (FR/EN) et une salle jouable — couvrent map, room, briques, verdict.
+const A11Y_VIEWS = [
+	{ name: 'carte (fr)', lang: 'fr', prepare: null },
+	{ name: 'carte (en)', lang: 'en', prepare: null },
+	{ name: 'salle rec-1', lang: 'fr', prepare: () => { window.__memoforge.enterRoom('rec-1'); } }
+];
+
+// Lance axe-core sur chaque vue et échoue sur toute violation serious/critical (WCAG 2.x AA).
+async function checkA11y(page) {
+	let failures = 0;
+	for (const view of A11Y_VIEWS) {
+		await page.evaluateOnNewDocument((lang) => {
+			try { window.localStorage.setItem('memoforge.lang', lang || 'fr'); } catch { /* ignore */ }
+		}, view.lang);
+		await page.goto(`http://127.0.0.1:${PORT}/`, { waitUntil: 'networkidle0' });
+		if (view.prepare) await page.evaluate(view.prepare);
+		await page.addScriptTag({ path: AXE_PATH });
+		const res = await page.evaluate(async () => {
+			const r = await window.axe.run(document.body, {
+				runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] }
+			});
+			return r.violations.map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.length, target: (v.nodes[0] || {}).target }));
+		});
+		const blocking = res.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+		if (blocking.length) {
+			failures += 1;
+			console.error(`✖ a11y ${view.name} — ${blocking.length} violation(s) bloquante(s) : `
+				+ blocking.map((v) => `${v.id} (${v.impact}, ×${v.nodes}) → ${JSON.stringify(v.target)}`).join(', '));
+		} else {
+			const minor = res.length ? ` · ${res.length} mineure(s)` : '';
+			console.log(`✔ a11y ${view.name} — aucune violation serious/critical (WCAG 2.x AA)${minor}`);
+		}
+	}
+	return failures;
+}
+
 // ---------------------------------------------------------------- main
 async function main() {
 	fs.mkdirSync(OUT_DIR, { recursive: true });
@@ -338,6 +376,7 @@ async function main() {
 			}
 		}
 		failures += await checkPerfBudget(page);
+		failures += await checkA11y(page);
 	} finally {
 		await browser.close();
 		server.close();

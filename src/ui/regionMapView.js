@@ -33,7 +33,7 @@ function regionBlock(r, solved, onEnter) {
 	const status = regionStatus(r.id, solved);
 	const open = status === 'current' || status === 'solved';
 	const head = el('div', { style: 'display:flex;justify-content:space-between;align-items:baseline' }, [
-		el('div', { style: `font-size:var(--fs-md);font-weight:600;color:${open ? 'var(--accent)' : 'var(--text-muted)'}`, text: '▸ ' + localize(r, 'regions').name }),
+		el('h3', { style: `margin:0;font-size:var(--fs-md);font-weight:600;color:${open ? 'var(--accent)' : 'var(--text-muted)'}`, text: '▸ ' + localize(r, 'regions').name }),
 		el('div', { style: 'font-size:var(--fs-2xs);color:var(--text-muted)', text: localize(r, 'regions').addr })
 	]);
 	const rooms = el('div', { style: 'display:flex;gap:9px;margin-top:9px;flex-wrap:wrap' });
@@ -54,8 +54,8 @@ export function renderRegionMap(container, solved, onEnter, onSandbox, onExam) {
 	clear(container);
 	const body = el('div', { style: 'padding:16px 22px 20px' });
 
-	body.appendChild(el('div', {
-		style: 'font-family:var(--font-display);font-size:var(--fs-display-1);line-height:1;color:var(--accent);text-shadow:var(--text-glow-green)',
+	body.appendChild(el('h2', {
+		style: 'margin:0;font-family:var(--font-display);font-size:var(--fs-display-1);line-height:1;color:var(--accent);text-shadow:var(--text-glow-green)',
 		text: t('LA RAM')
 	}));
 	body.appendChild(el('div', {
