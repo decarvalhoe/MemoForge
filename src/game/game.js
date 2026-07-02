@@ -13,6 +13,7 @@ import { explainRun, explainError, explainLeak } from './pitfalls.js';
 import { SANDBOX } from './sandbox.js';
 import { EXAM } from './exam.js';
 import { loadLibft, saveLibft, forge, functionsFor, forgedNames, depStatus } from './libft.js';
+import { loadStats, saveStats, record, hardest } from './stats.js';
 import { renderLibft } from '../ui/libftView.js';
 import { WORD } from '../engine/memory.js';
 import { valgrindReport, measureLeaks } from './valgrind.js';
@@ -42,6 +43,8 @@ export class Game {
 		// « Ta libft » : inventaire des ft_ forgées, persistant si un stockage est dispo.
 		this._storage = (typeof localStorage !== 'undefined') ? localStorage : null;
 		this.libft = loadLibft(this._storage);
+		// Stats d'apprentissage LOCALES et privées (E9-4) : jamais envoyées nulle part.
+		this.stats = loadStats(this._storage);
 	}
 
 	get level() {
@@ -154,6 +157,10 @@ export class Game {
 
 	renderMap() {
 		renderRegionMap(this.elMap, this.solved, (id) => this.enterRoom(id), () => this.enterSandbox(), () => this.enterExam());
+		// E9-4 : rappel discret et privé du niveau le plus retravaillé (stats locales).
+		const top = hardest(this.stats, 1)[0];
+		if (top)
+			this.elMap.appendChild(el('p', { class: 'mission-hint', style: 'text-align:center;margin-top:12px', text: `🔁 le plus retravaillé : ${top.id} (${top.fails} essais avant réussite) · stats locales, jamais envoyées` }));
 	}
 
 	loadLevel(i) {
@@ -334,6 +341,11 @@ export class Game {
 				{ label: '≤ ' + this.level.par + ' instructions', got: minimal }
 			]
 		};
+		// E9-4 : enregistre la tentative (local, privé). Sandbox/examen exclus (sans cible).
+		if (!this.sandboxMode && !this.examMode) {
+			this.stats = record(this.stats, this.level.id, { passed, pitfall: feedback && feedback.tone });
+			saveStats(this._storage, this.stats);
+		}
 	}
 
 	render() {
