@@ -251,3 +251,18 @@ describe('pow-1/fib-1/prime-1 — Récursivité & maths (C05)', () => {
 		assert.equal(goalMet(byId['prime-1'], runProgram(byId['prime-1'], ['i0', 'scan-bad', 'prime']).mem), false);
 	});
 });
+
+describe('sub-1/join-1 — Chaînes allouées (libft Part 2)', () => {
+	test('ft_substr : malloc(len+1) + copie de s[start+i] → "el"', () => {
+		assert.ok(solved(byId['sub-1'], ['alloc', 'i0', 'copy', 'term', 'ret']));
+	});
+	test('ft_substr qui ignore start (s[i]) → "He", échoue', () => {
+		assert.equal(goalMet(byId['sub-1'], runProgram(byId['sub-1'], ['alloc', 'i0', 'copy-bad', 'term', 'ret']).mem), false);
+	});
+	test('ft_strjoin : compose ft_strlen + ft_strcpy + ft_strcat → "Hi!"', () => {
+		assert.ok(solved(byId['join-1'], ['l1', 'l2', 'alloc', 'cpy', 'cat', 'ret']));
+	});
+	test('ft_strjoin sans le +1 → strcat déborde → crash', () => {
+		assert.ok(runProgram(byId['join-1'], ['l1', 'l2', 'alloc-bad', 'cpy', 'cat', 'ret']).error);
+	});
+});

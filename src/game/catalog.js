@@ -97,7 +97,7 @@ export const CATALOG = [
 	{ fn: 'ft_strdup', module: 'C07', concept: 'malloc(len+1) + copie', tier: 'ready', deps: ['ft_strlen', 'ft_strcpy'], statut: 'jouable', level: 'dup-1' },
 	{ fn: 'ft_range', module: 'C07', concept: 'tableau dynamique', tier: 'ready', deps: [], statut: 'jouable', level: 'range-1' },
 	{ fn: 'ft_ultimate_range', module: 'C07', concept: 'range via pointeur', tier: 'ready', deps: ['ft_range'], statut: 'a-forger', level: null, issue: '#102' },
-	{ fn: 'ft_strjoin', module: 'C07', concept: 'joindre N chaînes + sep', tier: 'ready', deps: ['ft_strlen', 'ft_strcat'], statut: 'a-forger', level: null, issue: '#108' },
+	{ fn: 'ft_strjoin', module: 'C07', concept: 'joindre N chaînes + sep', tier: 'ready', deps: ['ft_strlen', 'ft_strcat'], statut: 'jouable', level: 'join-1' },
 	{ fn: 'ft_convert_base', module: 'C07', concept: 'atoi_base + putnbr_base', tier: 'char', deps: ['ft_atoi_base', 'ft_putnbr_base'], statut: 'optionnel', level: null },
 	{ fn: 'ft_split', module: 'C07', concept: 'découper → tableau (N+1 free)', tier: 'ready', deps: ['ft_strlen'], statut: 'a-forger', level: null, issue: '#103' },
 
@@ -137,8 +137,8 @@ export const CATALOG = [
 	{ fn: 'ft_calloc', module: 'libft-1', concept: 'malloc + bzero', tier: 'octet', deps: ['ft_bzero'], statut: 'a-forger', level: null, issue: '#105' },
 
 	// ── libft · Part 2 (fonctions « augmentées », le tas + les callbacks) ─────
-	{ fn: 'ft_substr', module: 'libft-2', concept: 'sous-chaîne allouée', tier: 'ready', deps: ['ft_strlen'], statut: 'a-forger', level: null, issue: '#108' },
-	{ fn: 'ft_strjoin', module: 'libft-2', concept: 'concat allouée', tier: 'ready', deps: ['ft_strlen'], statut: 'a-forger', level: null, issue: '#108' },
+	{ fn: 'ft_substr', module: 'libft-2', concept: 'sous-chaîne allouée', tier: 'ready', deps: ['ft_strlen'], statut: 'jouable', level: 'sub-1' },
+	{ fn: 'ft_strjoin', module: 'libft-2', concept: 'concat allouée', tier: 'ready', deps: ['ft_strlen', 'ft_strcpy', 'ft_strcat'], statut: 'jouable', level: 'join-1' },
 	{ fn: 'ft_strtrim', module: 'libft-2', concept: 'rogner les bords', tier: 'char', deps: ['ft_strlen'], statut: 'a-forger', level: null, issue: '#108' },
 	{ fn: 'ft_split', module: 'libft-2', concept: 'tableau de chaînes', tier: 'ready', deps: ['ft_strlen'], statut: 'a-forger', level: null, issue: '#103' },
 	{ fn: 'ft_itoa', module: 'libft-2', concept: "int → texte (chiffre + '0')", tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
