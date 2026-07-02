@@ -8,7 +8,7 @@ const DAY = 24 * 60 * 60 * 1000;
 const T0 = 1_700_000_000_000; // instant de référence fixe
 
 function fakeStorage() {
-	let store = {};
+	const store = {};
 	return {
 		getItem: (k) => (k in store ? store[k] : null),
 		setItem: (k, v) => { store[k] = String(v); },

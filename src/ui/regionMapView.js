@@ -6,6 +6,48 @@ import { LEVELS } from '../game/levels.js';
 
 const LEVEL_BY_ID = Object.fromEntries(LEVELS.map((l) => [l.id, l]));
 
+// Une salle de la carte : carte cliquable (rôle bouton, accessible clavier) si débloquée.
+// `clickable` = la région est ouverte ; `isSolved` = niveau déjà résolu (★★★).
+function roomLink(id, clickable, isSolved, onEnter) {
+	const lv = LEVEL_BY_ID[id];
+	const title = lv ? localize(lv, 'levels').title : id;
+	const roomStatus = isSolved ? 'solved' : (clickable ? 'current' : 'locked');
+	const card = regionCard({ id, title, status: roomStatus });
+	const attrs = { class: 'mf-room-link', style: `flex:1;min-width:120px;cursor:${clickable ? 'pointer' : 'default'}` };
+	if (clickable) {
+		attrs.role = 'button';
+		attrs.tabindex = '0';
+		attrs['aria-label'] = `${t('Entrer dans la salle')} ${id} : ${title}`;
+		attrs.onclick = () => onEnter(id);
+		attrs.onkeydown = (e) => {
+			if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEnter(id); }
+		};
+	} else {
+		attrs['aria-disabled'] = 'true';
+	}
+	return el('div', attrs, [card]);
+}
+
+// Un bloc de région : en-tête (nom + adresse) et ses salles (ou « à venir »).
+function regionBlock(r, solved, onEnter) {
+	const status = regionStatus(r.id, solved);
+	const open = status === 'current' || status === 'solved';
+	const head = el('div', { style: 'display:flex;justify-content:space-between;align-items:baseline' }, [
+		el('div', { style: `font-size:var(--fs-md);font-weight:600;color:${open ? 'var(--accent)' : 'var(--text-muted)'}`, text: '▸ ' + localize(r, 'regions').name }),
+		el('div', { style: 'font-size:var(--fs-2xs);color:var(--text-muted)', text: localize(r, 'regions').addr })
+	]);
+	const rooms = el('div', { style: 'display:flex;gap:9px;margin-top:9px;flex-wrap:wrap' });
+	if (r.levelIds.length === 0) {
+		rooms.appendChild(el('div', { style: 'font-size:var(--fs-2xs);color:var(--text-muted)', text: t('à venir') }));
+	} else {
+		for (const id of r.levelIds)
+			rooms.appendChild(roomLink(id, open, solved.has(id), onEnter));
+	}
+	return el('div', {
+		style: `background:${open ? 'var(--surface-nested)' : 'var(--surface)'};border:1px ${open ? 'solid var(--accent)' : 'dashed var(--border)'};border-radius:var(--radius-md);padding:11px 13px;opacity:${open ? 1 : 0.6}`
+	}, [head, rooms]);
+}
+
 // Rend la carte de la RAM : régions, verrous, alerte fuite, entrée en salle.
 // onEnter(levelId) au clic d'une salle ; onSandbox() bac à sable ; onExam() mode examen.
 export function renderRegionMap(container, solved, onEnter, onSandbox, onExam) {
@@ -24,45 +66,8 @@ export function renderRegionMap(container, solved, onEnter, onSandbox, onExam) {
 	]));
 
 	const list = el('div', { style: 'display:flex;flex-direction:column;gap:12px' });
-	for (const r of REGIONS) {
-		const status = regionStatus(r.id, solved);
-		const open = status === 'current' || status === 'solved';
-		const head = el('div', { style: 'display:flex;justify-content:space-between;align-items:baseline' }, [
-			el('div', { style: `font-size:var(--fs-md);font-weight:600;color:${open ? 'var(--accent)' : 'var(--text-muted)'}`, text: '▸ ' + localize(r, 'regions').name }),
-			el('div', { style: 'font-size:var(--fs-2xs);color:var(--text-muted)', text: localize(r, 'regions').addr })
-		]);
-
-		const rooms = el('div', { style: 'display:flex;gap:9px;margin-top:9px;flex-wrap:wrap' });
-		if (r.levelIds.length === 0) {
-			rooms.appendChild(el('div', { style: 'font-size:var(--fs-2xs);color:var(--text-muted)', text: t('à venir') }));
-		} else {
-			for (const id of r.levelIds) {
-				const lv = LEVEL_BY_ID[id];
-				const clickable = open;
-				const roomStatus = solved.has(id) ? 'solved' : (clickable ? 'current' : 'locked');
-				const card = regionCard({ id, title: lv ? localize(lv, 'levels').title : id, status: roomStatus });
-				const title = lv ? localize(lv, 'levels').title : id;
-				const attrs = { class: 'mf-room-link', style: `flex:1;min-width:120px;cursor:${clickable ? 'pointer' : 'default'}` };
-				if (clickable) {
-					// Salle jouable = élément interactif accessible au clavier.
-					attrs.role = 'button';
-					attrs.tabindex = '0';
-					attrs['aria-label'] = `${t('Entrer dans la salle')} ${id} : ${title}`;
-					attrs.onclick = () => onEnter(id);
-					attrs.onkeydown = (e) => {
-						if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEnter(id); }
-					};
-				} else {
-					attrs['aria-disabled'] = 'true';
-				}
-				rooms.appendChild(el('div', attrs, [card]));
-			}
-		}
-
-		list.appendChild(el('div', {
-			style: `background:${open ? 'var(--surface-nested)' : 'var(--surface)'};border:1px ${open ? 'solid var(--accent)' : 'dashed var(--border)'};border-radius:var(--radius-md);padding:11px 13px;opacity:${open ? 1 : 0.6}`
-		}, [head, rooms]));
-	}
+	for (const r of REGIONS)
+		list.appendChild(regionBlock(r, solved, onEnter));
 	body.appendChild(list);
 
 	const actions = [];

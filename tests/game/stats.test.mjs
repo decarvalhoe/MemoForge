@@ -48,7 +48,7 @@ describe('persistance locale', () => {
 	}
 	test('save/load round-trip', () => {
 		const st = mockStorage();
-		let s = record(emptyStats(), 'a', { passed: false });
+		const s = record(emptyStats(), 'a', { passed: false });
 		saveStats(st, s);
 		assert.deepEqual(loadStats(st), s);
 	});

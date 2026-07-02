@@ -6,7 +6,6 @@
 //
 // Ce module est PUR (aucune dépendance au DOM) et data-driven : ajouter une région = une
 // entrée dans REGIONS ; rattacher un niveau = ajouter son id dans `levelIds`.
-import { LEVELS } from './levels.js';
 
 /**
  * @typedef {Object} Region

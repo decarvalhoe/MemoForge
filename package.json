@@ -10,7 +10,7 @@
 		"test:watch": "node --test --watch",
 		"test:visual": "node tests/visual/run.mjs",
 		"build": "node scripts/build.mjs",
-		"lint": "eslint src/engine tests/engine tests/helpers.mjs"
+		"lint": "eslint src tests"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
