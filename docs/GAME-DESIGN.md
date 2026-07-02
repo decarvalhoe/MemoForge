@@ -84,6 +84,23 @@ Pièges moteur → feedback (`pitfalls.js`) :
 - `débordement de pile` → « CRASH — la pile déborde (stack overflow) » + hint cas de base ;
 - `fonction inconnue` → hint « branche une vraie fonction avant de l'appliquer ».
 
+## 4bis. Couverture du cursus & « ta libft »
+
+Le contenu vise l'exhaustivité : les fonctions principales de **tous** les exos officiels
+(C00→C13) et **la libft intégrale** (43 fonctions). Le référentiel canonique est
+[`src/game/catalog.js`](../src/game/catalog.js) — chaque fonction y porte son module, ses
+dépendances de forge, son tier de faisabilité moteur et son **statut** (jouable · à
+refondre · à forger · hors-runtime · optionnel). `tests/game/catalog.test.mjs` interdit
+toute dérive : oublier une fonction ou pointer un niveau fantôme casse la CI.
+
+Deux règles moteur qui rendent ce contenu fidèle :
+- **Un char EST son code ASCII** (`codeOf`, `evalBin`) : `c - '0'`, `'a' - 32`, `c <= 'z'`
+  se comportent comme en C. C'est le socle de la moitié de la libft (atoi, itoa, casse,
+  `str_is_*`, putnbr).
+- **Esprit libft** : une banque ne contient que des primitives C (`= * & malloc/free`,
+  arithmétique, `while`/`if`/`return`, syscalls) ou des `ft_` **déjà forgées** par le
+  joueur — jamais une fonction toute faite que l'exo demande d'écrire (cf. §5).
+
 ## 5. Ce que ce contrat interdit (garde-fous)
 
 - Pas de fonction récursive « fournie toute faite » à simplement invoquer : le cas de base
@@ -93,3 +110,8 @@ Pièges moteur → feedback (`pitfalls.js`) :
   Monde 7 (corps qui applique `f`), et resservira pour tout niveau « écris la fonction ».
 - Pas d'appel imbriqué dans une expression (`n * fact(n-1)` en un bloc) : un appel est un
   bloc à part entière, pour que **chaque frame poussée corresponde à un geste du joueur**.
+- Pas de `ft_` magique en banque : si l'exo demande d'écrire `ft_atoi`, la banque ne
+  propose pas un bloc `atoi` tout fait — seulement les primitives et les `ft_` déjà forgées.
+- Pas d'indice qui donne la réponse (règle n°1 du cours) : un indice pose une question qui
+  force à simuler la machine, rappelle le modèle mémoire ou renvoie au module — jamais une
+  brique de la banque ni un ordre de pose. Le crash reste le professeur principal.

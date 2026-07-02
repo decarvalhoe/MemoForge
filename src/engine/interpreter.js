@@ -3,6 +3,13 @@ import { RuntimeError, WORD } from './memory.js';
 const MAX_STEPS = 100000;
 const MAX_DEPTH = 64;
 
+// En C, un char EST son code ASCII : l'arithmétique et les comparaisons opèrent sur des
+// nombres (`c - '0'`, `'a' - 32`, `c <= 'z'`). Le moteur range les chars comme chaînes d'un
+// caractère (confort d'affichage) ; on les ramène à leur code pour tout calcul binaire.
+export function codeOf(v) {
+	return (typeof v === 'string' && v.length === 1) ? v.charCodeAt(0) : v;
+}
+
 export class Interpreter {
 	constructor(memory, program, functions = {}) {
 		this.mem = memory;
@@ -78,8 +85,8 @@ export class Interpreter {
 	}
 
 	evalBin(e) {
-		const a = this.evalExpr(e.a);
-		const b = this.evalExpr(e.b);
+		const a = codeOf(this.evalExpr(e.a));
+		const b = codeOf(this.evalExpr(e.b));
 		if ((e.op === '/' || e.op === '%') && b === 0)
 			throw new RuntimeError('division par zéro');
 		if (e.op === '+')
