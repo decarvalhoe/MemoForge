@@ -612,6 +612,30 @@ export const LEVELS = [
 		]
 	},
 	{
+		// L'explorateur d'octets (M1/M2) : un int > 255 ne tient pas dans UNE case — il
+		// s'étale sur plusieurs, en LITTLE-ENDIAN. Extraire un octet = base 256 : n % 256
+		// donne l'octet de poids faible, n / 256 fait glisser au suivant. 1000 → e8 03 00 00.
+		id: 'mem-1',
+		world: 'Conversion nombre↔texte',
+		title: 'L\'explorateur d\'octets (little-endian)',
+		goalText: '1000 ne tient pas dans un octet (0-255) : il s\'étale sur plusieurs cases. Extrais l\'octet de poids faible (b0) et le suivant (b1). Pour 1000 : b0 = 232 (0xe8), b1 = 3.',
+		hint: 'Un octet va de 0 à 255 : quelle opération donne le RESTE d\'un nombre par 256 ? Et laquelle fait glisser d\'un octet vers le suivant ? (cours M1/M2)',
+		showBytes: ['n'],
+		vars: [
+			{ name: 'n', value: 1000, kind: 'int' },
+			{ name: 'b0', value: 0, kind: 'int' },
+			{ name: 'b1', value: 0, kind: 'int' }
+		],
+		slots: 2,
+		par: 2,
+		goal: { b0: 232, b1: 3 },
+		bank: [
+			{ id: 'lo', label: 'b0 = n % 256', ast: assign(variable('b0'), bin('%', variable('n'), lit(256))) },
+			{ id: 'hi', label: 'b1 = (n / 256) % 256', ast: assign(variable('b1'), bin('%', bin('/', variable('n'), lit(256)), lit(256))) },
+			{ id: 'lo-bad', label: 'b0 = n / 256  (big-endian, à l\'envers)', ast: assign(variable('b0'), bin('/', variable('n'), lit(256))) }
+		]
+	},
+	{
 		id: 'strn-1',
 		world: 'Chaînes & bornes',
 		title: 'Copie bornée (ft_strncpy)',

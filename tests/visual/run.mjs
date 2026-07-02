@@ -148,6 +148,17 @@ const SCREENS = [
 		}
 	},
 	{
+		// L'explorateur d'octets (M1/M2) : 1000 étalé en little-endian e8 03 00 00.
+		name: 'salle-mem-octets',
+		url: '/',
+		prepare: () => { window.__memoforge.enterRoom('mem-1'); },
+		verify: () => {
+			const txt = (document.querySelector('.bytes') || {}).innerText || '';
+			return /octets/i.test(txt) && txt.includes('e8') && txt.includes('03')
+				|| 'explorateur d\'octets absent : ' + JSON.stringify(txt.slice(0, 90));
+		}
+	},
+	{
 		name: 'styleguide',
 		url: '/styleguide.html',
 		verify: () => document.querySelectorAll('h2').length >= 3 || 'styleguide sans sections'

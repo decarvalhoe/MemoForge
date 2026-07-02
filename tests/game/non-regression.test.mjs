@@ -32,6 +32,7 @@ const SOLUTIONS = {
 	'f-1': ['open', 'read', 'write', 'close'],
 	'dup-1': ['len', 'size', 'alloc', 'copy', 'ret'],
 	'conv-3': ['u-mod', 't-div'],
+	'mem-1': ['lo', 'hi'],
 	'strn-1': ['loop-2'],
 	'while-1': ['init', 'scan', 'ret'],
 	'rec-1': ['base', 'rec', 'comb'],
