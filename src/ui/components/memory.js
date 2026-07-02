@@ -15,7 +15,7 @@ export function locker({ name, address = null, value = null, kind = null, state 
 	const cls = 'mf-locker' + (state !== 'normal' ? ' mf-locker--' + state : '');
 	const children = [el('div', { class: 'mf-locker__name', text: name })];
 	if (address != null)
-		children.push(el('div', { class: 'mf-locker__addr', text: 'n° ' + address + (kind ? ' · ' + kind : '') }));
+		children.push(el('div', { class: 'mf-locker__addr', text: t('n°') + ' ' + address + (kind ? ' · ' + kind : '') }));
 	children.push(el('div', { class: 'mf-locker__val', text: value == null ? '—' : String(value) }));
 	children.push(el('div', { class: 'mf-locker__state', text: t(stateLabel || STATE_LABELS[state] || '') }));
 	return el('div', { class: cls }, children);

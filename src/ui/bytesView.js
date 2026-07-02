@@ -11,7 +11,7 @@ export function renderBytes(container, snapshot, names = []) {
 	const wanted = snapshot.filter((c) => names.includes(c.name));
 	if (!wanted.length)
 		return;
-	container.appendChild(el('div', { class: 'heap-label', text: '// explorateur d\'octets (little-endian)' }));
+	container.appendChild(el('div', { class: 'heap-label', text: t('// explorateur d\'octets (little-endian)') }));
 	const strip = el('div', { style: 'display:flex;flex-direction:column;gap:6px' });
 	for (const cell of wanted) {
 		const e = explain(cell.value);

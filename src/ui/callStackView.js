@@ -53,7 +53,7 @@ export function renderCallStack(container, frames = []) {
 	}
 
 	if (model.frames.length) {
-		container.appendChild(el('div', { class: 'heap-label', text: '// pile d\'appels' }));
+		container.appendChild(el('div', { class: 'heap-label', text: t('// pile d\'appels') }));
 		const strip = el('div', { style: 'display:flex;flex-direction:column;gap:6px' });
 		for (const f of model.frames) {
 			const head = el('div', { style: 'display:flex;align-items:center;gap:8px;margin-bottom:3px' }, [

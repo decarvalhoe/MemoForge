@@ -81,6 +81,12 @@ export const EN = {
 		'cible atteinte': 'target reached', 'sans erreur ni fuite': 'no error or leak',
 		'Exécuter': 'Run', 'Pas-à-pas': 'Step', 'Réinitialiser': 'Reset', 'Suivant →': 'Next →',
 		'Passer': 'Skip', '// pile d\'appels': '// call stack',
+		// Réordonnancement du programme (boutons + aria-labels accessibles).
+		'monter': 'move up', 'descendre': 'move down', 'retirer': 'remove',
+		'monter l\'instruction': 'move instruction up', 'descendre l\'instruction': 'move instruction down',
+		'n°': 'no.',
+		// Notes de statut des cartes de région (carte RAM).
+		'résolu': 'solved', 'tu es ici': 'you are here', 'verrouillé': 'locked',
 		'// explorateur d\'octets (little-endian)': '// byte explorer (little-endian)',
 		'GLIF surveille la mémoire': 'GLIF watches the memory',
 		'GLIF valide !': 'GLIF approves!', 'GLIF réfléchit…': 'GLIF is thinking…',
