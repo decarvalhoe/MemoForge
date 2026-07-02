@@ -3,6 +3,23 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) · versioning :
 [SemVer](https://semver.org/lang/fr/). Démo : <https://decarvalhoe.github.io/MemoForge/>.
 
+## [1.3.1] — 2026-07-02
+
+Finition bilingue et durcissement du process.
+
+### Corrigé
+- **UI 100 % anglaise** : les derniers textes en français (bac à sable, résumé d'examen,
+  stats, tas/sortie, libellés de casiers, carte, adresses de régions) sont traduits. Audit
+  automatisé : 0 français résiduel.
+- A11y : l'attribut `<html lang>` suit la langue choisie (lecteurs d'écran).
+
+### Ajouté
+- **Documentation bilingue** : `README.en.md`, `CONTRIBUTING.en.md`, `docs/WORKFLOW.en.md`
+  avec sélecteurs de langue ; README FR remis à jour (badges, chiffres).
+- **Gate de release** (`docs-gate.yml`) : tout bump de version exige une entrée CHANGELOG et
+  des badges README (FR + EN) à jour — check requis par la protection de branche.
+- Description GitHub du dépôt réécrite (bilingue).
+
 ## [1.3.0] — 2026-07-02
 
 Deltas moteur restants (EPIC 8) + progression/UX/portée (EPIC 9). Notamment : **le jeu
