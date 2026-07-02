@@ -7,13 +7,13 @@
 export const EN = {
 	// ── Régions de la carte ────────────────────────────────────────────────
 	regions: {
-		r1: { name: 'Cells & addresses' },
+		r1: { name: 'Cells & addresses', addr: '0x0000 · low stack' },
 		r2: { name: 'Arrays & swap' },
 		r3: { name: 'Output & ASCII' },
 		r4: { name: 'Strings & terminators' },
 		r5: { name: 'Number ↔ text conversion' },
 		r6: { name: 'Dynamic memory — the Heap' },
-		r7: { name: 'Recursion' },
+		r7: { name: 'Recursion', addr: 'the stack · 0x2000' },
 		r9: { name: 'Lists & trees' },
 		r10: { name: 'Files & syscalls' }
 	},
@@ -67,7 +67,8 @@ export const EN = {
 		'arg-1': { title: 'Write ft_print_params', goalText: 'main launches the program with the arguments « Hi » and « ! ». Write ft_print_params(argc, argv) that prints each argument (not the program name): the output must be « Hi! ».', hint: 'argv[0] is the program name, not an argument. From which index do the real arguments start? argv[i] is a string — which already-forged function prints it? (course — argv = char**)', driverText: 'main (locked): ./prog Hi ! → ft_print_params(argc, argv)' },
 		'arg-2': { title: 'Write ft_rev_params', goalText: 'Same arguments « Hi » « ! ». Write ft_rev_params(argc, argv) that prints them IN REVERSE: the output must be « !Hi ».', hint: 'The last argument is at index argc − 1. Which way do you vary i to go from the last to the first real argument? (course — argv)', driverText: 'main (locked): ./prog Hi ! → ft_rev_params(argc, argv)' },
 		'mem-2': { title: 'Write ft_memset', goalText: 'Write the BODY of ft_memset(ptr, val, n). main fills 3 cells with 65 (\'A\'): b0, b1, b2 must be 65.', hint: 'memset writes THE SAME value into each cell, from 0 to n−1. What do you write into cell i: the value, or the index i? (course M1)', driverText: 'main (locked): ft_memset(&b0, 65, 3)' },
-		'mem-3': { title: 'Write ft_memcpy', goalText: 'Write the BODY of ft_memcpy(dst, src, n). main copies 3 cells from src (1, 2, 3) to dst: d0, d1, d2 must be 1, 2, 3.', hint: 'memcpy recopies n cells. What do you put into dst[i]: the matching cell of src, or something else? (course M1/M11)', driverText: 'main (locked): ft_memcpy(&d0, &s0, 3)' }
+		'mem-3': { title: 'Write ft_memcpy', goalText: 'Write the BODY of ft_memcpy(dst, src, n). main copies 3 cells from src (1, 2, 3) to dst: d0, d1, d2 must be 1, 2, 3.', hint: 'memcpy recopies n cells. What do you put into dst[i]: the matching cell of src, or something else? (course M1/M11)', driverText: 'main (locked): ft_memcpy(&d0, &s0, 3)' },
+		sandbox: { title: 'Sandbox — experiment freely', goalText: 'No imposed target: assemble whatever you want and watch the memory.', hint: 'Trigger a leak (malloc without free), a double free, a NULL dereference…' }
 	},
 
 	// ── Chaînes d'interface (clé = la chaîne source française) ──────────────
@@ -119,6 +120,18 @@ export const EN = {
 		'Cible atteinte, sans erreur ni fuite.': 'Target reached, no error or leak.',
 		'CIBLE NON ATTEINTE': 'TARGET NOT REACHED',
 		'Le résultat ne correspond pas encore. Réessaie.': 'The result does not match yet. Try again.',
-		'slot libre': 'empty slot', 'clair': 'light', 'sombre': 'dark'
+		'slot libre': 'empty slot', 'clair': 'light', 'sombre': 'dark',
+		// Casiers / mémoire
+		'normal': 'normal', 'modifié': 'changed', 'pointeur': 'pointer', 'alloué': 'allocated',
+		'libéré': 'freed', 'tas — mémoire dynamique': 'heap — dynamic memory', '// sortie': '// output',
+		'(réf)': '(ref)',
+		// Bac à sable
+		'EXÉCUTÉ': 'RAN', 'Aucune cible : observe la mémoire. Provoque une fuite, un double free, un déréf. de NULL…': 'No target: watch the memory. Trigger a leak, a double free, a NULL dereference…',
+		// Examen
+		'examen terminé': 'exam finished', 'Score : ': 'Score: ', 'Temps : ': 'Time: ', 'recommencer': 'restart',
+		// Stats locales (carte)
+		'le plus retravaillé : ': 'most retried: ', 'essais avant réussite': 'attempts before solving',
+		'stats locales, jamais envoyées': 'local stats, never sent',
+		'forge_memoire — carte.ram — 0x0000…0xFFFF': 'memory_forge — map.ram — 0x0000…0xFFFF'
 	}
 };

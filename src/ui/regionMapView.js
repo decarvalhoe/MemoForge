@@ -29,7 +29,7 @@ export function renderRegionMap(container, solved, onEnter, onSandbox, onExam) {
 		const open = status === 'current' || status === 'solved';
 		const head = el('div', { style: 'display:flex;justify-content:space-between;align-items:baseline' }, [
 			el('div', { style: `font-size:var(--fs-md);font-weight:600;color:${open ? 'var(--accent)' : 'var(--text-muted)'}`, text: '▸ ' + localize(r, 'regions').name }),
-			el('div', { style: 'font-size:var(--fs-2xs);color:var(--text-muted)', text: r.addr })
+			el('div', { style: 'font-size:var(--fs-2xs);color:var(--text-muted)', text: localize(r, 'regions').addr })
 		]);
 
 		const rooms = el('div', { style: 'display:flex;gap:9px;margin-top:9px;flex-wrap:wrap' });
@@ -70,5 +70,5 @@ export function renderRegionMap(container, solved, onEnter, onSandbox, onExam) {
 	if (onExam) actions.push(button({ label: t('examen'), variant: 'secondary', size: 'sm', glyph: '⏱', onClick: onExam }));
 	if (actions.length) body.appendChild(el('div', { style: 'margin-top:14px;display:flex;gap:8px' }, actions));
 
-	container.appendChild(terminalWindow({ title: 'forge_memoire — carte.ram — 0x0000…0xFFFF' }, [body]));
+	container.appendChild(terminalWindow({ title: t('forge_memoire — carte.ram — 0x0000…0xFFFF') }, [body]));
 }
