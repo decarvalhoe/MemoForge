@@ -46,11 +46,24 @@ describe('niveau ptr-2 — écris ft_div_mod (deux retours)', () => {
 	});
 });
 
-describe('niveau 2-1 — inverser le tableau', () => {
+describe('niveau 2-1 — écris ft_rev_int_tab (renversement indexé)', () => {
 	const L = byId['2-1'];
-	test('swap des bouts inverse le tableau', () => assert.ok(solved(L, ['tmp-t0', 't0-t2', 't2-tmp'])));
-	test('sans tmp, échoue', () => {
-		const { mem } = runProgram(L, ['t0-t2', 't2-t0']);
+	test('i=0, j=size-1, boucle qui se croise → [3,2,1]', () => {
+		assert.ok(solved(L, ['i0', 'j0', 'loop']));
+	});
+	test('boucle « i < size » va trop loin (dé-renverse) → échoue', () => {
+		const { mem } = runProgram(L, ['i0', 'j0', 'loop-bad']);
+		assert.equal(goalMet(L, mem), false);
+	});
+});
+
+describe('niveau range-1 — écris ft_range (tableau dynamique)', () => {
+	const L = byId['range-1'];
+	test('size → malloc → remplissage arr[i]=min+i → [2,3,4] sur le tas', () => {
+		assert.ok(solved(L, ['size', 'alloc', 'i0', 'fill', 'ret']));
+	});
+	test('remplir arr[i] = i (oublie + min) → [0,1,2], échoue', () => {
+		const { mem } = runProgram(L, ['size', 'alloc', 'i0', 'fill-bad', 'ret']);
 		assert.equal(goalMet(L, mem), false);
 	});
 });

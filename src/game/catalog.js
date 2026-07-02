@@ -48,7 +48,7 @@ export const CATALOG = [
 	{ fn: 'ft_ultimate_div_mod', module: 'C01', concept: 'div_mod en place', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#100' },
 	{ fn: 'ft_putstr', module: 'C01', concept: 'parcourir jusqu\'au \\0', tier: 'ready', deps: ['ft_putchar'], statut: 'a-forger', level: null, issue: '#107' },
 	{ fn: 'ft_strlen', module: 'C01', concept: 'compter jusqu\'au \\0', tier: 'ready', deps: [], statut: 'jouable', level: 'while-1' },
-	{ fn: 'ft_rev_int_tab', module: 'C01', concept: 'tab[i] ≡ *(tab+i)', tier: 'ready', deps: [], statut: 'a-refondre', level: '2-1', issue: '#102' },
+	{ fn: 'ft_rev_int_tab', module: 'C01', concept: 'tab[i] ≡ *(tab+i)', tier: 'ready', deps: [], statut: 'jouable', level: '2-1' },
 	{ fn: 'ft_sort_int_tab', module: 'C01', concept: 'tri par échanges indexés', tier: 'ready', deps: ['ft_swap'], statut: 'a-forger', level: null, issue: '#102' },
 
 	// ── C02 · chaînes, tests de caractères ────────────────────────────────────
@@ -95,7 +95,7 @@ export const CATALOG = [
 
 	// ── C07 · allocation dynamique, le tas ────────────────────────────────────
 	{ fn: 'ft_strdup', module: 'C07', concept: 'malloc(len+1) + copie', tier: 'ready', deps: ['ft_strlen', 'ft_strcpy'], statut: 'jouable', level: 'dup-1' },
-	{ fn: 'ft_range', module: 'C07', concept: 'tableau dynamique', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#102' },
+	{ fn: 'ft_range', module: 'C07', concept: 'tableau dynamique', tier: 'ready', deps: [], statut: 'jouable', level: 'range-1' },
 	{ fn: 'ft_ultimate_range', module: 'C07', concept: 'range via pointeur', tier: 'ready', deps: ['ft_range'], statut: 'a-forger', level: null, issue: '#102' },
 	{ fn: 'ft_strjoin', module: 'C07', concept: 'joindre N chaînes + sep', tier: 'ready', deps: ['ft_strlen', 'ft_strcat'], statut: 'a-forger', level: null, issue: '#108' },
 	{ fn: 'ft_convert_base', module: 'C07', concept: 'atoi_base + putnbr_base', tier: 'char', deps: ['ft_atoi_base', 'ft_putnbr_base'], statut: 'optionnel', level: null },
