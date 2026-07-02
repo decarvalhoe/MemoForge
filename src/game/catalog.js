@@ -81,10 +81,10 @@ export const CATALOG = [
 	{ fn: 'ft_iterative_factorial', module: 'C05', concept: 'boucle produit', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#108' },
 	{ fn: 'ft_recursive_factorial', module: 'C05', concept: 'cas de base + appel', tier: 'ready', deps: [], statut: 'jouable', level: 'rec-1' },
 	{ fn: 'ft_iterative_power', module: 'C05', concept: 'boucle puissance', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#108' },
-	{ fn: 'ft_recursive_power', module: 'C05', concept: 'récursion puissance', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#108' },
-	{ fn: 'ft_fibonacci', module: 'C05', concept: 'double appel récursif', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#108' },
+	{ fn: 'ft_recursive_power', module: 'C05', concept: 'récursion puissance', tier: 'ready', deps: [], statut: 'jouable', level: 'pow-1' },
+	{ fn: 'ft_fibonacci', module: 'C05', concept: 'double appel récursif', tier: 'ready', deps: [], statut: 'jouable', level: 'fib-1' },
 	{ fn: 'ft_sqrt', module: 'C05', concept: 'recherche bornée', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#108' },
-	{ fn: 'ft_is_prime', module: 'C05', concept: 'divisibilité en boucle', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#108' },
+	{ fn: 'ft_is_prime', module: 'C05', concept: 'divisibilité en boucle', tier: 'ready', deps: [], statut: 'jouable', level: 'prime-1' },
 	{ fn: 'ft_find_next_prime', module: 'C05', concept: 'is_prime en boucle', tier: 'ready', deps: ['ft_is_prime'], statut: 'a-forger', level: null, issue: '#108' },
 
 	// ── C06 · arguments du programme (modèle argv) ────────────────────────────

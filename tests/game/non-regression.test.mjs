@@ -44,7 +44,10 @@ const SOLUTIONS = {
 	'cmp-1': ['i0', 'walk', 'diff'],
 	'cat-1': ['end', 'j0', 'copy', 'term', 'ret'],
 	'rec-1': ['base', 'rec', 'comb'],
-	'rec-2': ['base', 'rec', 'comb']
+	'rec-2': ['base', 'rec', 'comb'],
+	'pow-1': ['base', 'rec', 'comb'],
+	'fib-1': ['base', 'rec1', 'rec2', 'comb'],
+	'prime-1': ['i0', 'scan', 'prime']
 };
 
 function freshMem(level) {
