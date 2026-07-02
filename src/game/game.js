@@ -12,6 +12,8 @@ import { button } from '../ui/components/index.js';
 import { explainRun, explainError, explainLeak } from './pitfalls.js';
 import { SANDBOX } from './sandbox.js';
 import { EXAM } from './exam.js';
+import { loadLibft, saveLibft, forge, functionsFor, forgedNames } from './libft.js';
+import { renderLibft } from '../ui/libftView.js';
 
 export class Game {
 	constructor(root) {
@@ -33,6 +35,9 @@ export class Game {
 		this.examStart = 0;
 		this.examEndTime = 0;
 		this.examDone = false;
+		// « Ta libft » : inventaire des ft_ forgées, persistant si un stockage est dispo.
+		this._storage = (typeof localStorage !== 'undefined') ? localStorage : null;
+		this.libft = loadLibft(this._storage);
 	}
 
 	get level() {
@@ -59,7 +64,8 @@ export class Game {
 			el('section', { class: 'panel' }, [el('h2', { text: 'mur de casiers' }), this.elMemory, this.elCallStack]),
 			el('aside', { class: 'side' }, [
 				el('h2', { text: 'ton programme' }), this.elProgram,
-				el('h2', { text: 'palette' }), this.elPalette
+				el('h2', { text: 'palette' }), this.elPalette,
+				this.elLibft = el('div', { class: 'libft' })
 			])
 		]);
 		this.elRoom = el('div', { class: 'view-room' }, [this.elMission, this.elMainSection, this.elControls]);
@@ -200,7 +206,9 @@ export class Game {
 	// verrouillé level.driver. Niveau à plat sinon (comportement historique).
 	buildInterp() {
 		const lv = this.level;
-		const functions = { ...(lv.functions || {}) };
+		// Registre = fonctions de référence du niveau + ft_ forgées par le joueur (les
+		// siennes priment). C'est ce qui rend « ta libft » réutilisable de niveau en niveau.
+		const functions = functionsFor(this.libft, lv.usesLibft || [], lv.functions || {});
 		if (lv.assembleInto) {
 			functions[lv.assembleInto] = { name: lv.assembleInto, params: lv.params || [], body: this.program };
 			return new Interpreter(this.memory, lv.driver, functions);
@@ -288,6 +296,11 @@ export class Game {
 		const feedback = explainRun({ error, leaks, goalMet });   // message pédagogique (pièges)
 		if (passed) {
 			this.solved.add(this.level.id);   // débloque la progression sur la carte
+			// Niveau « écris ft_xxx » réussi → la fonction entre dans ta libft (esprit libft).
+			if (this.level.assembleInto) {
+				this.libft = forge(this.libft, this.level.assembleInto, this.level.params || [], this.program);
+				saveLibft(this._storage, this.libft);
+			}
 			this.mood = 'win';
 			this.fails = 0;
 		} else {
@@ -336,6 +349,7 @@ export class Game {
 		renderCallStack(this.elCallStack, frames);
 		renderProgram(this.elProgram, this.program, lv.slots, this.activeIndex, (i) => this.removeBlock(i), (from, to) => this.moveBlock(from, to));
 		renderPalette(this.elPalette, lv.bank, this.program.length >= lv.slots, (instr) => this.addBlock(instr));
+		renderLibft(this.elLibft, forgedNames(this.libft));
 		let onNext = null;
 		if (this.examMode) onNext = () => this.nextExam(true);
 		else if (!lv.sandbox && this.levelIndex < LEVELS.length - 1) onNext = () => this.loadLevel(this.levelIndex + 1);
