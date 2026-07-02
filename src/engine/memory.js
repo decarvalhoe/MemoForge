@@ -2,6 +2,7 @@ export class RuntimeError extends Error {}
 
 export const WORD = 4;
 const HEAP_BASE = 5000;
+const STACK_BASE = 900000; // casiers de pile (adresses de locales) — loin des globales/tas
 const INT_MIN = -2147483648;
 const INT_MAX = 2147483647;
 const HEAP_CAPACITY = 4096;
@@ -22,6 +23,8 @@ export class Memory {
 		this.fileSystem = new Map();
 		this.nextFd = 3;
 		this.nextHeap = HEAP_BASE;
+		this.nextStack = STACK_BASE;
+		this.dead = new Set(); // casiers de pile de frames dépilées (dangling pointers, M6)
 		let addr = 1000;
 		for (const v of varDefs) {
 			this.names.set(v.name, addr);
@@ -50,6 +53,8 @@ export class Memory {
 	readAddr(addr) {
 		if (addr === 0)
 			throw new RuntimeError('déréférencement de NULL');
+		if (this.dead.has(addr))
+			throw new RuntimeError('variable locale morte : sa frame a été dépilée (dangling pointer)');
 		if (this.freed.has(addr))
 			throw new RuntimeError('lecture dans un casier déjà libéré');
 		if (!this.cells.has(addr))
@@ -60,11 +65,26 @@ export class Memory {
 	writeAddr(addr, value) {
 		if (addr === 0)
 			throw new RuntimeError('déréférencement de NULL');
+		if (this.dead.has(addr))
+			throw new RuntimeError('variable locale morte : sa frame a été dépilée (dangling pointer)');
 		if (this.freed.has(addr))
 			throw new RuntimeError('écriture dans un casier déjà libéré');
 		if (!this.cells.has(addr))
 			throw new RuntimeError('adresse invalide');
 		this.cells.set(addr, value);
+	}
+
+	// Casier de pile : matérialise l'adresse d'une variable locale (quand on prend &local).
+	// killStack le marque mort au dépilement de la frame — le lire ensuite = dangling (M6).
+	allocStack(value) {
+		const a = this.nextStack;
+		this.nextStack += WORD;
+		this.cells.set(a, value);
+		return a;
+	}
+
+	killStack(addr) {
+		this.dead.add(addr);
 	}
 
 	emit(fd, addr, count) {

@@ -29,8 +29,13 @@ export class Interpreter {
 	// directement — seulement via des adresses/pointeurs, qui passent par la mémoire).
 	readVar(name) {
 		const top = this.stack[this.stack.length - 1];
-		if (top.locals && top.locals.has(name))
+		if (top.locals && top.locals.has(name)) {
+			// Locale « promue » (son adresse a été prise) : le casier de pile fait foi, pour
+			// que name et *(&name) restent d'accord.
+			if (top.addrCells && top.addrCells.has(name))
+				return this.mem.readAddr(top.addrCells.get(name));
 			return top.locals.get(name);
+		}
 		return this.mem.getVar(name);
 	}
 
@@ -38,9 +43,27 @@ export class Interpreter {
 		const top = this.stack[this.stack.length - 1];
 		if (top.locals) {
 			top.locals.set(name, value);
+			// Si l'adresse de cette locale a déjà été prise (&local), garder le casier de
+			// pile en phase avec la valeur.
+			if (top.addrCells && top.addrCells.has(name))
+				this.mem.writeAddr(top.addrCells.get(name), value);
 			return;
 		}
 		this.mem.setVar(name, value);
+	}
+
+	// Adresse d'une variable : &local matérialise un casier de pile (adressable, mais MORT
+	// dès que la frame est dépilée — c'est le dangling pointer du M6). &global inchangé.
+	addrOf(name) {
+		const top = this.stack[this.stack.length - 1];
+		if (top.locals && top.locals.has(name)) {
+			if (!top.addrCells)
+				top.addrCells = new Map();
+			if (!top.addrCells.has(name))
+				top.addrCells.set(name, this.mem.allocStack(top.locals.get(name)));
+			return top.addrCells.get(name);
+		}
+		return this.mem.addrOf(name);
 	}
 
 	evalExpr(e) {
@@ -50,7 +73,7 @@ export class Interpreter {
 		if (e.t === 'var')
 			return this.readVar(e.name);
 		if (e.t === 'addr')
-			return m.addrOf(e.name);
+			return this.addrOf(e.name);
 		if (e.t === 'deref')
 			return m.readAddr(this.readVar(e.name));
 		if (e.t === 'malloc')
@@ -189,6 +212,11 @@ export class Interpreter {
 			const frame = this.stack[this.stack.length - 1];
 			if (frame.blocks.length === 0) {
 				this.stack.pop();
+				// Les casiers de pile de la frame (adresses de ses locales) meurent : toute
+				// adresse renvoyée devient un dangling pointer.
+				if (frame.addrCells)
+					for (const a of frame.addrCells.values())
+						this.mem.killStack(a);
 				if (frame.resume)
 					this.deliverReturn(frame);
 				continue;
@@ -342,7 +370,12 @@ export class Interpreter {
 	}
 
 	localsVars(frame) {
-		return [...frame.locals].map(([name, value]) => ({ name, value, kind: 'int' }));
+		return [...frame.locals].map(([name, value]) => ({
+			name,
+			// Locale promue → afficher la valeur du casier de pile (source de vérité).
+			value: (frame.addrCells && frame.addrCells.has(name)) ? this.mem.cells.get(frame.addrCells.get(name)) : value,
+			kind: 'int'
+		}));
 	}
 
 	frames() {

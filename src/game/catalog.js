@@ -42,7 +42,7 @@ export const CATALOG = [
 
 	// ── C01 · pointeurs, par adresse ──────────────────────────────────────────
 	{ fn: 'ft_ft', module: 'C01', concept: 'passer une adresse', tier: 'ready', deps: [], statut: 'jouable', level: 'ptr-1' },
-	{ fn: 'ft_ultimate_ft', module: 'C01', concept: 'peler les étoiles (int *********)', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#104' },
+	{ fn: 'ft_ultimate_ft', module: 'C01', concept: 'peler les étoiles (int *********)', tier: 'ready', deps: [], statut: 'jouable', level: 'ptr-3' },
 	{ fn: 'ft_swap', module: 'C01', concept: 'échange par adresse', tier: 'ready', deps: [], statut: 'jouable', level: '1-3' },
 	{ fn: 'ft_div_mod', module: 'C01', concept: 'deux retours via pointeurs', tier: 'ready', deps: [], statut: 'jouable', level: 'ptr-2' },
 	{ fn: 'ft_ultimate_div_mod', module: 'C01', concept: 'div_mod en place', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#100' },
