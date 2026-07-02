@@ -1,5 +1,26 @@
 // Constructeurs d'AST fournis par la lane moteur (src/engine/ast.js) — cf. docs/COORDINATION.md.
-import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode, open, read, close, bin, loop, whileLoop, iter, load, store, ifThen, call, ret } from '../engine/ast.js';
+import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, node, field, freeNode, open, read, close, bin, loop, whileLoop, iter, load, store, ifThen, call, ret, func } from '../engine/ast.js';
+
+// Implémentations de référence de la libft, injectées comme REPLI dans les niveaux qui
+// réutilisent une ft_ (ex. ft_strdup appelle ft_strlen + ft_strcpy). Le joueur qui a déjà
+// forgé la fonction joue avec LA SIENNE (functionsFor la fait primer, cf. libft.js) ; sinon
+// il joue avec cette référence — le niveau reste jouable. Ce sont exactement les solutions
+// canoniques des niveaux « écris ft_strlen / ft_strcpy ».
+const V = variable;
+const REF_STRLEN = func('ft_strlen', ['s'], [
+	assign(V('len'), lit(0)),
+	whileLoop(bin('!=', load(V('s'), V('len')), lit(0)), [assign(V('len'), bin('+', V('len'), lit(1)))]),
+	ret(V('len'))
+]);
+const REF_STRCPY = func('ft_strcpy', ['dst', 'src'], [
+	assign(V('i'), lit(0)),
+	whileLoop(bin('!=', load(V('src'), V('i')), lit(0)), [
+		assign(store(V('dst'), V('i')), load(V('src'), V('i'))),
+		assign(V('i'), bin('+', V('i'), lit(1)))
+	]),
+	assign(store(V('dst'), V('i')), lit(0)),
+	ret(V('dst'))
+]);
 
 export const LEVELS = [
 	{
@@ -160,45 +181,75 @@ export const LEVELS = [
 		]
 	},
 	{
+		// ÉCRIS ft_strcpy (C02) depuis zéro : boucle de copie + la sentinelle finale.
+		// La destination est pré-remplie de « X » : oublier le \0 laisse un X → échec.
 		id: 'str-1',
 		world: 'Chaînes & bornes',
-		title: 'Copie la chaîne',
-		goalText: 'Copie src (« Hi ») dans dst. strcpy recopie octet par octet jusqu\'à la borne \'\\0\'.',
+		title: 'Écris ft_strcpy',
+		goalText: 'Écris le CORPS de ft_strcpy(dst, src). main copie « Hi » de src vers dst : à la fin, dst doit contenir H, i, puis la fin de chaîne.',
 		hint: 'Copier une chaîne = recopier octet par octet jusqu\'où ? La sentinelle \'\\0\' fait-elle partie de la copie ? (cours M10)',
+		assembleInto: 'ft_strcpy',
+		params: ['dst', 'src'],
+		driverText: 'main (verrouillé) : ft_strcpy(&d0, &s0)',
+		driver: [{ id: 'drv', label: 'ft_strcpy(&d0, &s0)', ast: call(variable('done'), 'ft_strcpy', [addr('d0'), addr('s0')]) }],
 		vars: [
 			{ name: 's0', value: 'H', kind: 'char' },
 			{ name: 's1', value: 'i', kind: 'char' },
 			{ name: 's2', value: 0, kind: 'char' },
-			{ name: 'd0', value: 0, kind: 'char' },
-			{ name: 'd1', value: 0, kind: 'char' },
-			{ name: 'd2', value: 0, kind: 'char' }
+			{ name: 'd0', value: 'X', kind: 'char' },
+			{ name: 'd1', value: 'X', kind: 'char' },
+			{ name: 'd2', value: 'X', kind: 'char' },
+			{ name: 'done', value: 0, kind: 'int' }
 		],
-		slots: 1,
-		par: 1,
+		slots: 4,
+		par: 4,
 		goalCheck: (mem) => mem.getVar('d0') === 'H' && mem.getVar('d1') === 'i' && mem.getVar('d2') === 0,
 		bank: [
-			{ id: 'cpy', label: 'strcpy(&d0, &s0)', ast: strcpy(addr('d0'), addr('s0')) },
-			{ id: 'cpy-bad', label: 'strcpy(&d0, &d0)', ast: strcpy(addr('d0'), addr('d0')) }
+			{ id: 'init', label: 'i = 0', ast: assign(variable('i'), lit(0)) },
+			{ id: 'copy', label: 'tant que src[i] != 0 : dst[i] = src[i] ; i = i + 1',
+				ast: whileLoop(bin('!=', load(variable('src'), variable('i')), lit(0)), [
+					assign(store(variable('dst'), variable('i')), load(variable('src'), variable('i'))),
+					assign(variable('i'), bin('+', variable('i'), lit(1)))
+				]) },
+			{ id: 'term', label: 'dst[i] = 0  (la fin de chaîne)', ast: assign(store(variable('dst'), variable('i')), lit(0)) },
+			{ id: 'ret', label: 'return dst', ast: ret(variable('dst')) }
 		]
 	},
 	{
+		// ÉCRIS ft_atoi (C04) depuis zéro. Cœur : un chiffre-caractère vaut son code ASCII,
+		// donc « c - '0' » donne le chiffre ; on empile avec res = res*10 + chiffre.
 		id: 'conv-1',
 		world: 'Conversion nombre↔texte',
-		title: 'atoi : texte → nombre',
-		goalText: 'Convertis la chaîne « 42 » en l\'entier 42 dans n.',
+		title: 'Écris ft_atoi',
+		goalText: 'Écris le CORPS de ft_atoi(s). main l\'appelle sur « 42 » : n doit valoir 42.',
 		hint: 'Un chiffre-caractère vaut son code ASCII : que donne « c moins \'0\' » ? Comment empiler les chiffres pour reformer le nombre ? (cours M2)',
+		assembleInto: 'ft_atoi',
+		params: ['s'],
+		driverText: 'main (verrouillé) : n = ft_atoi(&c0)',
+		driver: [{ id: 'drv', label: 'n = ft_atoi(&c0)', ast: call(variable('n'), 'ft_atoi', [addr('c0')]) }],
 		vars: [
 			{ name: 'c0', value: '4', kind: 'char' },
 			{ name: 'c1', value: '2', kind: 'char' },
 			{ name: 'c2', value: 0, kind: 'char' },
 			{ name: 'n', value: 0, kind: 'int' }
 		],
-		slots: 1,
-		par: 1,
+		slots: 4,
+		par: 4,
 		goal: { n: 42 },
 		bank: [
-			{ id: 'atoi', label: 'n = atoi(&c0)', ast: assign(variable('n'), atoi(addr('c0'))) },
-			{ id: 'len', label: 'n = strlen(&c0)', ast: assign(variable('n'), strlen(addr('c0'))) }
+			{ id: 'r0', label: 'res = 0', ast: assign(variable('res'), lit(0)) },
+			{ id: 'i0', label: 'i = 0', ast: assign(variable('i'), lit(0)) },
+			{ id: 'scan', label: "tant que s[i] != 0 : res = res*10 + (s[i] - '0') ; i = i + 1",
+				ast: whileLoop(bin('!=', load(variable('s'), variable('i')), lit(0)), [
+					assign(variable('res'), bin('+', bin('*', variable('res'), lit(10)), bin('-', load(variable('s'), variable('i')), lit('0')))),
+					assign(variable('i'), bin('+', variable('i'), lit(1)))
+				]) },
+			{ id: 'ret', label: 'return res', ast: ret(variable('res')) },
+			{ id: 'scan-bad', label: 'tant que s[i] != 0 : res = res*10 + s[i] ; i = i + 1',
+				ast: whileLoop(bin('!=', load(variable('s'), variable('i')), lit(0)), [
+					assign(variable('res'), bin('+', bin('*', variable('res'), lit(10)), load(variable('s'), variable('i')))),
+					assign(variable('i'), bin('+', variable('i'), lit(1)))
+				]) }
 		]
 	},
 	{
@@ -284,26 +335,43 @@ export const LEVELS = [
 		]
 	},
 	{
+		// ÉCRIS ft_strdup (C07) en RÉUTILISANT ta libft : ft_strlen pour la taille, malloc,
+		// ft_strcpy pour la copie. C'est le capstone de la chaîne de forge (M7 + M10).
 		id: 'dup-1',
 		world: 'Mémoire dynamique — le Tas',
-		title: 'Duplique la chaîne (ft_strdup)',
-		goalText: 'Réserve la bonne taille, copie « Hi », affiche-la, puis libère. Zéro fuite.',
-		hint: 'Combien d\'octets pour loger « Hi » ET sa sentinelle \'\\0\' ? Un bloc trop court déborde à la copie (cours M7/M10).',
+		title: 'Écris ft_strdup (avec ta libft)',
+		goalText: 'Écris le CORPS de ft_strdup(src) en appelant TES ft_strlen et ft_strcpy. main duplique « Hi » : p doit pointer une copie « Hi » sur le tas.',
+		hint: 'Combien d\'octets réserver pour loger « Hi » ET sa sentinelle \'\\0\' ? Où trouver cette longueur sans la recompter à la main ? (cours M7/M10)',
+		assembleInto: 'ft_strdup',
+		params: ['src'],
+		usesLibft: ['ft_strlen', 'ft_strcpy'],
+		functions: { ft_strlen: REF_STRLEN, ft_strcpy: REF_STRCPY },
+		driverText: 'main (verrouillé) : p = ft_strdup(&s0)',
+		driver: [{ id: 'drv', label: 'p = ft_strdup(&s0)', ast: call(variable('p'), 'ft_strdup', [addr('s0')]) }],
 		vars: [
 			{ name: 's0', value: 'H', kind: 'char' },
 			{ name: 's1', value: 'i', kind: 'char' },
 			{ name: 's2', value: 0, kind: 'char' },
 			{ name: 'p', value: 0, kind: 'ptr' }
 		],
-		slots: 4,
-		par: 4,
-		goalCheck: (mem) => mem.output === 'Hi' && mem.leaks().length === 0,
+		slots: 5,
+		par: 5,
+		goalCheck: (mem) => {
+			const p = mem.getVar('p');
+			if (!p) return false;
+			try {
+				return mem.readAddr(p) === 'H' && mem.readAddr(p + 4) === 'i' && mem.readAddr(p + 8) === 0;
+			} catch {
+				return false;
+			}
+		},
 		bank: [
-			{ id: 'malloc-3', label: 'p = malloc(3)', ast: assign(variable('p'), malloc(lit(3))) },
-			{ id: 'malloc-1', label: 'p = malloc(1)', ast: assign(variable('p'), malloc(lit(1))) },
-			{ id: 'copy', label: 'strcpy(p, &s0)', ast: strcpy(variable('p'), addr('s0')) },
-			{ id: 'show', label: 'write(1, p, 2)', ast: write(1, variable('p'), lit(2)) },
-			{ id: 'free-p', label: 'free(p)', ast: freeOp('p') }
+			{ id: 'len', label: 'len = ft_strlen(src)', ast: call(variable('len'), 'ft_strlen', [variable('src')]) },
+			{ id: 'size', label: 'size = len + 1', ast: assign(variable('size'), bin('+', variable('len'), lit(1))) },
+			{ id: 'alloc', label: 'dst = malloc(size)', ast: assign(variable('dst'), malloc(variable('size'))) },
+			{ id: 'copy', label: 'ft_strcpy(dst, src)', ast: call(variable('cp'), 'ft_strcpy', [variable('dst'), variable('src')]) },
+			{ id: 'ret', label: 'return dst', ast: ret(variable('dst')) },
+			{ id: 'alloc-bad', label: 'dst = malloc(len)', ast: assign(variable('dst'), malloc(variable('len'))) }
 		]
 	},
 	{
@@ -395,23 +463,32 @@ export const LEVELS = [
 		]
 	},
 	{
+		// ÉCRIS ft_strlen (C01/C02) depuis zéro — la première brique de ta libft. La boucle
+		// s'arrête sur la sentinelle \'\\0\', pas sur un compteur magique. Forgée, elle
+		// resservira à ft_strdup (M10).
 		id: 'while-1',
 		world: 'Chaînes & bornes',
-		title: 'Compte les caractères (strlen à la main)',
-		goalText: 'Avance i tant que tu n\'as pas atteint la borne \'\\0\'. À la fin, i = la longueur (2).',
+		title: 'Écris ft_strlen',
+		goalText: 'Écris le CORPS de ft_strlen(s). main l\'appelle sur « Hi » : n doit valoir 2. Cette fonction entre dans ta libft — tu la réutiliseras.',
 		hint: 'Qu\'est-ce qui marque la fin d\'une chaîne (cours M10) ? Ta boucle s\'arrête sur ce signal — pas sur un nombre choisi au hasard.',
+		assembleInto: 'ft_strlen',
+		params: ['s'],
+		driverText: 'main (verrouillé) : n = ft_strlen(&s0)',
+		driver: [{ id: 'drv', label: 'n = ft_strlen(&s0)', ast: call(variable('n'), 'ft_strlen', [addr('s0')]) }],
 		vars: [
-			{ name: 'i', value: 0, kind: 'int' },
 			{ name: 's0', value: 'H', kind: 'char' },
 			{ name: 's1', value: 'i', kind: 'char' },
-			{ name: 's2', value: 0, kind: 'char' }
+			{ name: 's2', value: 0, kind: 'char' },
+			{ name: 'n', value: 0, kind: 'int' }
 		],
-		slots: 1,
-		par: 1,
-		goal: { i: 2 },
+		slots: 3,
+		par: 3,
+		goal: { n: 2 },
 		bank: [
-			{ id: 'w-sentinel', label: 'tant que s[i] != 0 : i = i+1', ast: whileLoop(bin('!=', load(addr('s0'), variable('i')), lit(0)), [assign(variable('i'), bin('+', variable('i'), lit(1)))]) },
-			{ id: 'w-count3', label: 'tant que i < 3 : i = i+1', ast: whileLoop(bin('<', variable('i'), lit(3)), [assign(variable('i'), bin('+', variable('i'), lit(1)))]) }
+			{ id: 'init', label: 'len = 0', ast: assign(variable('len'), lit(0)) },
+			{ id: 'scan', label: 'tant que s[len] != 0 : len = len + 1', ast: whileLoop(bin('!=', load(variable('s'), variable('len')), lit(0)), [assign(variable('len'), bin('+', variable('len'), lit(1)))]) },
+			{ id: 'ret', label: 'return len', ast: ret(variable('len')) },
+			{ id: 'scan-bad', label: 'tant que len < 3 : len = len + 1', ast: whileLoop(bin('<', variable('len'), lit(3)), [assign(variable('len'), bin('+', variable('len'), lit(1)))]) }
 		]
 	}
 ];

@@ -52,7 +52,7 @@ export const CATALOG = [
 	{ fn: 'ft_sort_int_tab', module: 'C01', concept: 'tri par échanges indexés', tier: 'ready', deps: ['ft_swap'], statut: 'a-forger', level: null, issue: '#102' },
 
 	// ── C02 · chaînes, tests de caractères ────────────────────────────────────
-	{ fn: 'ft_strcpy', module: 'C02', concept: 'copie octet par octet + \\0', tier: 'ready', deps: [], statut: 'a-refondre', level: 'str-1', issue: '#107' },
+	{ fn: 'ft_strcpy', module: 'C02', concept: 'copie octet par octet + \\0', tier: 'ready', deps: [], statut: 'jouable', level: 'str-1' },
 	{ fn: 'ft_strncpy', module: 'C02', concept: 'copie bornée', tier: 'ready', deps: [], statut: 'jouable', level: 'strn-1' },
 	{ fn: 'ft_str_is_alpha', module: 'C02', concept: 'plage a-z/A-Z', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
 	{ fn: 'ft_str_is_numeric', module: 'C02', concept: "plage '0'-'9'", tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
@@ -73,7 +73,7 @@ export const CATALOG = [
 	{ fn: 'ft_strstr', module: 'C03', concept: 'recherche de sous-chaîne', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
 
 	// ── C04 · conversion nombre ↔ texte ───────────────────────────────────────
-	{ fn: 'ft_atoi', module: 'C04', concept: "res = res*10 + (c-'0')", tier: 'char', deps: [], statut: 'a-refondre', level: 'conv-1', issue: '#107' },
+	{ fn: 'ft_atoi', module: 'C04', concept: "res = res*10 + (c-'0')", tier: 'char', deps: [], statut: 'jouable', level: 'conv-1' },
 	{ fn: 'ft_putnbr_base', module: 'C04', concept: 'n%base / n/base', tier: 'char', deps: ['ft_putchar'], statut: 'a-refondre', level: 'conv-2', issue: '#107' },
 	{ fn: 'ft_atoi_base', module: 'C04', concept: 'reconstruire en base', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
 
@@ -94,7 +94,7 @@ export const CATALOG = [
 	{ fn: 'ft_sort_params', module: 'C06', concept: 'tri de chaînes', tier: 'argv', deps: ['ft_strcmp'], statut: 'a-forger', level: null, issue: '#104' },
 
 	// ── C07 · allocation dynamique, le tas ────────────────────────────────────
-	{ fn: 'ft_strdup', module: 'C07', concept: 'malloc(len+1) + copie', tier: 'ready', deps: ['ft_strlen', 'ft_strcpy'], statut: 'a-refondre', level: 'dup-1', issue: '#107' },
+	{ fn: 'ft_strdup', module: 'C07', concept: 'malloc(len+1) + copie', tier: 'ready', deps: ['ft_strlen', 'ft_strcpy'], statut: 'jouable', level: 'dup-1' },
 	{ fn: 'ft_range', module: 'C07', concept: 'tableau dynamique', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#102' },
 	{ fn: 'ft_ultimate_range', module: 'C07', concept: 'range via pointeur', tier: 'ready', deps: ['ft_range'], statut: 'a-forger', level: null, issue: '#102' },
 	{ fn: 'ft_strjoin', module: 'C07', concept: 'joindre N chaînes + sep', tier: 'ready', deps: ['ft_strlen', 'ft_strcat'], statut: 'a-forger', level: null, issue: '#108' },
@@ -126,14 +126,14 @@ export const CATALOG = [
 	{ fn: 'ft_strlcpy', module: 'libft-1', concept: 'copie sûre + taille', tier: 'ready', deps: ['ft_strlen'], statut: 'a-forger', level: null, issue: '#108' },
 	{ fn: 'ft_strlcat', module: 'libft-1', concept: 'concat sûre', tier: 'octet', deps: ['ft_strlen'], statut: 'a-forger', level: null, issue: '#105' },
 	{ fn: 'ft_strnstr', module: 'libft-1', concept: 'sous-chaîne bornée', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
-	{ fn: 'ft_atoi', module: 'libft-1', concept: 'texte → int', tier: 'char', deps: [], statut: 'a-refondre', level: 'conv-1', issue: '#107' },
+	{ fn: 'ft_atoi', module: 'libft-1', concept: 'texte → int', tier: 'char', deps: [], statut: 'jouable', level: 'conv-1' },
 	{ fn: 'ft_memset', module: 'libft-1', concept: 'remplir n octets', tier: 'octet', deps: [], statut: 'a-forger', level: null, issue: '#105' },
 	{ fn: 'ft_bzero', module: 'libft-1', concept: 'mettre à zéro', tier: 'octet', deps: ['ft_memset'], statut: 'a-forger', level: null, issue: '#105' },
 	{ fn: 'ft_memcpy', module: 'libft-1', concept: 'copie n octets', tier: 'octet', deps: [], statut: 'a-forger', level: null, issue: '#105' },
 	{ fn: 'ft_memmove', module: 'libft-1', concept: 'copie avec recouvrement', tier: 'octet', deps: [], statut: 'a-forger', level: null, issue: '#105' },
 	{ fn: 'ft_memchr', module: 'libft-1', concept: 'chercher un octet', tier: 'octet', deps: [], statut: 'a-forger', level: null, issue: '#105' },
 	{ fn: 'ft_memcmp', module: 'libft-1', concept: 'comparer n octets', tier: 'octet', deps: [], statut: 'a-forger', level: null, issue: '#105' },
-	{ fn: 'ft_strdup', module: 'libft-1', concept: 'malloc + copie', tier: 'ready', deps: ['ft_strlen', 'ft_strcpy'], statut: 'a-refondre', level: 'dup-1', issue: '#107' },
+	{ fn: 'ft_strdup', module: 'libft-1', concept: 'malloc + copie', tier: 'ready', deps: ['ft_strlen', 'ft_strcpy'], statut: 'jouable', level: 'dup-1' },
 	{ fn: 'ft_calloc', module: 'libft-1', concept: 'malloc + bzero', tier: 'octet', deps: ['ft_bzero'], statut: 'a-forger', level: null, issue: '#105' },
 
 	// ── libft · Part 2 (fonctions « augmentées », le tas + les callbacks) ─────
