@@ -291,17 +291,19 @@ export class Game {
 		this.render();
 	}
 
+	// Bac à sable : pas de cible — on ne fait qu'expliquer l'erreur/la fuite observée.
+	evaluateSandbox() {
+		const err = this.interp ? this.interp.error : null;
+		const leaks = this.memory.leaks().length;
+		this.mood = err ? 'err' : 'think';
+		this.fails = 0;
+		const feedback = explainError(err) || explainLeak(leaks)
+			|| { tone: 'success', title: t('EXÉCUTÉ'), hint: t('Aucune cible : observe la mémoire. Provoque une fuite, un double free, un déréf. de NULL…') };
+		this.verdict = { passed: false, sandbox: true, message: feedback.title, feedback, stars: [] };
+	}
+
 	evaluate() {
-		if (this.level.sandbox) {
-			const err = this.interp ? this.interp.error : null;
-			const leaks = this.memory.leaks().length;
-			this.mood = err ? 'err' : 'think';
-			this.fails = 0;
-			const feedback = explainError(err) || explainLeak(leaks)
-				|| { tone: 'success', title: t('EXÉCUTÉ'), hint: t('Aucune cible : observe la mémoire. Provoque une fuite, un double free, un déréf. de NULL…') };
-			this.verdict = { passed: false, sandbox: true, message: feedback.title, feedback, stars: [] };
-			return;
-		}
+		if (this.level.sandbox) { this.evaluateSandbox(); return; }
 		const goalMet = this.level.goalCheck
 			? this.level.goalCheck(this.memory)
 			: Object.entries(this.level.goal)
