@@ -33,6 +33,8 @@ const SOLUTIONS = {
 	'conv-1': ['r0', 'i0', 'scan', 'ret'],
 	'conv-2': ['rec', 'digit', 'emit'],
 	'l-1': ['mk-n1', 'mk-n2', 'link', 'save', 'free-n1', 'free-nxt'],
+	'lst-1': ['cur', 'cnt', 'walk', 'ret'],
+	'lst-2': ['cur', 'walk', 'ret'],
 	'str-2': ['set-term', 'measure'],
 	'f-1': ['open', 'read', 'write', 'close'],
 	'dup-1': ['len', 'size', 'alloc', 'copy', 'ret'],

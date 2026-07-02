@@ -266,3 +266,18 @@ describe('sub-1/join-1 — Chaînes allouées (libft Part 2)', () => {
 		assert.ok(runProgram(byId['join-1'], ['l1', 'l2', 'alloc-bad', 'cpy', 'cat', 'ret']).error);
 	});
 });
+
+describe('lst-1/lst-2 — Listes (parcours ->next)', () => {
+	test('ft_lstsize : compte en suivant ->next jusqu\'à NULL → 2', () => {
+		assert.ok(solved(byId['lst-1'], ['cur', 'cnt', 'walk', 'ret']));
+	});
+	test('ft_lstsize sans le count++ → renvoie 0, échoue', () => {
+		assert.equal(goalMet(byId['lst-1'], runProgram(byId['lst-1'], ['cur', 'cnt', 'walk-bad', 'ret']).mem), false);
+	});
+	test('ft_lstlast : s\'arrête quand ->next est NULL → dernier maillon', () => {
+		assert.ok(solved(byId['lst-2'], ['cur', 'walk', 'ret']));
+	});
+	test('ft_lstlast qui teste cur (au lieu de cur->next) dépasse la fin → échoue', () => {
+		assert.equal(goalMet(byId['lst-2'], runProgram(byId['lst-2'], ['cur', 'walk-bad', 'ret']).mem), false);
+	});
+});
