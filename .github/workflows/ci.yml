@@ -29,5 +29,19 @@ jobs:
       - name: Test (+ couverture engine >=90%)
         run: npm test
 
+      # Écrans clés : capture + invariants structurels (Chrome préinstallé sur le runner).
+      # Les références pixel sont par plateforme (tests/visual/baseline/<os>) : sur le
+      # runner elles sont recréées à chaque run (seed) — la vérif structurelle, elle,
+      # casse le job si un écran ne rend plus ce qu'il doit.
+      - name: Tests visuels (écrans clés)
+        run: npm run test:visual
+
+      - name: Captures des écrans clés (artefact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecrans-cles
+          path: tests/visual/out/
+          retention-days: 14
+
       - name: Build
         run: npm run build --if-present

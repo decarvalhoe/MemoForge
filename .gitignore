@@ -12,3 +12,6 @@ __pycache__/
 
 # Divers
 *.zip
+
+# Tests visuels : captures courantes (les références vivent dans tests/visual/baseline/)
+tests/visual/out/

@@ -47,5 +47,19 @@ Implémenté via les drapeaux natifs `--experimental-test-coverage`
 
 Le fichier est découvert automatiquement (motif `*.test.mjs`).
 
-## À venir
-- Tests visuels (captures d'écrans clés) — voir issue #6.
+## Tests visuels (E0-6)
+
+`npm run test:visual` — harnais Puppeteer (`tests/visual/run.mjs`) qui capture et vérifie
+les **écrans clés** : carte, salle `1-1`, salle `rec-1` avec la pile d'appels au plus
+profond de `fact(3)`, styleguide.
+
+- **Capture** : toujours écrite dans `tests/visual/out/` (gitignoré ; artefact CI 14 j).
+- **Invariants structurels** : chaque écran doit rendre ce qu'il prétend (salles sur la
+  carte, mission + palette, frames `fact(3)…fact(1)` réelles) — violation = échec.
+- **Références pixel** : `tests/visual/baseline/<plateforme>/` (le rendu des polices varie
+  selon l'OS). Référence absente = créée (seed) ; dérive > 0,5 % de pixels = échec, avec
+  un `<écran>.diff.png` dans `out/`. `npm run test:visual -- --update` régénère.
+- **Chrome** : `PUPPETEER_EXECUTABLE_PATH` > cache Puppeteer > emplacements standards
+  (Chrome/Edge Windows, google-chrome/chromium Linux). Préinstallé sur le runner CI.
+- **Déterminisme** : écrans pilotés via `window.__memoforge` (exposé par `src/main.js`),
+  animations neutralisées, viewport fixe 1280×900.

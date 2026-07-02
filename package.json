@@ -8,11 +8,15 @@
 		"serve": "python -m http.server 8000",
 		"test": "node --test --experimental-test-coverage --test-coverage-include=\"src/engine/**\" --test-coverage-lines=90 --test-coverage-branches=90 --test-coverage-functions=90",
 		"test:watch": "node --test --watch",
+		"test:visual": "node tests/visual/run.mjs",
 		"lint": "eslint src/engine tests/engine tests/helpers.mjs"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"eslint": "^10.6.0",
-		"globals": "^17.7.0"
+		"globals": "^17.7.0",
+		"pixelmatch": "^7.2.0",
+		"pngjs": "^7.0.0",
+		"puppeteer-core": "^25.3.0"
 	}
 }
