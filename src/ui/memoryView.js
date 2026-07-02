@@ -1,4 +1,5 @@
 import { el, clear } from './dom.js';
+import { t } from '../game/i18n.js';
 import { locker } from './components/index.js';
 
 const SVGNS = 'http://www.w3.org/2000/svg';
@@ -67,11 +68,11 @@ export function renderMemory(container, snapshot, heap, changed, output) {
 	else drawThreads(row, snapshot, byAddr);
 
 	if (heap && heap.length) {
-		container.appendChild(el('div', { class: 'heap-label', text: 'tas — mémoire dynamique' }));
+		container.appendChild(el('div', { class: 'heap-label', text: t('tas — mémoire dynamique') }));
 		const hrow = el('div', { class: 'cells' });
 		for (const h of heap) {
 			hrow.appendChild(locker({
-				name: h.freed ? 'libéré' : 'alloué',
+				name: h.freed ? t('libéré') : t('alloué'),
 				address: h.address,
 				value: h.freed ? '—' : h.value,
 				state: h.freed ? 'freed' : 'allocated'
@@ -81,7 +82,7 @@ export function renderMemory(container, snapshot, heap, changed, output) {
 	}
 
 	if (output) {
-		container.appendChild(el('div', { class: 'heap-label', text: '// sortie' }));
+		container.appendChild(el('div', { class: 'heap-label', text: t('// sortie') }));
 		container.appendChild(el('pre', {
 			class: 'mf-output',
 			style: 'margin:0;padding:10px 12px;background:var(--surface-well);border:1px solid var(--accent);border-radius:var(--radius-sm);color:var(--accent);font-family:var(--font-mono);font-size:var(--fs-md);text-shadow:var(--text-glow-green);white-space:pre-wrap;word-break:break-all',
