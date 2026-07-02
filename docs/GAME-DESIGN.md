@@ -114,4 +114,7 @@ Deux règles moteur qui rendent ce contenu fidèle :
   propose pas un bloc `atoi` tout fait — seulement les primitives et les `ft_` déjà forgées.
 - Pas d'indice qui donne la réponse (règle n°1 du cours) : un indice pose une question qui
   force à simuler la machine, rappelle le modèle mémoire ou renvoie au module — jamais une
-  brique de la banque ni un ordre de pose. Le crash reste le professeur principal.
+  brique de la banque ni un ordre de pose (« d'abord X, ensuite Y »). Le crash reste le
+  professeur principal ; l'indice n'arrive qu'après deux échecs. Garde automatisée :
+  `tests/game/hints.test.mjs` (un indice qui cite une brique ou déroule une séquence casse
+  la CI) — la règle survit à tous les niveaux futurs.
