@@ -30,9 +30,9 @@ lanes** et le **protocole anti-collision**. À lire avant toute PR.
 
 ## Protocole
 
-1. **Un worktree isolé par branche/PR** (`git worktree add -b <lane>/<sujet> <dir> origin/main`).
+1. **Un worktree isolé par branche/PR** depuis `develop` (`git worktree add -b <lane>/<sujet> <dir> origin/develop`).
    Un dossier git = un seul HEAD ; ne jamais lancer `git` de deux agents dans le même dossier.
-2. **Rebaser sur `origin/main` avant d'ouvrir/mettre à jour une PR** — `main` bouge.
+2. **Rebaser sur `origin/develop` avant d'ouvrir/mettre à jour une PR** — `develop` (la base) bouge. Le modèle de branches complet est dans [WORKFLOW.md](WORKFLOW.md).
 3. **1 issue = 1 PR**, fichiers **disjoints**, **tests avant merge**.
 4. **Ne pas éditer les fichiers de l'autre lane.** En cas de besoin transverse, ouvrir une
    issue de coordination ou le signaler dans la PR.

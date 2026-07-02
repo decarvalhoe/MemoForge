@@ -129,8 +129,12 @@ npm run build         # artefact statique dist/
 
 ## Contribuer
 
-Une issue = une branche = une PR, tests avant merge, changements additifs — les
-conventions détaillées sont dans [`docs/COORDINATION.md`](docs/COORDINATION.md).
+**GitFlow** : la branche par défaut est **`develop`** ; les PR de feature la ciblent, puis
+on promeut `develop → staging → main` (releases taggées, déployées). Une issue = une branche
+= une PR, CI verte avant merge, changements additifs. Détails :
+[`CONTRIBUTING.md`](CONTRIBUTING.md) et [`docs/WORKFLOW.md`](docs/WORKFLOW.md) (branches,
+releases, protection).
+
 Étendre le mini-langage : un constructeur dans `ast.js` + sa branche interpréteur + un
 test. Ajouter un niveau : des données dans `levels.js` + sa solution canonique dans le
 test de non-régression (le test de complétude te le rappellera).
