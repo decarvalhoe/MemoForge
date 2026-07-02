@@ -57,6 +57,29 @@ describe('niveau 2-1 — écris ft_rev_int_tab (renversement indexé)', () => {
 	});
 });
 
+describe('niveau ptr-3 — écris ft_ultimate_ft (pèle les étoiles)', () => {
+	const L = byId['ptr-3'];
+	test('a=*nbr, b=*a, *b=42 atteint x à travers 2 pointeurs', () => {
+		assert.ok(solved(L, ['peel1', 'peel2', 'write']));
+	});
+	test('*a = 42 (une étoile de trop peu) vise p1, pas x → échoue', () => {
+		const { mem } = runProgram(L, ['peel1', 'short']);
+		assert.equal(mem.getVar('x'), 0);
+		assert.equal(goalMet(L, mem), false);
+	});
+});
+
+describe('niveau dang-1 — pourquoi le tas existe (dangling pointer)', () => {
+	const L = byId['dang-1'];
+	test('malloc → *m=42 → return m : le tas survit au return, y = 42', () => {
+		assert.ok(solved(L, ['h-alloc', 'h-set', 'h-ret']));
+	});
+	test('return &x (adresse d\'une locale) → dangling pointer au déréférencement', () => {
+		const { error } = runProgram(L, ['s-set', 's-ret']);
+		assert.match(error, /dangling|locale morte/);
+	});
+});
+
 describe('niveau range-1 — écris ft_range (tableau dynamique)', () => {
 	const L = byId['range-1'];
 	test('size → malloc → remplissage arr[i]=min+i → [2,3,4] sur le tas', () => {

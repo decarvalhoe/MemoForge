@@ -29,6 +29,12 @@ describe('explainError — mappe les erreurs moteur sur l\'anti-sèche', () => {
 		assert.equal(f.tone, 'crash');
 		assert.equal(f.hint, 'un message bizarre');
 	});
+	test('dangling pointer (variable locale morte)', () => {
+		const f = explainError('variable locale morte : sa frame a été dépilée (dangling pointer)');
+		assert.equal(f.tone, 'crash');
+		assert.match(f.title, /dangling/);
+		assert.match(f.hint, /tas|malloc/);
+	});
 	test('chaque piège a un hint pédagogique non vide', () => {
 		for (const p of PITFALLS) assert.ok(p.hint.length > 10, `${p.id} sans hint`);
 	});

@@ -28,7 +28,9 @@ export const PITFALLS = [
 	{ id: 'stack-overflow', match: /débordement de pile/, tone: 'crash', title: 'CRASH — la pile déborde (stack overflow)',
 		hint: 'Chaque appel empile une frame, et rien ne les arrête. Pose le cas de base AVANT l\'appel récursif, et fais rétrécir n (fact(n-1), pas fact(n)).' },
 	{ id: 'unknown-func', match: /fonction inconnue/, tone: 'crash', title: 'ERREUR — fonction inconnue',
-		hint: 'Cette valeur n\'est pas une fonction branchable : branche d\'abord une vraie fonction avant de l\'appliquer.' }
+		hint: 'Cette valeur n\'est pas une fonction branchable : branche d\'abord une vraie fonction avant de l\'appliquer.' },
+	{ id: 'dangling', match: /dangling|locale morte/, tone: 'crash', title: 'CRASH — dangling pointer (case morte)',
+		hint: 'Tu déréférences l\'adresse d\'une variable locale dont la fonction a déjà rendu la main : sa frame est dépilée, la case est morte. Pour survivre au return, la donnée doit vivre sur le tas (malloc).' }
 ];
 
 const GENERIC_CRASH = { tone: 'crash', title: 'CRASH', hint: "L'exécution s'est arrêtée sur une erreur." };

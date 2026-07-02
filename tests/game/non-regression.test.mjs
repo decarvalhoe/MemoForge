@@ -15,6 +15,8 @@ const SOLUTIONS = {
 	'1-3': ['save', 'copy', 'restore'],
 	'ptr-1': ['deref-set'],
 	'ptr-2': ['set-div', 'set-mod'],
+	'ptr-3': ['peel1', 'peel2', 'write'],
+	'dang-1': ['h-alloc', 'h-set', 'h-ret'],
 	'2-1': ['i0', 'j0', 'loop'],
 	'range-1': ['size', 'alloc', 'i0', 'fill', 'ret'],
 	'split-1': ['a0', 'a1', 'at', 'l0', 'l1', 'f0', 'f1', 'ft'],

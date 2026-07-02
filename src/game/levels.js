@@ -137,6 +137,39 @@ export const LEVELS = [
 		]
 	},
 	{
+		// ft_ultimate_ft (C01 ex01, M5) : peler les étoiles. nbr désigne x à travers deux
+		// pointeurs (nbr → p2 → p1 → x). Chaque *p pèle un niveau ; il faut atteindre x pour
+		// y écrire 42. Un déréférencement de trop ou de trop peu vise le mauvais casier.
+		id: 'ptr-3',
+		world: 'Casiers & adresses',
+		title: 'Écris ft_ultimate_ft (pèle les étoiles)',
+		goalText: 'nbr pointe vers x à travers deux pointeurs. Écris le CORPS qui pèle jusqu\'à x et y écrit 42 : à la fin x doit valoir 42.',
+		hint: 'Chaque * pèle un niveau de pointeur. Combien de niveaux te séparent de x, et sur quel casier tombe une étoile de trop peu ? (cours M5)',
+		assembleInto: 'ft_ultimate_ft',
+		params: ['nbr'],
+		driverText: 'main (verrouillé) : p1 = &x · p2 = &p1 · ft_ultimate_ft(&p2)',
+		driver: [
+			{ id: 'd1', label: 'p1 = &x', ast: assign(variable('p1'), addr('x')) },
+			{ id: 'd2', label: 'p2 = &p1', ast: assign(variable('p2'), addr('p1')) },
+			{ id: 'd3', label: 'ft_ultimate_ft(&p2)', ast: call(variable('done'), 'ft_ultimate_ft', [addr('p2')]) }
+		],
+		vars: [
+			{ name: 'x', value: 0, kind: 'int' },
+			{ name: 'p1', value: 0, kind: 'ptr' },
+			{ name: 'p2', value: 0, kind: 'ptr' },
+			{ name: 'done', value: 0, kind: 'int' }
+		],
+		slots: 3,
+		par: 3,
+		goal: { x: 42 },
+		bank: [
+			{ id: 'peel1', label: 'a = *nbr', ast: assign(variable('a'), deref('nbr')) },
+			{ id: 'peel2', label: 'b = *a', ast: assign(variable('b'), deref('a')) },
+			{ id: 'write', label: '*b = 42', ast: assign(deref('b'), lit(42)) },
+			{ id: 'short', label: '*a = 42  (une étoile de trop peu)', ast: assign(deref('a'), lit(42)) }
+		]
+	},
+	{
 		// ÉCRIS ft_rev_int_tab (C01) — renversement INDEXÉ : tab[i] ≡ *(tab + i), et
 		// l'arithmétique de pointeur scale par sizeof(int) (M11). Deux curseurs i et j se
 		// croisent, on échange tab[i] et tab[j] via tmp.
@@ -524,6 +557,38 @@ export const LEVELS = [
 			{ id: 'f0', label: 'free(s0)', ast: freeOp('s0') },
 			{ id: 'f1', label: 'free(s1)', ast: freeOp('s1') },
 			{ id: 'ft', label: 'free(tab)', ast: freeOp('tab') }
+		]
+	},
+	{
+		// Le piège mortel du M6 : renvoyer &locale. Au return, la frame meurt → l'adresse
+		// rendue pointe une case morte (dangling). C'est POURQUOI le tas existe (transition
+		// M6 → M7) : le bloc malloc, lui, survit au return.
+		id: 'dang-1',
+		world: 'Mémoire dynamique — le Tas',
+		title: 'Pourquoi le tas existe (dangling pointer)',
+		goalText: 'Écris le CORPS de make_answer() qui rend un pointeur vers 42. main le déréférence après le return : y doit valoir 42, sans planter.',
+		hint: 'Une variable locale meurt au return (sa frame est dépilée). Que reste-t-il si tu rends son adresse ? Où loger 42 pour qu\'il SURVIVE à la fonction ? (cours M6/M7)',
+		assembleInto: 'make_answer',
+		params: [],
+		driverText: 'main (verrouillé) : p = make_answer() · y = *p · free(p)',
+		driver: [
+			{ id: 'd1', label: 'p = make_answer()', ast: call(variable('p'), 'make_answer', []) },
+			{ id: 'd2', label: 'y = *p', ast: assign(variable('y'), deref('p')) },
+			{ id: 'd3', label: 'free(p)', ast: freeOp('p') }
+		],
+		vars: [
+			{ name: 'p', value: 0, kind: 'ptr' },
+			{ name: 'y', value: 0, kind: 'int' }
+		],
+		slots: 3,
+		par: 3,
+		goal: { y: 42 },
+		bank: [
+			{ id: 'h-alloc', label: 'm = malloc(1)', ast: assign(variable('m'), malloc(lit(1))) },
+			{ id: 'h-set', label: '*m = 42', ast: assign(deref('m'), lit(42)) },
+			{ id: 'h-ret', label: 'return m  (le tas survit)', ast: ret(variable('m')) },
+			{ id: 's-set', label: 'x = 42  (une locale)', ast: assign(variable('x'), lit(42)) },
+			{ id: 's-ret', label: 'return &x  (l\'adresse d\'une locale)', ast: ret(addr('x')) }
 		]
 	},
 	{
