@@ -1,5 +1,5 @@
 // Constructeurs d'AST fournis par la lane moteur (src/engine/ast.js) — cf. docs/COORDINATION.md.
-import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, node, field, freeNode, open, read, close, bin, loop, whileLoop, iter, load, store, ifThen, call, ret, func } from '../engine/ast.js';
+import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, node, field, freeNode, open, read, close, bin, loop, whileLoop, iter, load, store, ifThen, call, ret, func } from '../engine/ast.js';
 
 // Implémentations de référence de la libft, injectées comme REPLI dans les niveaux qui
 // réutilisent une ft_ (ex. ft_strdup appelle ft_strlen + ft_strcpy). Le joueur qui a déjà
@@ -431,20 +431,32 @@ export const LEVELS = [
 		]
 	},
 	{
+		// ÉCRIS ft_putnbr_base (C04, récursif) — généralise ft_putnbr à une base B. Le chiffre
+		// n'est plus (n%B + '0') mais le symbole base[n%B] : on INDEXE la chaîne de base
+		// (tab[i] ≡ *(tab+i), M11). Ici base « 01 » (binaire) : 5 → « 101 ».
 		id: 'conv-2',
 		world: 'Conversion nombre↔texte',
-		title: 'putnbr_base : nombre → hexa',
-		goalText: 'Affiche 42 en base 16 (hexadécimal) : la sortie doit être « 2a ».',
-		hint: 'Afficher en base B, c\'est extraire les chiffres par deux opérations arithmétiques. Combien de symboles compte la base 16 ? (cours M2)',
+		title: 'Écris ft_putnbr_base (binaire)',
+		goalText: 'Écris le CORPS de ft_putnbr_base(n). main l\'appelle sur 5 avec la base « 01 » : la sortie doit être « 101 » (5 en binaire).',
+		hint: 'Comme ft_putnbr, mais le symbole d\'un chiffre n\'est plus « + \'0\' » : il se lit dans la chaîne de base à l\'indice n % base. Combien de symboles compte le binaire ? (cours M2/M11)',
+		assembleInto: 'ft_putnbr_base',
+		params: ['n'],
+		driverText: 'main (verrouillé) : ft_putnbr_base(5)  ·  base « 01 »',
+		driver: [{ id: 'drv', label: 'ft_putnbr_base(5)', ast: call(variable('done'), 'ft_putnbr_base', [lit(5)]) }],
 		vars: [
-			{ name: 'n', value: 42, kind: 'int' }
+			{ name: 'base0', value: '0', kind: 'char' },
+			{ name: 'base1', value: '1', kind: 'char' },
+			{ name: 'done', value: 0, kind: 'int' }
 		],
-		slots: 1,
-		par: 1,
-		goalCheck: (mem) => mem.output === '2a',
+		slots: 3,
+		par: 3,
+		goalCheck: (mem) => mem.output === '101',
 		bank: [
-			{ id: 'hex', label: 'putnbr_base(n, hex)', ast: putnbrBase(variable('n'), lit('0123456789abcdef')) },
-			{ id: 'bin', label: 'putnbr_base(n, bin)', ast: putnbrBase(variable('n'), lit('01')) }
+			{ id: 'rec', label: 'si (n >= 2) : q = n / 2 ; ft_putnbr_base(q)',
+				ast: ifThen(bin('>=', variable('n'), lit(2)), [assign(variable('q'), bin('/', variable('n'), lit(2))), call(variable('_'), 'ft_putnbr_base', [variable('q')])]) },
+			{ id: 'digit', label: 'd = base[n % 2]', ast: assign(variable('d'), load(addr('base0'), bin('%', variable('n'), lit(2)))) },
+			{ id: 'emit', label: 'write(1, &d, 1)', ast: write(1, addr('d'), lit(1)) },
+			{ id: 'digit-bad', label: 'd = n % 2  (le chiffre, pas son symbole)', ast: assign(variable('d'), bin('%', variable('n'), lit(2))) }
 		]
 	},
 	{
@@ -660,23 +672,28 @@ export const LEVELS = [
 		]
 	},
 	{
+		// ÉCRIS ft_putnbr (C00/C04, récursif) — le capstone conversion : récursion (M6),
+		// arithmétique de chiffres (n/10, n%10), char = code ASCII (chiffre + '0'), et
+		// write via &d (locale adressable). Récursif : les chiffres de poids fort d'abord.
 		id: 'conv-3',
 		world: 'Conversion nombre↔texte',
-		title: 'Extrais les chiffres',
-		goalText: 'Sépare 42 : u = les unités (2), t = les dizaines (4). C\'est le cœur de putnbr.',
-		hint: 'Quel calcul isole le dernier chiffre d\'un nombre ? Lequel retire ce chiffre ? C\'est le cœur de putnbr (cours M2).',
-		vars: [
-			{ name: 'n', value: 42, kind: 'int' },
-			{ name: 'u', value: 0, kind: 'int' },
-			{ name: 't', value: 0, kind: 'int' }
-		],
-		slots: 2,
-		par: 2,
-		goal: { u: 2, t: 4 },
+		title: 'Écris ft_putnbr (récursif)',
+		goalText: 'Écris le CORPS de ft_putnbr(n). main l\'appelle sur 42 : la sortie doit être « 42 ». Récursion : les chiffres de poids fort s\'affichent d\'abord.',
+		hint: 'Pour afficher 42, il faut sortir le 4 AVANT le 2. Que fait ft_putnbr(n / 10) avant d\'afficher le dernier chiffre ? Et quel calcul transforme n % 10 en son caractère ? (cours M2/M6)',
+		assembleInto: 'ft_putnbr',
+		params: ['n'],
+		driverText: 'main (verrouillé) : ft_putnbr(42)',
+		driver: [{ id: 'drv', label: 'ft_putnbr(42)', ast: call(variable('done'), 'ft_putnbr', [lit(42)]) }],
+		vars: [{ name: 'done', value: 0, kind: 'int' }],
+		slots: 3,
+		par: 3,
+		goalCheck: (mem) => mem.output === '42',
 		bank: [
-			{ id: 'u-mod', label: 'u = n % 10', ast: assign(variable('u'), bin('%', variable('n'), lit(10))) },
-			{ id: 't-div', label: 't = n / 10', ast: assign(variable('t'), bin('/', variable('n'), lit(10))) },
-			{ id: 'u-div-bad', label: 'u = n / 10', ast: assign(variable('u'), bin('/', variable('n'), lit(10))) }
+			{ id: 'rec', label: 'si (n >= 10) : q = n / 10 ; ft_putnbr(q)',
+				ast: ifThen(bin('>=', variable('n'), lit(10)), [assign(variable('q'), bin('/', variable('n'), lit(10))), call(variable('_'), 'ft_putnbr', [variable('q')])]) },
+			{ id: 'digit', label: 'd = n % 10 + \'0\'', ast: assign(variable('d'), bin('+', bin('%', variable('n'), lit(10)), lit('0'))) },
+			{ id: 'emit', label: 'write(1, &d, 1)', ast: write(1, addr('d'), lit(1)) },
+			{ id: 'digit-bad', label: 'd = n % 10  (le chiffre brut, pas son caractère)', ast: assign(variable('d'), bin('%', variable('n'), lit(10))) }
 		]
 	},
 	{

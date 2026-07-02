@@ -89,17 +89,15 @@ describe('conv-1 — Écris ft_atoi (forge depuis zéro)', () => {
 	});
 });
 
-describe('conv-2 — Conversion (putnbr_base)', () => {
+describe('conv-2 — Écris ft_putnbr_base (binaire, récursif)', () => {
 	const L = byId['conv-2'];
-	test('putnbr_base(42, hex) → "2a"', () => {
-		const { mem } = runProgram(L, ['hex']);
-		assert.equal(mem.output, '2a');
-		assert.ok(solved(L, ['hex']));
+	test('rec → digit(base[n%2]) → emit : 5 → "101"', () => {
+		const { mem } = runProgram(L, ['rec', 'digit', 'emit']);
+		assert.equal(mem.output, '101');
+		assert.ok(solved(L, ['rec', 'digit', 'emit']));
 	});
-	test('base binaire → "101010", pas "2a" → échoue', () => {
-		const { mem } = runProgram(L, ['bin']);
-		assert.equal(mem.output, '101010');
-		assert.equal(goalMet(L, mem), false);
+	test('d = n % 2 (le chiffre brut, pas le symbole) → échoue', () => {
+		assert.equal(goalMet(L, runProgram(L, ['rec', 'digit-bad', 'emit']).mem), false);
 	});
 });
 
@@ -154,14 +152,19 @@ describe('dup-1 — Écris ft_strdup (réutilise ta libft)', () => {
 	});
 });
 
-describe('conv-3 — Conversion (extraction de chiffres, B4)', () => {
+describe('conv-3 — Écris ft_putnbr (récursif)', () => {
 	const L = byId['conv-3'];
-	test('u = n%10 (2), t = n/10 (4) → cible atteinte', () => {
-		assert.ok(solved(L, ['u-mod', 't-div']));
+	test('rec(n/10) → digit(n%10 + \'0\') → emit : 42 → "42"', () => {
+		const { mem } = runProgram(L, ['rec', 'digit', 'emit']);
+		assert.equal(mem.output, '42');
+		assert.ok(solved(L, ['rec', 'digit', 'emit']));
 	});
-	test('u = n/10 (4) au lieu de %10 → échoue', () => {
-		const { mem } = runProgram(L, ['u-div-bad', 't-div']);
-		assert.equal(mem.getVar('u'), 4);
+	test('d = n % 10 (chiffre brut, pas son caractère) → émet des codes de contrôle, échoue', () => {
+		assert.equal(goalMet(L, runProgram(L, ['rec', 'digit-bad', 'emit']).mem), false);
+	});
+	test('sans la récursion → un seul chiffre, échoue', () => {
+		const { mem } = runProgram(L, ['digit', 'emit']);
+		assert.equal(mem.output, '2');
 		assert.equal(goalMet(L, mem), false);
 	});
 });
