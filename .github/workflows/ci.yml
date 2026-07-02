@@ -43,5 +43,16 @@ jobs:
           path: tests/visual/out/
           retention-days: 14
 
-      - name: Build
-        run: npm run build --if-present
+      - name: Build (artefact statique dist/)
+        run: npm run build
+
+      # L'artefact de prod est vérifié comme les sources : mêmes écrans, mêmes budgets.
+      - name: Vérifie l'artefact (écrans clés sur dist/)
+        run: npm run test:visual -- --root dist
+
+      - name: Artefact de prod
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 30
