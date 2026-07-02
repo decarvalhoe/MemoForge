@@ -10,14 +10,8 @@ export function renderLibft(container, names = []) {
 	if (!names.length)
 		return;
 	container.appendChild(el('h2', { text: t('ta libft') }));
-	const strip = el('div', { class: 'libft-strip', style: 'display:flex;flex-wrap:wrap;gap:6px' });
+	const strip = el('div', { class: 'libft-strip' });
 	for (const name of names)
-		strip.appendChild(el('span', {
-			class: 'libft-chip',
-			style: 'font-family:var(--font-mono);font-size:var(--fs-2xs);padding:3px 8px;'
-				+ 'color:var(--accent);background:var(--surface-well);border:1px solid var(--accent);'
-				+ 'border-radius:var(--radius-sm)',
-			text: name
-		}));
+		strip.appendChild(el('span', { class: 'libft-chip', text: name }));
 	container.appendChild(strip);
 }

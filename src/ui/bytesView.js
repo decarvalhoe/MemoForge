@@ -12,16 +12,16 @@ export function renderBytes(container, snapshot, names = []) {
 	if (!wanted.length)
 		return;
 	container.appendChild(el('div', { class: 'heap-label', text: t('// explorateur d\'octets (little-endian)') }));
-	const strip = el('div', { style: 'display:flex;flex-direction:column;gap:6px' });
+	const strip = el('div', { class: 'mf-bytes' });
 	for (const cell of wanted) {
 		const e = explain(cell.value);
-		const row = el('div', { style: 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--font-mono);font-size:var(--fs-2xs)' });
-		row.appendChild(el('span', { style: 'color:var(--text)', text: `${cell.name} = ${e.value}` }));
-		row.appendChild(el('span', { style: 'color:var(--text-muted)', text: e.compact }));
-		const bytes = el('div', { style: 'display:flex;gap:4px' });
+		const row = el('div', { class: 'mf-bytes__row' });
+		row.appendChild(el('span', { class: 'mf-bytes__name', text: `${cell.name} = ${e.value}` }));
+		row.appendChild(el('span', { class: 'mf-bytes__compact', text: e.compact }));
+		const bytes = el('div', { class: 'mf-bytes__cells' });
 		for (const b of e.bytes)
 			bytes.appendChild(el('span', {
-				style: 'padding:2px 6px;color:var(--accent);background:var(--surface-well);border:1px solid var(--border);border-radius:var(--radius-sm)',
+				class: 'mf-byte',
 				text: b.toString(16).padStart(2, '0')
 			}));
 		row.appendChild(bytes);

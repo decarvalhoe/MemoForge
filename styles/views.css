@@ -1,0 +1,72 @@
+/* MemoForge — classes des vues (E10-2, #163).
+   Extraction des styles inline du JS vers des classes utilisant les design tokens.
+   Objectif : maintenabilité, thématisation, et surtout débloquer une CSP stricte
+   (plus d'attribut style="" statique → style-src 'self' sans 'unsafe-inline').
+   Les états dynamiques (actif/ouvert/propre…) passent par des classes modificatrices. */
+
+/* ── bytesView (explorateur d'octets) ────────────────────────────────────── */
+.mf-bytes { display: flex; flex-direction: column; gap: 6px; }
+.mf-bytes__row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-2xs); }
+.mf-bytes__name { color: var(--text); }
+.mf-bytes__compact { color: var(--text-muted); }
+.mf-bytes__cells { display: flex; gap: 4px; }
+.mf-byte { padding: 2px 6px; color: var(--accent); background: var(--surface-well); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+
+/* ── callStackView (pile d'appels) ───────────────────────────────────────── */
+.mf-cs-loop { margin-bottom: 8px; }
+.mf-frames { display: flex; flex-direction: column; gap: 6px; }
+.mf-frame { background: var(--surface-well); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; }
+.mf-frame--active { border-color: var(--accent); box-shadow: var(--glow-green); }
+.mf-frame__head { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+.mf-frame__label { font-family: var(--font-mono); font-size: var(--fs-sm); font-weight: 600; color: var(--text-muted); }
+.mf-frame--active .mf-frame__label { color: var(--accent); }
+.mf-frame__vars { display: flex; flex-wrap: wrap; gap: 6px; }
+.mf-frame__var { font-family: var(--font-mono); font-size: var(--fs-2xs); color: var(--text-muted); }
+
+/* ── controls (mascotte + verdict + médailles) ───────────────────────────── */
+.mf-run { flex: 1; }
+.mf-next { margin-top: 4px; }
+.mf-mascot-wrap { margin-top: 14px; }
+.stars { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+.mf-verdict-area { margin-top: 16px; }
+
+/* ── libftView (« ta libft ») ────────────────────────────────────────────── */
+.libft-strip { display: flex; flex-wrap: wrap; gap: 6px; }
+.libft-chip { font-family: var(--font-mono); font-size: var(--fs-2xs); padding: 3px 8px; color: var(--accent); background: var(--surface-well); border: 1px solid var(--accent); border-radius: var(--radius-sm); }
+
+/* ── memoryView (mur de casiers + sortie) ────────────────────────────────── */
+.mf-cells--rel { position: relative; }
+.mf-output { margin: 0; padding: 10px 12px; background: var(--surface-well); border: 1px solid var(--accent); border-radius: var(--radius-sm); color: var(--accent); font-family: var(--font-mono); font-size: var(--fs-md); text-shadow: var(--text-glow-green); white-space: pre-wrap; word-break: break-all; }
+
+/* ── programView (slots + réordonnancement) ──────────────────────────────── */
+.mf-slot { display: flex; gap: 6px; align-items: stretch; }
+.mf-slot__brick { flex: 1; }
+.mf-move { min-height: auto; padding: 0 6px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: .9rem; }
+
+/* ── regionMapView (carte de la RAM) ─────────────────────────────────────── */
+.mf-map-body { padding: 16px 22px 20px; }
+.mf-map-title { margin: 0; font-family: var(--font-display); font-size: var(--fs-display-1); line-height: 1; color: var(--accent); text-shadow: var(--text-glow-green); }
+.mf-map-alert { display: flex; align-items: center; gap: 8px; background: var(--danger-fill); border: 1px solid var(--danger); border-radius: var(--radius-sm); padding: 7px 10px; margin: 8px 0 14px; color: var(--danger); font-size: var(--fs-sm); }
+.mf-map-list { display: flex; flex-direction: column; gap: 12px; }
+.mf-map-actions { margin-top: 14px; display: flex; gap: 8px; }
+.mf-region-head { display: flex; justify-content: space-between; align-items: baseline; }
+.mf-region-name { margin: 0; font-size: var(--fs-md); font-weight: 600; color: var(--text-muted); }
+.mf-region-name--open { color: var(--accent); }
+.mf-region-addr { font-size: var(--fs-2xs); color: var(--text-muted); }
+.mf-region-rooms { display: flex; gap: 9px; margin-top: 9px; flex-wrap: wrap; }
+.mf-region-soon { font-size: var(--fs-2xs); color: var(--text-muted); }
+.mf-region-block { background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius-md); padding: 11px 13px; opacity: .6; }
+.mf-region-block--open { background: var(--surface-nested); border-style: solid; border-color: var(--accent); opacity: 1; }
+.mf-room-link { flex: 1; min-width: 120px; cursor: pointer; }
+.mf-room-link[aria-disabled="true"] { cursor: default; }
+
+/* ── valgrindView (rapport façon valgrind) ───────────────────────────────── */
+.mf-valgrind { margin-top: 8px; padding: 8px 10px; border: 1px solid var(--pointer); border-radius: var(--radius-sm); background: var(--surface-well); font-family: var(--font-mono); font-size: var(--fs-2xs); }
+.mf-valgrind--clean { border-color: var(--accent); }
+.mf-valgrind__label { color: var(--text-muted); margin-bottom: 4px; }
+.mf-valgrind__line { color: var(--pointer); }
+.mf-valgrind--clean .mf-valgrind__line { color: var(--accent); }
+
+/* ── game.js (bandeaux) ──────────────────────────────────────────────────── */
+.mf-hardest { text-align: center; margin-top: 12px; }
+.mf-exam-actions { display: flex; gap: 8px; margin-top: 14px; }

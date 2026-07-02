@@ -161,7 +161,7 @@ export class Game {
 		// E9-4 : rappel discret et privé du niveau le plus retravaillé (stats locales).
 		const top = hardest(this.stats, 1)[0];
 		if (top)
-			this.elMap.appendChild(el('p', { class: 'mission-hint', style: 'text-align:center;margin-top:12px', text: `🔁 ${t('le plus retravaillé : ')}${top.id} (${top.fails} ${t('essais avant réussite')}) · ${t('stats locales, jamais envoyées')}` }));
+			this.elMap.appendChild(el('p', { class: 'mission-hint mf-hardest', text: `🔁 ${t('le plus retravaillé : ')}${top.id} (${top.fails} ${t('essais avant réussite')}) · ${t('stats locales, jamais envoyées')}` }));
 	}
 
 	loadLevel(i) {
@@ -407,7 +407,7 @@ export class Game {
 			el('div', { class: 'mission-tag', text: t('examen terminé') }),
 			el('h2', { class: 'mission-title', text: `${t('Score : ')}${this.examSolved} / ${total}` }),
 			el('p', { class: 'mission-goal', text: `${t('Temps : ')}${this.examElapsed()}` }),
-			el('div', { style: 'display:flex;gap:8px;margin-top:14px' }, [
+			el('div', { class: 'mf-exam-actions' }, [
 				button({ label: t('recommencer'), variant: 'primary', onClick: () => this.enterExam() }),
 				button({ label: t('← carte'), variant: 'ghost', onClick: () => this.showMap() })
 			])

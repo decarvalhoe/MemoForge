@@ -8,13 +8,9 @@ export function renderValgrind(container, report) {
 	clear(container);
 	if (!report)
 		return;
-	const tone = report.clean ? 'var(--accent)' : 'var(--pointer)';
-	const box = el('div', {
-		style: `margin-top:8px;padding:8px 10px;border:1px solid ${tone};border-radius:var(--radius-sm);`
-			+ 'background:var(--surface-well);font-family:var(--font-mono);font-size:var(--fs-2xs)'
-	});
-	box.appendChild(el('div', { style: 'color:var(--text-muted);margin-bottom:4px', text: '// valgrind --leak-check=full' }));
+	const box = el('div', { class: 'mf-valgrind' + (report.clean ? ' mf-valgrind--clean' : '') });
+	box.appendChild(el('div', { class: 'mf-valgrind__label', text: '// valgrind --leak-check=full' }));
 	for (const line of report.lines)
-		box.appendChild(el('div', { style: `color:${tone}`, text: '==memoforge== ' + line }));
+		box.appendChild(el('div', { class: 'mf-valgrind__line', text: '==memoforge== ' + line }));
 	container.appendChild(box);
 }
