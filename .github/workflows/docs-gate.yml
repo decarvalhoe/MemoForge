@@ -38,6 +38,7 @@ jobs:
           if [ "$fail" = "0" ]; then echo "Doc à jour pour $head_ver. ✓"; fi
           exit $fail
 
-      - name: Rappel — description du dépôt
+      - name: Rappel description du dépôt
         if: always()
-        run: echo "::notice::Release : pense à mettre à jour la description GitHub du dépôt (pitch produit) — cf. docs/WORKFLOW.md."
+        run: |
+          echo "::notice::Release — pense à mettre à jour la description GitHub du dépôt (pitch produit). Voir docs/WORKFLOW.md."
