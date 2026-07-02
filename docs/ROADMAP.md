@@ -164,3 +164,59 @@ EPIC 0 ──> EPIC 1 ──┐
 
 Chaque EPIC = un *milestone* GitHub ; chaque `Ex-y` = une *issue* liée, étiquetée par domaine.
 Voir `docs/BRIQUES.md` pour l'ancrage pédagogique de chaque mécanique.
+
+---
+
+# Roadmap post-1.1.0 (au-delà du réalignement cursus)
+
+Après l'EPIC 6 (réalignement sur le cours M1→M12 et les exos officiels, esprit libft), la
+suite est du **contenu incrémental** piloté par le catalogue (`src/game/catalog.js`) et
+quelques **deltas moteur** ciblés. Le catalogue est le backlog vivant : chaque fonction y
+porte son statut (jouable / à forger / à refondre) et son tier de faisabilité moteur ; la
+garde de couverture (`tests/game/catalog.test.mjs`) empêche toute dérive.
+
+**État 1.1.0** : 18 fonctions jouables (l'épine M1→M12) · 72 à forger · 2 à refondre.
+
+## EPIC 7 — Compléter la libft & les exos (sans delta moteur)
+
+67 fonctions constructibles **dès maintenant** (tiers `ready` + `char`, char↔code déjà
+livré). Toutes suivent la mécanique « écris le corps + ta libft ».
+
+- **E7-1** — Sortie & I/O de base (C00) : `ft_putchar`, `print_alphabet`, `print_numbers`,
+  `is_negative`, `ft_putstr`, `put{char,str,endl,nbr}_fd`.
+- **E7-2** — Conversion nombre↔texte (C04) : `ft_putnbr` (récursif), `ft_putnbr_base`,
+  `ft_itoa`, `ft_atoi_base`, `ft_convert_base` — **finit `conv-2`/`conv-3` (à refondre)**.
+- **E7-3** — Caractères & casse (C02/libft) : `is{alpha,digit,alnum,ascii,print}`,
+  `to{upper,lower}`, `str_is_*`, `str{up,low}case`, `strcapitalize`.
+- **E7-4** — Comparaison & recherche (C03/libft) : `strcmp`, `strncmp`, `strcat`, `strncat`,
+  `strstr`, `strchr`, `strrchr`, `strnstr`.
+- **E7-5** — Chaînes allouées (libft-2) : `substr`, `strjoin`, `strtrim`, `split`, `strlcpy`.
+- **E7-6** — Récursivité & maths (C05) : factorial/power itératifs & récursifs, `fibonacci`,
+  `sqrt`, `is_prime`, `find_next_prime`.
+- **E7-7** — Listes chaînées bonus (libft) : `lstnew`, `lstadd_{front,back}`, `lstsize`,
+  `lstlast`, `lstdelone`, `lstclear`, `lstiter`, `lstmap`.
+- **E7-8** — Callbacks (`strmapi`, `striteri`, `ft_foreach`) — réutilise `apply`/`funcRef`.
+
+## EPIC 8 — Deltas moteur restants
+
+- **E8-1** — Modèle `argc`/`argv` (C06) : `print_program_name`, `print_params`, `rev_params`,
+  `sort_params`. Injecter les arguments du programme dans `main`.
+- **E8-2** — Mémoire adressée à l'octet (tier `octet`) : `memset`, `bzero`, `memcpy`,
+  `memmove`, `memchr`, `memcmp`, `calloc`, `strlcat`, `putstr_non_printable`. *Design d'abord*
+  (vraie adresse-octet vs copie de casiers).
+- **E8-3** — Granularité fine des briques : assembler le **corps d'une boucle** (aujourd'hui
+  un `while`/`loop` est une seule brique). Rendrait le « depuis zéro » encore plus profond.
+
+## EPIC 9 — Progression, UX & portée
+
+- **E9-1** — Déblocage par dépendances de forge : verrouiller `ft_strdup` tant que
+  `ft_strlen` + `ft_strcpy` ne sont pas dans ta libft (les `deps` du catalogue le décrivent).
+- **E9-2** — Polish mobile (< 680 px), micro-animations, son optionnel.
+- **E9-3** — Internationalisation (EN) — le contenu est en français aujourd'hui.
+- **E9-4** — Télémétrie d'apprentissage (respect vie privée) : quels niveaux/pièges bloquent,
+  pour ajuster la difficulté.
+
+## Séquencement conseillé
+
+EPIC 7 en continu (contenu à faible risque, une famille par PR). EPIC 8 en parallèle quand
+un tier bloque une famille (argv, octet). EPIC 9 après une masse critique de niveaux.
