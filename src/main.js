@@ -2,6 +2,8 @@ import { Game } from './game/game.js';
 import { initLang, setLang, getLang, t } from './game/i18n.js';
 
 initLang(); // applique la langue sauvegardée (FR par défaut) avant le premier rendu
+// A11y : refléter la langue courante sur <html lang> (lecteurs d'écran, prononciation).
+if (typeof document !== 'undefined') document.documentElement.lang = getLang();
 
 const root = document.getElementById('app');
 const game = new Game(root);
