@@ -51,6 +51,15 @@ export function missing(inv, names = [], refs = {}) {
 	return names.filter((n) => !hasForged(inv, n) && !Object.prototype.hasOwnProperty.call(refs, n));
 }
 
+/**
+ * Statut des dépendances de forge d'un niveau (E9-1) : pour chaque ft_ réutilisée, indique
+ * si le joueur l'a déjà forgée (il joue avec LA SIENNE) ou non (repli sur la référence).
+ * @returns {{name:string, forged:boolean}[]}
+ */
+export function depStatus(inv, names = []) {
+	return names.map((name) => ({ name, forged: hasForged(inv, name) }));
+}
+
 // ── Persistance (storage = objet localStorage-like, ou null/absent) ──────────
 export function loadLibft(storage) {
 	try {
