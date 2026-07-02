@@ -32,6 +32,11 @@ const REF_STRCAT = func('ft_strcat', ['dst', 'src'], [
 	assign(store(V('dst'), bin('+', V('i'), V('j'))), lit(0)),
 	ret(V('dst'))
 ]);
+const REF_PUTSTR = func('ft_putstr', ['s'], [
+	assign(V('len'), lit(0)),
+	whileLoop(bin('!=', load(V('s'), V('len')), lit(0)), [assign(V('len'), bin('+', V('len'), lit(1)))]),
+	write(1, V('s'), V('len'))
+]);
 
 export const LEVELS = [
 	{
@@ -1247,6 +1252,59 @@ export const LEVELS = [
 				ast: whileLoop(bin('!=', variable('cur'), lit(0)), [apply(variable('_'), variable('f'), [field(variable('cur'), 'data')]), assign(variable('cur'), field(variable('cur'), 'next'))]) },
 			{ id: 'walk-bad', label: 'tant que cur != 0 : f(cur) ; cur = cur->next  (le nœud, pas la donnée)',
 				ast: whileLoop(bin('!=', variable('cur'), lit(0)), [apply(variable('_'), variable('f'), [variable('cur')]), assign(variable('cur'), field(variable('cur'), 'next'))]) }
+		]
+	},
+	{
+		// ÉCRIS ft_print_params (C06) : afficher les ARGUMENTS du programme (argv[1..argc-1],
+		// on saute argv[0] = le nom du programme). argv est un char** : argv[i] est une chaîne.
+		id: 'arg-1',
+		world: 'Sortie & ASCII',
+		title: 'Écris ft_print_params',
+		goalText: 'main lance le programme avec les arguments « Hi » et « ! ». Écris ft_print_params(argc, argv) qui affiche chaque argument (pas le nom du programme) : la sortie doit être « Hi! ».',
+		hint: 'argv[0] est le nom du programme, pas un argument. À partir de quel indice les vrais arguments commencent-ils ? argv[i] est une chaîne — quelle fonction déjà forgée l\'affiche ? (cours — argv = char**)',
+		assembleInto: 'ft_print_params',
+		params: ['argc', 'argv'],
+		usesLibft: ['ft_putstr'],
+		functions: { ft_putstr: REF_PUTSTR },
+		args: ['prog', 'Hi', '!'],
+		driverText: 'main (verrouillé) : ./prog Hi ! → ft_print_params(argc, argv)',
+		driver: [{ id: 'drv', label: 'ft_print_params(argc, argv)', ast: call(variable('done'), 'ft_print_params', [variable('argc'), variable('argv')]) }],
+		vars: [{ name: 'argc', value: 0, kind: 'int' }, { name: 'argv', value: 0, kind: 'ptr' }, { name: 'done', value: 0, kind: 'int' }],
+		slots: 2,
+		par: 2,
+		goalCheck: (mem) => mem.output === 'Hi!',
+		bank: [
+			{ id: 'i1', label: 'i = 1', ast: assign(variable('i'), lit(1)) },
+			{ id: 'loop', label: 'tant que i < argc : ft_putstr(argv[i]) ; i = i + 1',
+				ast: whileLoop(bin('<', variable('i'), variable('argc')), [call(variable('_'), 'ft_putstr', [load(variable('argv'), variable('i'))]), assign(variable('i'), bin('+', variable('i'), lit(1)))]) },
+			{ id: 'i0-bad', label: 'i = 0  (inclut le nom du programme)', ast: assign(variable('i'), lit(0)) }
+		]
+	},
+	{
+		// ÉCRIS ft_rev_params (C06) : les arguments À L'ENVERS. Même char** argv, on parcourt
+		// de argc-1 jusqu'à 1.
+		id: 'arg-2',
+		world: 'Sortie & ASCII',
+		title: 'Écris ft_rev_params',
+		goalText: 'Mêmes arguments « Hi » « ! ». Écris ft_rev_params(argc, argv) qui les affiche À L\'ENVERS : la sortie doit être « !Hi ».',
+		hint: 'Le dernier argument est à l\'indice argc − 1. Dans quel sens fais-tu varier i pour aller du dernier vers le premier vrai argument ? (cours — argv)',
+		assembleInto: 'ft_rev_params',
+		params: ['argc', 'argv'],
+		usesLibft: ['ft_putstr'],
+		functions: { ft_putstr: REF_PUTSTR },
+		args: ['prog', 'Hi', '!'],
+		driverText: 'main (verrouillé) : ./prog Hi ! → ft_rev_params(argc, argv)',
+		driver: [{ id: 'drv', label: 'ft_rev_params(argc, argv)', ast: call(variable('done'), 'ft_rev_params', [variable('argc'), variable('argv')]) }],
+		vars: [{ name: 'argc', value: 0, kind: 'int' }, { name: 'argv', value: 0, kind: 'ptr' }, { name: 'done', value: 0, kind: 'int' }],
+		slots: 2,
+		par: 2,
+		goalCheck: (mem) => mem.output === '!Hi',
+		bank: [
+			{ id: 'ilast', label: 'i = argc - 1', ast: assign(variable('i'), bin('-', variable('argc'), lit(1))) },
+			{ id: 'loop', label: 'tant que i >= 1 : ft_putstr(argv[i]) ; i = i - 1',
+				ast: whileLoop(bin('>=', variable('i'), lit(1)), [call(variable('_'), 'ft_putstr', [load(variable('argv'), variable('i'))]), assign(variable('i'), bin('-', variable('i'), lit(1)))]) },
+			{ id: 'up-bad', label: 'tant que i >= 1 : … ; i = i + 1  (mauvais sens)',
+				ast: whileLoop(bin('>=', variable('i'), lit(1)), [call(variable('_'), 'ft_putstr', [load(variable('argv'), variable('i'))]), assign(variable('i'), bin('+', variable('i'), lit(1)))]) }
 		]
 	}
 ];

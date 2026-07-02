@@ -173,6 +173,11 @@ export class Game {
 		if (this.level.files) {
 			for (const [name, content] of Object.entries(this.level.files)) mem.setFile(name, content);
 		}
+		if (this.level.args) {
+			const { argc, argv } = mem.installArgv(this.level.args);
+			mem.setVar('argc', argc);
+			mem.setVar('argv', argv);
+		}
 		return mem;
 	}
 

@@ -296,3 +296,19 @@ describe('each-1/each-2 — Callbacks (apply f)', () => {
 		assert.equal(goalMet(byId['each-2'], runProgram(byId['each-2'], ['cur', 'walk-bad']).mem), false);
 	});
 });
+
+describe('arg-1/arg-2 — Arguments du programme (argv, C06)', () => {
+	test('ft_print_params : argv[1..] via ft_putstr → "Hi!"', () => {
+		assert.ok(solved(byId['arg-1'], ['i1', 'loop']));
+	});
+	test('ft_print_params à partir de i=0 inclut le nom du programme → échoue', () => {
+		assert.equal(goalMet(byId['arg-1'], runProgram(byId['arg-1'], ['i0-bad', 'loop']).mem), false);
+	});
+	test('ft_rev_params : de argc-1 vers 1 → "!Hi"', () => {
+		assert.ok(solved(byId['arg-2'], ['ilast', 'loop']));
+	});
+	test('ft_rev_params dans le mauvais sens (i++) → échoue', () => {
+		const { mem, error } = runProgram(byId['arg-2'], ['ilast', 'up-bad']);
+		assert.ok(error || goalMet(byId['arg-2'], mem) === false);
+	});
+});

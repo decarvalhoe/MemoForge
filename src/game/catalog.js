@@ -89,8 +89,8 @@ export const CATALOG = [
 
 	// ── C06 · arguments du programme (modèle argv) ────────────────────────────
 	{ fn: 'ft_print_program_name', module: 'C06', concept: 'argv[0]', tier: 'argv', deps: [], statut: 'a-forger', level: null, issue: '#104' },
-	{ fn: 'ft_print_params', module: 'C06', concept: 'parcours argv', tier: 'argv', deps: [], statut: 'a-forger', level: null, issue: '#104' },
-	{ fn: 'ft_rev_params', module: 'C06', concept: 'argv à l\'envers', tier: 'argv', deps: [], statut: 'a-forger', level: null, issue: '#104' },
+	{ fn: 'ft_print_params', module: 'C06', concept: 'parcours argv', tier: 'argv', deps: ['ft_putstr'], statut: 'jouable', level: 'arg-1' },
+	{ fn: 'ft_rev_params', module: 'C06', concept: 'argv à l\'envers', tier: 'argv', deps: ['ft_putstr'], statut: 'jouable', level: 'arg-2' },
 	{ fn: 'ft_sort_params', module: 'C06', concept: 'tri de chaînes', tier: 'argv', deps: ['ft_strcmp'], statut: 'a-forger', level: null, issue: '#104' },
 
 	// ── C07 · allocation dynamique, le tas ────────────────────────────────────
