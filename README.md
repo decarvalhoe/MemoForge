@@ -10,7 +10,7 @@
 ![Couverture moteur](https://img.shields.io/badge/couverture_moteur-100%25-46E08A)
 ![Dépendances runtime](https://img.shields.io/badge/d%C3%A9pendances_runtime-0-46E08A)
 
-### [▶ Jouer maintenant](https://decarvalhoe.github.io/MemoForge/)
+### [▶ Jouer / Play now](https://decarvalhoe.github.io/MemoForge/) · FR / EN
 
 *Jeu de puzzle web pour la Piscine C de l'École 42 — vanilla JS, 130 KB, aucune installation.*
 

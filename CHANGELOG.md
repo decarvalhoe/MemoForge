@@ -3,6 +3,25 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) · versioning :
 [SemVer](https://semver.org/lang/fr/). Démo : <https://decarvalhoe.github.io/MemoForge/>.
 
+## [1.3.0] — 2026-07-02
+
+Deltas moteur restants (EPIC 8) + progression/UX/portée (EPIC 9). Notamment : **le jeu
+existe maintenant en anglais**.
+
+### Ajouté
+- **Version anglaise complète** (E9-3, #149) : bascule FR/EN persistée, pack de surcharge
+  traduisant les 48 niveaux, les régions, l'UI et les pièges — le français reste la source.
+- **Modèle argc/argv** (E8-1) : `ft_print_params`, `ft_rev_params` (argv = char**).
+- **Mémoire brute** (E8-2) : `ft_memset`, `ft_memcpy` (modèle cellule-unité documenté).
+- **Dépendances de forge visibles** (E9-1) : chaque niveau montre les `ft_` qu'il réutilise
+  (✓ forgée / ○ référence).
+- **Stats d'apprentissage locales & privées** (E9-4) : nombre d'essais par niveau, jamais
+  envoyé nulle part ; rappel discret du niveau le plus retravaillé.
+- **Garde mobile** (E9-2) : écran 375 px verrouillé + `prefers-reduced-motion`.
+
+### Reporté (décisions documentées)
+Granularité fine des briques (E8-3), son (E9-2). Le catalogue reste le backlog vivant.
+
 ## [1.2.0] — 2026-07-02
 
 Expansion de contenu (EPIC 7) : **la libft se forge**. 27 → **44 niveaux**, 18 → **38
