@@ -38,6 +38,9 @@ const SOLUTIONS = {
 	'mem-1': ['lo', 'hi'],
 	'strn-1': ['loop-2'],
 	'while-1': ['init', 'scan', 'ret'],
+	'chr-1': ['and'],
+	'chr-2': ['or'],
+	'chr-3': ['cond', 'ret'],
 	'rec-1': ['base', 'rec', 'comb'],
 	'rec-2': ['base', 'rec', 'comb']
 };

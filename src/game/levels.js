@@ -816,5 +816,84 @@ export const LEVELS = [
 			{ id: 'ret', label: 'return len', ast: ret(variable('len')) },
 			{ id: 'scan-bad', label: 'tant que len < 3 : len = len + 1', ast: whileLoop(bin('<', variable('len'), lit(3)), [assign(variable('len'), bin('+', variable('len'), lit(1)))]) }
 		]
+	},
+	{
+		// ÉCRIS ft_isdigit (C02/libft) : un char est un chiffre s'il est DANS la plage
+		// '0'..'9'. Deux conditions à combiner par ET → produit de deux booléens (0/1).
+		id: 'chr-1',
+		world: 'Chaînes & bornes',
+		title: 'Écris ft_isdigit',
+		goalText: 'Écris le CORPS de ft_isdigit(c) : 1 si c est un chiffre, 0 sinon. main teste \'5\' (→ 1) et \'a\' (→ 0).',
+		hint: 'Un chiffre est à la fois ≥ \'0\' ET ≤ \'9\'. Comment combiner deux tests (chacun 0 ou 1) pour n\'obtenir 1 que si les DEUX sont vrais ? (cours M2)',
+		assembleInto: 'ft_isdigit',
+		params: ['c'],
+		driverText: 'main (verrouillé) : r1 = ft_isdigit(\'5\') · r2 = ft_isdigit(\'a\')',
+		driver: [
+			{ id: 'd1', label: 'r1 = ft_isdigit(\'5\')', ast: call(variable('r1'), 'ft_isdigit', [lit('5')]) },
+			{ id: 'd2', label: 'r2 = ft_isdigit(\'a\')', ast: call(variable('r2'), 'ft_isdigit', [lit('a')]) }
+		],
+		vars: [{ name: 'r1', value: 0, kind: 'int' }, { name: 'r2', value: 0, kind: 'int' }],
+		slots: 1,
+		par: 1,
+		goal: { r1: 1, r2: 0 },
+		bank: [
+			{ id: 'and', label: 'return (c >= \'0\') * (c <= \'9\')', ast: ret(bin('*', bin('>=', variable('c'), lit('0')), bin('<=', variable('c'), lit('9')))) },
+			{ id: 'or-bad', label: 'return (c >= \'0\') + (c <= \'9\')', ast: ret(bin('+', bin('>=', variable('c'), lit('0')), bin('<=', variable('c'), lit('9')))) },
+			{ id: 'half-bad', label: 'return c >= \'0\'', ast: ret(bin('>=', variable('c'), lit('0'))) }
+		]
+	},
+	{
+		// ÉCRIS ft_isalpha (C02/libft) : lettre = plage a..z OU A..Z. Deux plages disjointes
+		// → somme des deux ET (l'une OU l'autre est vraie, jamais les deux).
+		id: 'chr-2',
+		world: 'Chaînes & bornes',
+		title: 'Écris ft_isalpha',
+		goalText: 'Écris le CORPS de ft_isalpha(c) : 1 si c est une lettre, 0 sinon. main teste \'Z\' (→ 1) et \'5\' (→ 0).',
+		hint: 'Une lettre est dans a..z OU dans A..Z (deux plages qui ne se chevauchent pas). Comment obtenir 1 si l\'UNE des deux est vraie ? (cours M2)',
+		assembleInto: 'ft_isalpha',
+		params: ['c'],
+		driverText: 'main (verrouillé) : r1 = ft_isalpha(\'Z\') · r2 = ft_isalpha(\'5\')',
+		driver: [
+			{ id: 'd1', label: 'r1 = ft_isalpha(\'Z\')', ast: call(variable('r1'), 'ft_isalpha', [lit('Z')]) },
+			{ id: 'd2', label: 'r2 = ft_isalpha(\'5\')', ast: call(variable('r2'), 'ft_isalpha', [lit('5')]) }
+		],
+		vars: [{ name: 'r1', value: 0, kind: 'int' }, { name: 'r2', value: 0, kind: 'int' }],
+		slots: 1,
+		par: 1,
+		goal: { r1: 1, r2: 0 },
+		bank: [
+			{ id: 'or', label: 'return (c>=\'a\')*(c<=\'z\') + (c>=\'A\')*(c<=\'Z\')', ast: ret(bin('+', bin('*', bin('>=', variable('c'), lit('a')), bin('<=', variable('c'), lit('z'))), bin('*', bin('>=', variable('c'), lit('A')), bin('<=', variable('c'), lit('Z'))))) },
+			{ id: 'low-bad', label: 'return (c >= \'a\') * (c <= \'z\')', ast: ret(bin('*', bin('>=', variable('c'), lit('a')), bin('<=', variable('c'), lit('z')))) }
+		]
+	},
+	{
+		// ÉCRIS ft_toupper (C02/libft) : une minuscule vaut sa majuscule − 32 ; le reste est
+		// inchangé. La CONDITION protège les non-lettres (toupper('A') = 'A', pas 'A'−32).
+		id: 'chr-3',
+		world: 'Chaînes & bornes',
+		title: 'Écris ft_toupper',
+		goalText: 'Écris le CORPS de ft_toupper(c) : majuscule si c est minuscule, inchangé sinon. main teste \'a\' (→ \'A\' = 65) et \'A\' (→ \'A\' = 65).',
+		hint: 'Une minuscule et sa majuscule sont écartées de 32 dans la table ASCII. Mais que doit-il arriver à un caractère qui n\'est PAS une minuscule ? (cours M2)',
+		assembleInto: 'ft_toupper',
+		params: ['c'],
+		driverText: 'main (verrouillé) : r1 = ft_toupper(\'a\') · r2 = ft_toupper(\'A\')',
+		driver: [
+			{ id: 'd1', label: 'r1 = ft_toupper(\'a\')', ast: call(variable('r1'), 'ft_toupper', [lit('a')]) },
+			{ id: 'd2', label: 'r2 = ft_toupper(\'A\')', ast: call(variable('r2'), 'ft_toupper', [lit('A')]) }
+		],
+		vars: [{ name: 'r1', value: 0, kind: 'int' }, { name: 'r2', value: 0, kind: 'int' }],
+		slots: 2,
+		par: 2,
+		// toupper('A') renvoie le char 'A' inchangé (code 65) ; toupper('a') renvoie 65
+		// (nombre). On compare les CODES pour accepter les deux formes.
+		goalCheck: (mem) => {
+			const code = (v) => (typeof v === 'string' ? v.charCodeAt(0) : v);
+			return code(mem.getVar('r1')) === 65 && code(mem.getVar('r2')) === 65;
+		},
+		bank: [
+			{ id: 'cond', label: 'si ((c>=\'a\')*(c<=\'z\')) : c = c - 32', ast: ifThen(bin('*', bin('>=', variable('c'), lit('a')), bin('<=', variable('c'), lit('z'))), [assign(variable('c'), bin('-', variable('c'), lit(32)))]) },
+			{ id: 'ret', label: 'return c', ast: ret(variable('c')) },
+			{ id: 'uncond-bad', label: 'c = c - 32  (sans condition)', ast: assign(variable('c'), bin('-', variable('c'), lit(32))) }
+		]
 	}
 ];
