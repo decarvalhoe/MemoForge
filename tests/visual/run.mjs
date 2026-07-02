@@ -132,6 +132,22 @@ const SCREENS = [
 		}
 	},
 	{
+		// Le verdict façon valgrind (M9) sur un tas proprement libéré — l'écran emblème du Tas.
+		name: 'salle-split-valgrind',
+		url: '/',
+		prepare: () => {
+			const g = window.__memoforge;
+			g.enterRoom('split-1');
+			for (const id of ['a0', 'a1', 'at', 'l0', 'l1', 'f0', 'f1', 'ft']) g.addBlock(g.level.bank.find((b) => b.id === id));
+			g.run();
+		},
+		verify: () => {
+			const txt = (document.querySelector('.valgrind') || {}).innerText || '';
+			return /valgrind/i.test(txt) && /no leaks are possible/i.test(txt)
+				|| 'rapport valgrind « propre » absent : ' + JSON.stringify(txt.slice(0, 90));
+		}
+	},
+	{
 		name: 'styleguide',
 		url: '/styleguide.html',
 		verify: () => document.querySelectorAll('h2').length >= 3 || 'styleguide sans sections'

@@ -14,6 +14,9 @@ import { SANDBOX } from './sandbox.js';
 import { EXAM } from './exam.js';
 import { loadLibft, saveLibft, forge, functionsFor, forgedNames } from './libft.js';
 import { renderLibft } from '../ui/libftView.js';
+import { WORD } from '../engine/memory.js';
+import { valgrindReport, measureLeaks } from './valgrind.js';
+import { renderValgrind } from '../ui/valgrindView.js';
 
 export class Game {
 	constructor(root) {
@@ -61,7 +64,7 @@ export class Game {
 		this.elPalette = el('div', { class: 'palette' });
 		this.elControls = el('div', { class: 'controls' });
 		this.elMainSection = el('div', { class: 'main' }, [
-			el('section', { class: 'panel' }, [el('h2', { text: 'mur de casiers' }), this.elMemory, this.elCallStack]),
+			el('section', { class: 'panel' }, [el('h2', { text: 'mur de casiers' }), this.elMemory, this.elCallStack, this.elValgrind = el('div', { class: 'valgrind' })]),
 			el('aside', { class: 'side' }, [
 				el('h2', { text: 'ton programme' }), this.elProgram,
 				el('h2', { text: 'palette' }), this.elPalette,
@@ -177,6 +180,7 @@ export class Game {
 		this.memory = this.newMemory();
 		this.interp = null;
 		this.verdict = null;
+		this.valgrind = null;
 		this.activeIndex = -1;
 	}
 
@@ -294,6 +298,9 @@ export class Game {
 		const passed = goalMet && !error;
 		const leaks = this.memory.leaks().length;
 		const feedback = explainRun({ error, leaks, goalMet });   // message pédagogique (pièges)
+		// Verdict façon valgrind sur les niveaux qui touchent au tas (cours M9).
+		this.usedHeap = this.memory.heap().length > 0;
+		this.valgrind = this.usedHeap ? valgrindReport(measureLeaks(this.memory, WORD, !!error)) : null;
 		if (passed) {
 			this.solved.add(this.level.id);   // débloque la progression sur la carte
 			// Niveau « écris ft_xxx » réussi → la fonction entre dans ta libft (esprit libft).
@@ -347,6 +354,7 @@ export class Game {
 		renderMemory(this.elMemory, this.memory.snapshot(), this.memory.heap(), this.memory.changed, this.memory.output);
 		const frames = this.interp && typeof this.interp.frames === 'function' ? this.interp.frames() : null;
 		renderCallStack(this.elCallStack, frames);
+		renderValgrind(this.elValgrind, this.valgrind);
 		renderProgram(this.elProgram, this.program, lv.slots, this.activeIndex, (i) => this.removeBlock(i), (from, to) => this.moveBlock(from, to));
 		renderPalette(this.elPalette, lv.bank, this.program.length >= lv.slots, (instr) => this.addBlock(instr));
 		renderLibft(this.elLibft, forgedNames(this.libft));

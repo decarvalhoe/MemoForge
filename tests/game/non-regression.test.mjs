@@ -17,6 +17,7 @@ const SOLUTIONS = {
 	'ptr-2': ['set-div', 'set-mod'],
 	'2-1': ['i0', 'j0', 'loop'],
 	'range-1': ['size', 'alloc', 'i0', 'fill', 'ret'],
+	'split-1': ['a0', 'a1', 'at', 'l0', 'l1', 'f0', 'f1', 'ft'],
 	'3-1': ['p-malloc', 'star-p-7', 'free-p'],
 	'3-2': ['p-malloc', 'q-malloc', 'free-p', 'free-q'],
 	'4-1': ['c0-H', 'c1-i', 'c2-nul'],
