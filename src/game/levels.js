@@ -1,5 +1,5 @@
 // Constructeurs d'AST fournis par la lane moteur (src/engine/ast.js) — cf. docs/COORDINATION.md.
-import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode, open, read, close, bin, loop, whileLoop, iter, load, store, ifThen, call, ret, func, funcRef, apply } from '../engine/ast.js';
+import { lit, variable, addr, deref, assign, malloc, free as freeOp, write, strlen, atoi, putnbrBase, strcpy, node, field, freeNode, open, read, close, bin, loop, whileLoop, iter, load, store, ifThen, call, ret } from '../engine/ast.js';
 
 export const LEVELS = [
 	{
@@ -392,66 +392,6 @@ export const LEVELS = [
 			{ id: 'rec', label: 't = fact(n - 1)', ast: call(variable('t'), 'fact', [bin('-', variable('n'), lit(1))]) },
 			{ id: 'comb', label: 'return n * t', ast: ret(bin('*', variable('n'), variable('t'))) },
 			{ id: 'comb-bad', label: 'return n', ast: ret(variable('n')) }
-		]
-	},
-	{
-		// Monde 7 (B11) : le joueur écrit le corps de la MACHINE qui reçoit f. Le lanceur
-		// appelle do_op avec DEUX fonctions différentes — câbler add en dur échoue donc
-		// visiblement : c'est l'appât qui enseigne pourquoi le paramètre f existe.
-		id: 'fn-1',
-		world: 'Pointeurs de fonction',
-		title: 'do_op — la machine à opérations',
-		goalText: 'Tu écris le CORPS de do_op(f, a, b). main la branche deux fois : avec add (r1 = 10) puis avec sub (r2 = 4). Ta machine doit marcher pour LES DEUX.',
-		hint: 'La machine reçoit son opération par le paramètre f. Si tu figes une opération dans le corps, que devient l\'autre branchement de main ?',
-		assembleInto: 'do_op',
-		params: ['f', 'a', 'b'],
-		driverText: 'main (verrouillé) : r1 = do_op(add, 7, 3) · r2 = do_op(sub, 7, 3)',
-		driver: [
-			{ id: 'drv1', label: 'r1 = do_op(add, 7, 3)', ast: call(variable('r1'), 'do_op', [funcRef('add'), lit(7), lit(3)]) },
-			{ id: 'drv2', label: 'r2 = do_op(sub, 7, 3)', ast: call(variable('r2'), 'do_op', [funcRef('sub'), lit(7), lit(3)]) }
-		],
-		functions: {
-			add: func('add', ['a', 'b'], [ret(bin('+', variable('a'), variable('b')))]),
-			sub: func('sub', ['a', 'b'], [ret(bin('-', variable('a'), variable('b')))])
-		},
-		vars: [
-			{ name: 'r1', value: 0, kind: 'int' },
-			{ name: 'r2', value: 0, kind: 'int' }
-		],
-		slots: 2,
-		par: 2,
-		goal: { r1: 10, r2: 4 },
-		bank: [
-			{ id: 'apply-f', label: 'res = f(a, b)', ast: apply(variable('res'), variable('f'), [variable('a'), variable('b')]) },
-			{ id: 'ret-res', label: 'return res', ast: ret(variable('res')) },
-			{ id: 'apply-add', label: 'res = add(a, b)', ast: apply(variable('res'), funcRef('add'), [variable('a'), variable('b')]) }
-		]
-	},
-	{
-		id: 'fn-2',
-		world: 'Pointeurs de fonction',
-		title: 'ft_foreach — applique f à chaque case',
-		goalText: 'Tu écris le CORPS de foreach(f, base, n). main branche emit (qui affiche un nombre) sur le tableau [1, 2, 3] : la sortie doit être « 123 ».',
-		hint: 'f attend une valeur : lui donnes-tu une case du tableau, ou l\'adresse du tableau elle-même ? Que vaut une adresse lue comme un nombre ? (cours M11)',
-		assembleInto: 'foreach',
-		params: ['f', 'base', 'n'],
-		driverText: 'main (verrouillé) : foreach(emit, &a0, 3)',
-		driver: [{ id: 'drv', label: 'foreach(emit, &a0, 3)', ast: call(variable('done'), 'foreach', [funcRef('emit'), addr('a0'), lit(3)]) }],
-		functions: {
-			emit: func('emit', ['x'], [putnbrBase(variable('x'), lit('0123456789'))])
-		},
-		vars: [
-			{ name: 'a0', value: 1, kind: 'int' },
-			{ name: 'a1', value: 2, kind: 'int' },
-			{ name: 'a2', value: 3, kind: 'int' },
-			{ name: 'done', value: 0, kind: 'int' }
-		],
-		slots: 1,
-		par: 1,
-		goalCheck: (mem) => mem.output === '123',
-		bank: [
-			{ id: 'loop-each', label: 'boucle n× : f(tab[i])', ast: loop(variable('n'), [apply(variable('_'), variable('f'), [load(variable('base'), iter())])]) },
-			{ id: 'loop-base', label: 'boucle n× : f(base)', ast: loop(variable('n'), [apply(variable('_'), variable('f'), [variable('base')])]) }
 		]
 	},
 	{

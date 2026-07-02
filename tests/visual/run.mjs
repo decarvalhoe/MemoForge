@@ -97,7 +97,7 @@ const SCREENS = [
 		verify: () => {
 			const cards = document.querySelectorAll('.mf-region').length;
 			const txt = document.body.innerText;
-			return cards >= 10 && txt.includes('Récursivité') && txt.includes('Pointeurs de fonction')
+			return cards >= 9 && txt.includes('Récursivité') && txt.includes('Listes & arbres')
 				|| `carte incomplète (${cards} salles)`;
 		}
 	},
