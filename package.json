@@ -1,6 +1,6 @@
 {
 	"name": "memoforge",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"private": true,
 	"type": "module",
 	"description": "Jeu de puzzle pour comprendre les pointeurs et la mémoire C",

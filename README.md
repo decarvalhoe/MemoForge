@@ -43,23 +43,26 @@ réelle de ton code. Oublie le cas de base… et regarde-la déborder.*
 
 ## Ce que tu y travailles
 
-Le contenu ne recopie pas les 118 exercices de la Piscine : il rend jouables les
-**12 « briques »** qui les composent tous ([`docs/BRIQUES.md`](docs/BRIQUES.md)) —
-**22 niveaux** répartis sur **10 régions** de la RAM :
+MemoForge suit le **cours mémoire M1→M12** et les **exercices officiels de 42**, dans
+l'**esprit libft** : les `ft_` qu'on utilise, on les **écrit soi-même**. Tu n'as jamais un
+bloc `strcpy` tout fait — tu assembles son corps à partir des primitives, et une fois forgée,
+la fonction entre dans **ta libft** et resert (ton `ft_strdup` appelle **ton** `ft_strlen`).
+**27 niveaux** sur la carte de la RAM ([`docs/BRIQUES.md`](docs/BRIQUES.md)) :
 
-| Régions | Briques | Ce que tu fais |
-|---|---|---|
-| Casiers & adresses · Tableaux | swap, `&`/`*` | écrire dans un casier, viser à travers `p`, échanger via `tmp` |
-| Sortie & ASCII · Conversion | `write`, `atoi`, `putnbr_base` | pousser des octets sur le ruban console, convertir texte↔nombre |
-| Chaînes & bornes | sentinelle `'\0'`, `strcpy`, boucles | poser la borne, boucler dessus — ou partir dans le vide |
-| Mémoire dynamique — le Tas | `malloc`/`free`, `ft_strdup` | réserver juste assez, rendre chaque casier, traquer les fuites |
-| **Récursivité** | cas de base + appel | **écrire le corps de `ft_recursive_factorial`** — la pile vit à l'écran |
-| **Pointeurs de fonction** | `f` passé, `f(x)` appliqué | **écrire la machine `do_op`/`ft_foreach`** qui reçoit `f` — la câbler en dur échoue |
-| Listes & arbres · Fichiers | `->next`, `open`/`read`/`close` | chaîner des maillons, libérer dans l'ordre, fermer ses descripteurs |
+| Concept (cours) | Ce que tu écris depuis zéro |
+|---|---|
+| M4 pointeurs | `ft_ft`, `ft_swap`, `ft_div_mod` — modifier l'appelant **par adresse** (pas par copie) |
+| M5/M6 la pile | `ft_ultimate_ft` (peler les étoiles) · **dangling pointer** : `return &x` meurt, d'où le tas |
+| M10 chaînes | `ft_strlen → ft_strcpy → ft_strdup`, `ft_atoi` (chaîne de forge, `c - '0'`) |
+| M7/M9 le tas | `malloc`/`free`, `ft_range`, **`ft_split` N+1 free** — verdict **façon valgrind** |
+| M11 tableaux | `ft_rev_int_tab` (`tab[i] ≡ *(tab+i)`), `ft_range` dynamique |
+| M12 listes | `->next`, le vrai **use-after-free** (libère en sauvant `->next`) |
+| M1/M2 les octets | **explorateur d'octets** : `1000 → e8 03 00 00` little-endian |
 
 Autour des niveaux : **médailles d'optimisation** (≤ N instructions · pas · casiers),
 **bac à sable** (provoque une fuite, un double free, un déréf. NULL — librement),
-**mode examen** (chrono, sans indice, score), indice après deux échecs, thème
+**mode examen** (chrono, sans indice, score). Les indices ne donnent **jamais** la réponse
+(règle du cours, garde automatisée) : ils posent une question ou renvoient au modèle. Thème
 clair/sombre, contraste WCAG AA vérifié par test.
 
 ## Jouer
