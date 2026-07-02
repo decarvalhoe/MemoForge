@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml/badge.svg)](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml)
 [![Deploy](https://github.com/decarvalhoe/MemoForge/actions/workflows/deploy.yml/badge.svg)](https://github.com/decarvalhoe/MemoForge/actions/workflows/deploy.yml)
-![Version](https://img.shields.io/badge/version-1.3.1-46E08A)
+![Version](https://img.shields.io/badge/version-1.4.0-46E08A)
 ![Couverture moteur](https://img.shields.io/badge/couverture_moteur-100%25-46E08A)
 ![Dépendances runtime](https://img.shields.io/badge/d%C3%A9pendances_runtime-0-46E08A)
 
@@ -106,9 +106,10 @@ Chaque PR passe quatre barrières en CI :
 
 | Barrière | Contenu |
 |---|---|
-| **Tests** | 621 tests `node:test` — moteur, niveaux (chaque appât vérifié comme *enseignant*), monde, médailles, pièges, a11y · **couverture moteur ≥ 90 % exigée (100 % effective)** |
+| **Tests** | 655 tests `node:test` — moteur, niveaux (chaque appât vérifié comme *enseignant*), monde, médailles, pièges, a11y, garde i18n · **couverture moteur ≥ 90 % exigée (100 % effective)** |
 | **Non-régression** | balayage data-driven : chaque niveau doit rester résoluble par son chemin canonique |
-| **Écrans clés** | harnais Puppeteer : 8 écrans capturés (dont mobile et EN), invariants structurels + comparaison pixel ([`docs/TESTING.md`](docs/TESTING.md)) |
+| **Écrans clés** | harnais Puppeteer : 9 écrans capturés (dont mobile, EN, carte EN), invariants structurels + comparaison pixel ([`docs/TESTING.md`](docs/TESTING.md)) |
+| **A11y & sécurité** | axe-core (WCAG 2.x AA, 0 violation) + garde CSP stricte, vérifiés en CI ([`docs/A11Y.md`](docs/A11Y.md), [`docs/SECURITY.md`](docs/SECURITY.md)) |
 | **Budgets perf** | poids ≤ 280 KB, rendu ≤ 16 ms — mesurés et appliqués ([`docs/PERF.md`](docs/PERF.md)) |
 
 L'artefact de prod (`npm run build` → `dist/`) est revérifié par le même harnais avant

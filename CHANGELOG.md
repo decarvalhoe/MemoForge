@@ -3,6 +3,30 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) · versioning :
 [SemVer](https://semver.org/lang/fr/). Démo : <https://decarvalhoe.github.io/MemoForge/>.
 
+## [1.4.0] — 2026-07-02
+
+Sanification & meilleurs standards du web (EPIC 10) : le code de la couche UI/jeu rejoint la
+barre de qualité du moteur.
+
+### Ajouté
+- **Garde i18n** (E10-1) : un test échoue si une chaîne visible par le joueur est en dur —
+  soit non enregistrée dans le pack EN, soit une clé `t()` orpheline. A révélé et corrigé des
+  fuites invisibles à l'audit précédent (carte EN « tu es ici / verrouillé », `title`/
+  `aria-label` du réordonnancement). Nouvel écran visuel **carte EN**.
+- **A11y WCAG 2.2 AA outillée** (E10-4) : **axe-core** exécuté en CI sur 3 vues (0 violation) ;
+  focus visible sur tous les interactifs ; lien d'évitement bilingue ; hiérarchie de titres
+  `h1→h2→h3` réelle ; `prefers-contrast`. Contraste du label d'adresse corrigé. Voir
+  [`docs/A11Y.md`](docs/A11Y.md).
+- **CSP stricte** (E10-5) sans `'unsafe-inline'`, vérifiée en CI (écoute
+  `securitypolicyviolation`) ; en-têtes serveur recommandés. Voir
+  [`docs/SECURITY.md`](docs/SECURITY.md).
+
+### Modifié
+- **Styles inline → classes** (E10-2) : plus aucun `style=""` statique dans les vues (nouveau
+  `styles/views.css`) ; états dynamiques via classes modificatrices. Rendu pixel-identique.
+- **Lint étendu à tout `src/` et `tests/`** (E10-3) — cause racine des fuites — avec refactors
+  sous 50 lignes/fonction et `eqeqeq` (idiome `== null` préservé).
+
 ## [1.3.1] — 2026-07-02
 
 Finition bilingue et durcissement du process.
