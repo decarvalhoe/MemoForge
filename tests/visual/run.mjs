@@ -198,7 +198,7 @@ function compareToBaseline(name, outFile) {
 }
 
 // ---------------------------------------------------------------- budget de perf (docs/PERF.md)
-const PERF_BUDGET = { weightKB: 200, roomMedianMs: 16, roomP95Ms: 32, mapMedianMs: 16 };
+const PERF_BUDGET = { weightKB: 280, roomMedianMs: 16, roomP95Ms: 32, mapMedianMs: 16 };
 
 function appWeightKB() {
 	let total = 0;

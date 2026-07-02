@@ -961,5 +961,79 @@ export const LEVELS = [
 			{ id: 'ret', label: 'return dst', ast: ret(variable('dst')) },
 			{ id: 'j0-bad', label: 'i = 0  (écrase dst au lieu de coller après)', ast: assign(variable('i'), lit(0)) }
 		]
+	},
+	{
+		// ÉCRIS ft_recursive_power (C05) : b^e. Cas de base e == 0 → 1, sinon b * power(b, e-1).
+		id: 'pow-1',
+		world: 'Récursivité',
+		title: 'Écris ft_power (récursif)',
+		goalText: 'Écris le CORPS de ft_power(b, e). main appelle ft_power(2, 5) : r doit valoir 32.',
+		hint: 'Quel exposant arrête la récursion, et que vaut b^0 ? À chaque étape, comment relier b^e à b^(e−1) ? (cours M5)',
+		assembleInto: 'ft_power',
+		params: ['b', 'e'],
+		driverText: 'main (verrouillé) : r = ft_power(2, 5)',
+		driver: [{ id: 'drv', label: 'r = ft_power(2, 5)', ast: call(variable('r'), 'ft_power', [lit(2), lit(5)]) }],
+		vars: [{ name: 'r', value: 0, kind: 'int' }],
+		slots: 3,
+		par: 3,
+		goal: { r: 32 },
+		bank: [
+			{ id: 'base', label: 'si (e == 0) : return 1', ast: ifThen(bin('==', variable('e'), lit(0)), [ret(lit(1))]) },
+			{ id: 'rec', label: 't = ft_power(b, e - 1)', ast: call(variable('t'), 'ft_power', [variable('b'), bin('-', variable('e'), lit(1))]) },
+			{ id: 'comb', label: 'return b * t', ast: ret(bin('*', variable('b'), variable('t'))) },
+			{ id: 'comb-bad', label: 'return e * t', ast: ret(bin('*', variable('e'), variable('t'))) }
+		]
+	},
+	{
+		// ÉCRIS ft_fibonacci (C05) : DOUBLE récursion — fib(n) = fib(n-1) + fib(n-2). La pile
+		// se ramifie (visible à l'écran). Cas de base : n < 2 → n.
+		id: 'fib-1',
+		world: 'Récursivité',
+		title: 'Écris ft_fibonacci (double récursion)',
+		goalText: 'Écris le CORPS de ft_fibonacci(n). main appelle ft_fibonacci(6) : r doit valoir 8. Deux appels par étage — la pile se ramifie.',
+		hint: 'En dessous de quel n la suite se donne-t-elle directement ? Et un terme se construit à partir de combien de termes précédents ? (cours M5/M6)',
+		assembleInto: 'ft_fibonacci',
+		params: ['n'],
+		driverText: 'main (verrouillé) : r = ft_fibonacci(6)',
+		driver: [{ id: 'drv', label: 'r = ft_fibonacci(6)', ast: call(variable('r'), 'ft_fibonacci', [lit(6)]) }],
+		vars: [{ name: 'r', value: 0, kind: 'int' }],
+		slots: 4,
+		par: 4,
+		goal: { r: 8 },
+		bank: [
+			{ id: 'base', label: 'si (n < 2) : return n', ast: ifThen(bin('<', variable('n'), lit(2)), [ret(variable('n'))]) },
+			{ id: 'rec1', label: 'a = ft_fibonacci(n - 1)', ast: call(variable('a'), 'ft_fibonacci', [bin('-', variable('n'), lit(1))]) },
+			{ id: 'rec2', label: 'b = ft_fibonacci(n - 2)', ast: call(variable('b'), 'ft_fibonacci', [bin('-', variable('n'), lit(2))]) },
+			{ id: 'comb', label: 'return a + b', ast: ret(bin('+', variable('a'), variable('b'))) },
+			{ id: 'comb-bad', label: 'return a * b', ast: ret(bin('*', variable('a'), variable('b'))) }
+		]
+	},
+	{
+		// ÉCRIS ft_is_prime (C05) : aucun diviseur de 2 à n−1. Boucle avec RETOUR ANTICIPÉ —
+		// dès qu'un diviseur est trouvé, on rend 0 (inutile de continuer).
+		id: 'prime-1',
+		world: 'Récursivité',
+		title: 'Écris ft_is_prime',
+		goalText: 'Écris le CORPS de ft_is_prime(n) : 1 si premier, 0 sinon. main teste 7 (→ 1) et 9 (→ 0).',
+		hint: 'n est premier si AUCUN nombre de 2 à n−1 ne le divise. Dès qu\'un diviseur apparaît (reste nul), faut-il continuer la boucle ? (cours M5)',
+		assembleInto: 'ft_is_prime',
+		params: ['n'],
+		driverText: 'main (verrouillé) : r1 = ft_is_prime(7) · r2 = ft_is_prime(9)',
+		driver: [
+			{ id: 'd1', label: 'r1 = ft_is_prime(7)', ast: call(variable('r1'), 'ft_is_prime', [lit(7)]) },
+			{ id: 'd2', label: 'r2 = ft_is_prime(9)', ast: call(variable('r2'), 'ft_is_prime', [lit(9)]) }
+		],
+		vars: [{ name: 'r1', value: 0, kind: 'int' }, { name: 'r2', value: 0, kind: 'int' }],
+		slots: 3,
+		par: 3,
+		goal: { r1: 1, r2: 0 },
+		bank: [
+			{ id: 'i0', label: 'i = 2', ast: assign(variable('i'), lit(2)) },
+			{ id: 'scan', label: 'tant que i < n : si (n % i == 0) return 0 ; i = i + 1',
+				ast: whileLoop(bin('<', variable('i'), variable('n')), [ifThen(bin('==', bin('%', variable('n'), variable('i')), lit(0)), [ret(lit(0))]), assign(variable('i'), bin('+', variable('i'), lit(1)))]) },
+			{ id: 'prime', label: 'return 1', ast: ret(lit(1)) },
+			{ id: 'scan-bad', label: 'tant que i < n : i = i + 1  (ne teste pas la divisibilité)',
+				ast: whileLoop(bin('<', variable('i'), variable('n')), [assign(variable('i'), bin('+', variable('i'), lit(1)))]) }
+		]
 	}
 ];

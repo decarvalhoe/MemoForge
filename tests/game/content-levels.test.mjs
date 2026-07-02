@@ -230,3 +230,24 @@ describe('cmp-1/cat-1 — Comparaison & concaténation', () => {
 		assert.equal(goalMet(byId['cat-1'], runProgram(byId['cat-1'], ['j0-bad', 'j0', 'copy', 'term', 'ret']).mem), false);
 	});
 });
+
+describe('pow-1/fib-1/prime-1 — Récursivité & maths (C05)', () => {
+	test('ft_power : cas de base e=0 → 1, sinon b * power(b, e-1) → 2^5 = 32', () => {
+		assert.ok(solved(byId['pow-1'], ['base', 'rec', 'comb']));
+	});
+	test('ft_power avec return e * t (au lieu de b) → échoue', () => {
+		assert.equal(goalMet(byId['pow-1'], runProgram(byId['pow-1'], ['base', 'rec', 'comb-bad']).mem), false);
+	});
+	test('ft_fibonacci : double récursion fib(n-1)+fib(n-2) → fib(6) = 8', () => {
+		assert.ok(solved(byId['fib-1'], ['base', 'rec1', 'rec2', 'comb']));
+	});
+	test('ft_fibonacci avec a * b (au lieu de a + b) → échoue', () => {
+		assert.equal(goalMet(byId['fib-1'], runProgram(byId['fib-1'], ['base', 'rec1', 'rec2', 'comb-bad']).mem), false);
+	});
+	test('ft_is_prime : retour anticipé au 1er diviseur → 7 premier, 9 non', () => {
+		assert.ok(solved(byId['prime-1'], ['i0', 'scan', 'prime']));
+	});
+	test('ft_is_prime sans le test de divisibilité → tout « premier », échoue', () => {
+		assert.equal(goalMet(byId['prime-1'], runProgram(byId['prime-1'], ['i0', 'scan-bad', 'prime']).mem), false);
+	});
+});

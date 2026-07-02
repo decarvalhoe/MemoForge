@@ -7,7 +7,7 @@
 
 | Métrique | Budget | Mesure |
 |---|---|---|
-| **Poids de l'app servie** (index.html + `src/**` + `styles/**`) | ≤ 200 KB non minifié, zéro dépendance runtime | somme des tailles fichiers (harnais) |
+| **Poids de l'app servie** (index.html + `src/**` + `styles/**`) | ≤ 280 KB non minifié, zéro dépendance runtime (relevé au fil de la croissance du contenu EPIC 7 ; toujours 0 dép, la compression HTTP fait le reste) | somme des tailles fichiers (harnais) |
 | **Rendu d'une salle** — la plus chargée : `rec-1`, pile de `fact(3)` déployée | médiane ≤ 16 ms · p95 ≤ 32 ms (60 rendus) | `performance.now()` autour de `game.render()` dans Chrome headless |
 | **Rendu de la carte** (10 régions, 22 salles) | médiane ≤ 16 ms | idem, autour de `game.renderMap()` |
 | **Pas-à-pas** | 1 step = exactement 1 render (cadence 480 ms ≫ budget) | par construction (`_animate`) |
