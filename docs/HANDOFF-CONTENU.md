@@ -32,7 +32,7 @@ qu'elles sont sur main (vérifie les constructeurs dans ast.js) :
 Avant : recâble le pas-à-pas de game.js sur le nouveau contrat step()/frames()
 (voir Partie 2). Pour les 13 niveaux à plat, rien ne change (pile = 1 frame).
 
-Protocole : worktree isolé, rebase sur origin/main avant PR, 1 issue = 1 PR, fichiers
+Protocole : worktree isolé, rebase sur origin/develop avant PR (base des PR = develop), 1 issue = 1 PR, fichiers
 disjoints, npm test + npm run lint verts, screenshots sur le port 8001.
 ```
 
