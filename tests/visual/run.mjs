@@ -159,6 +159,19 @@ const SCREENS = [
 		}
 	},
 	{
+		// Layout mobile (E9-2) : à 375 px, le mur de casiers et le programme s'empilent
+		// (flex column) — verrouillé contre les régressions.
+		name: 'mobile-salle',
+		url: '/',
+		viewport: { width: 375, height: 812, deviceScaleFactor: 1 },
+		prepare: () => { window.__memoforge.enterRoom('1-1'); },
+		verify: () => {
+			const main = document.querySelector('.main');
+			const dir = main && getComputedStyle(main).flexDirection;
+			return dir === 'column' || `layout mobile non empilé (flex-direction: ${dir})`;
+		}
+	},
+	{
 		name: 'styleguide',
 		url: '/styleguide.html',
 		verify: () => document.querySelectorAll('h2').length >= 3 || 'styleguide sans sections'
@@ -167,12 +180,16 @@ const SCREENS = [
 
 // ---------------------------------------------------------------- capture + comparaison
 async function shoot(page, screen) {
+	if (screen.viewport)
+		await page.setViewport(screen.viewport);
 	await page.goto(`http://127.0.0.1:${PORT}${screen.url}`, { waitUntil: 'networkidle0' });
 	await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; animation: none !important; caret-color: transparent !important; }' });
 	if (screen.prepare) await page.evaluate(screen.prepare);
 	const result = await page.evaluate(screen.verify);
 	const outFile = path.join(OUT_DIR, `${screen.name}.png`);
 	await page.screenshot({ path: outFile, fullPage: false });
+	if (screen.viewport)
+		await page.setViewport(VIEWPORT); // rétablit pour les écrans suivants
 	return { ok: result === true, detail: result === true ? null : result, outFile };
 }
 

@@ -169,3 +169,14 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 	.controls-bar { flex-direction: column; }
 	.controls-bar .mf-btn { width: 100%; }
 }
+
+/* Accessibilité : respect de prefers-reduced-motion (double garde avec le check JS
+   de game.js qui exécute le programme d'un coup au lieu du pas-à-pas animé). */
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
