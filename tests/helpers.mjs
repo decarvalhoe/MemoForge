@@ -18,6 +18,13 @@ export function interpFor(level, program, mem) {
 
 export function runProgram(level, ids) {
 	const mem = new Memory(level.vars);
+	if (level.files)
+		for (const [n, c] of Object.entries(level.files)) mem.setFile(n, c);
+	if (level.args) {
+		const { argc, argv } = mem.installArgv(level.args);
+		mem.setVar('argc', argc);
+		mem.setVar('argv', argv);
+	}
 	const program = ids.map((id) => level.bank.find((b) => b.id === id));
 	const interp = interpFor(level, program, mem);
 	interp.run();

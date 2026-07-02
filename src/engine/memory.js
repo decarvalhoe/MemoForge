@@ -3,6 +3,7 @@ export class RuntimeError extends Error {}
 export const WORD = 4;
 const HEAP_BASE = 5000;
 const STACK_BASE = 900000; // casiers de pile (adresses de locales) — loin des globales/tas
+const ARGS_BASE = 800000;  // zone des arguments du programme (argv), hors tas/pile
 const INT_MIN = -2147483648;
 const INT_MAX = 2147483647;
 const HEAP_CAPACITY = 4096;
@@ -85,6 +86,29 @@ export class Memory {
 
 	killStack(addr) {
 		this.dead.add(addr);
+	}
+
+	// Installe les arguments du programme (C06) : chaque chaîne est posée en mémoire (chars
+	// + '\0'), puis un tableau de pointeurs (argv) référence leurs adresses. Écrit dans une
+	// zone dédiée (pas le tas → pas compté comme fuite). @returns {argc, argv} (adresse).
+	installArgv(args) {
+		let p = ARGS_BASE;
+		const ptrs = [];
+		for (const s of args) {
+			ptrs.push(p);
+			for (const ch of s) {
+				this.cells.set(p, ch);
+				p += WORD;
+			}
+			this.cells.set(p, 0);
+			p += WORD;
+		}
+		const argv = p;
+		for (const ptr of ptrs) {
+			this.cells.set(p, ptr);
+			p += WORD;
+		}
+		return { argc: args.length, argv };
 	}
 
 	emit(fd, addr, count) {

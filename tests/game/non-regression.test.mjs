@@ -29,6 +29,8 @@ const SOLUTIONS = {
 	'io-1': ['len', 'emit'],
 	'io-2': ['loop'],
 	'io-3': ['loop'],
+	'arg-1': ['i1', 'loop'],
+	'arg-2': ['ilast', 'loop'],
 	'str-1': ['init', 'copy', 'term', 'ret'],
 	'conv-1': ['r0', 'i0', 'scan', 'ret'],
 	'conv-2': ['rec', 'digit', 'emit'],
@@ -61,6 +63,11 @@ function freshMem(level) {
 	if (level.files)
 		for (const [n, c] of Object.entries(level.files))
 			mem.setFile(n, c);
+	if (level.args) {
+		const { argc, argv } = mem.installArgv(level.args);
+		mem.setVar('argc', argc);
+		mem.setVar('argv', argv);
+	}
 	return mem;
 }
 
