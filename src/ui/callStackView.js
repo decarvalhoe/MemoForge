@@ -47,23 +47,23 @@ export function renderCallStack(container, frames = []) {
 	if (!model.visible) return;
 
 	if (model.loop) {
-		container.appendChild(el('div', { style: 'margin-bottom:8px' }, [
+		container.appendChild(el('div', { class: 'mf-cs-loop' }, [
 			badge({ text: '⟳ ' + iterLabel(model.loop), tone: 'pointer' })
 		]));
 	}
 
 	if (model.frames.length) {
 		container.appendChild(el('div', { class: 'heap-label', text: t('// pile d\'appels') }));
-		const strip = el('div', { style: 'display:flex;flex-direction:column;gap:6px' });
+		const strip = el('div', { class: 'mf-frames' });
 		for (const f of model.frames) {
-			const head = el('div', { style: 'display:flex;align-items:center;gap:8px;margin-bottom:3px' }, [
-				el('span', { style: `font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:600;color:${f.active ? 'var(--accent)' : 'var(--text-muted)'}`, text: f.label })
+			const head = el('div', { class: 'mf-frame__head' }, [
+				el('span', { class: 'mf-frame__label', text: f.label })
 			]);
 			if (f.loopLabel) head.appendChild(badge({ text: f.loopLabel, tone: 'pointer' }));
-			const vars = el('div', { style: 'display:flex;flex-wrap:wrap;gap:6px' },
-				f.vars.map((v) => el('span', { style: 'font-family:var(--font-mono);font-size:var(--fs-2xs);color:var(--text-muted)', text: `${v.name}=${v.value}` })));
+			const vars = el('div', { class: 'mf-frame__vars' },
+				f.vars.map((v) => el('span', { class: 'mf-frame__var', text: `${v.name}=${v.value}` })));
 			strip.appendChild(el('div', {
-				style: `background:var(--surface-well);border:1px solid ${f.active ? 'var(--accent)' : 'var(--border)'};border-radius:var(--radius-sm);padding:8px 10px;${f.active ? 'box-shadow:var(--glow-green);' : ''}`
+				class: 'mf-frame' + (f.active ? ' mf-frame--active' : '')
 			}, [head, vars]));
 		}
 		container.appendChild(strip);

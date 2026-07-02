@@ -2,8 +2,6 @@ import { el, clear } from './dom.js';
 import { t } from '../game/i18n.js';
 import { codeBrick } from './components/index.js';
 
-const MOVE_STYLE = 'min-height:auto;padding:0 6px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.9rem';
-
 // Rend le programme (slots) via CodeBrick. Réordonnable : glisser-déposer (souris) ET
 // boutons ▲/▼ (clavier/accessible). onMove(from, to) réordonne. Signature étendue mais
 // rétro-compatible (onMove optionnel).
@@ -18,19 +16,19 @@ export function renderProgram(container, program, slots, activeIndex, onRemove, 
 				handle: true,
 				state: i === activeIndex ? 'active' : 'placed'
 			});
-			brick.style.flex = '1';
+			brick.classList.add('mf-slot__brick');
 
 			const up = el('button', {
-				style: MOVE_STYLE, title: t('monter'), 'aria-label': t('monter l\'instruction'),
+				class: 'mf-move', title: t('monter'), 'aria-label': t('monter l\'instruction'),
 				disabled: i === 0 ? 'true' : null, onclick: () => onMove && onMove(i, i - 1)
 			}, ['▲']);
 			const down = el('button', {
-				style: MOVE_STYLE, title: t('descendre'), 'aria-label': t('descendre l\'instruction'),
+				class: 'mf-move', title: t('descendre'), 'aria-label': t('descendre l\'instruction'),
 				disabled: i === program.length - 1 ? 'true' : null, onclick: () => onMove && onMove(i, i + 1)
 			}, ['▼']);
 			const remove = el('button', { class: 'slot-remove', title: t('retirer'), onclick: () => onRemove(i) }, ['×']);
 
-			const rowEl = el('div', { class: 'mf-slot', style: 'display:flex;gap:6px;align-items:stretch', draggable: 'true' }, [brick, up, down, remove]);
+			const rowEl = el('div', { class: 'mf-slot', draggable: 'true' }, [brick, up, down, remove]);
 			rowEl.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', String(i)); e.dataTransfer.effectAllowed = 'move'; });
 			rowEl.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
 			rowEl.addEventListener('drop', (e) => {

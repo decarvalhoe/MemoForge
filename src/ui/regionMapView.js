@@ -13,7 +13,7 @@ function roomLink(id, clickable, isSolved, onEnter) {
 	const title = lv ? localize(lv, 'levels').title : id;
 	const roomStatus = isSolved ? 'solved' : (clickable ? 'current' : 'locked');
 	const card = regionCard({ id, title, status: roomStatus });
-	const attrs = { class: 'mf-room-link', style: `flex:1;min-width:120px;cursor:${clickable ? 'pointer' : 'default'}` };
+	const attrs = { class: 'mf-room-link' };
 	if (clickable) {
 		attrs.role = 'button';
 		attrs.tabindex = '0';
@@ -32,19 +32,19 @@ function roomLink(id, clickable, isSolved, onEnter) {
 function regionBlock(r, solved, onEnter) {
 	const status = regionStatus(r.id, solved);
 	const open = status === 'current' || status === 'solved';
-	const head = el('div', { style: 'display:flex;justify-content:space-between;align-items:baseline' }, [
-		el('h3', { style: `margin:0;font-size:var(--fs-md);font-weight:600;color:${open ? 'var(--accent)' : 'var(--text-muted)'}`, text: '▸ ' + localize(r, 'regions').name }),
-		el('div', { style: 'font-size:var(--fs-2xs);color:var(--text-muted)', text: localize(r, 'regions').addr })
+	const head = el('div', { class: 'mf-region-head' }, [
+		el('h3', { class: 'mf-region-name' + (open ? ' mf-region-name--open' : ''), text: '▸ ' + localize(r, 'regions').name }),
+		el('div', { class: 'mf-region-addr', text: localize(r, 'regions').addr })
 	]);
-	const rooms = el('div', { style: 'display:flex;gap:9px;margin-top:9px;flex-wrap:wrap' });
+	const rooms = el('div', { class: 'mf-region-rooms' });
 	if (r.levelIds.length === 0) {
-		rooms.appendChild(el('div', { style: 'font-size:var(--fs-2xs);color:var(--text-muted)', text: t('à venir') }));
+		rooms.appendChild(el('div', { class: 'mf-region-soon', text: t('à venir') }));
 	} else {
 		for (const id of r.levelIds)
 			rooms.appendChild(roomLink(id, open, solved.has(id), onEnter));
 	}
 	return el('div', {
-		style: `background:${open ? 'var(--surface-nested)' : 'var(--surface)'};border:1px ${open ? 'solid var(--accent)' : 'dashed var(--border)'};border-radius:var(--radius-md);padding:11px 13px;opacity:${open ? 1 : 0.6}`
+		class: 'mf-region-block' + (open ? ' mf-region-block--open' : '')
 	}, [head, rooms]);
 }
 
@@ -52,20 +52,15 @@ function regionBlock(r, solved, onEnter) {
 // onEnter(levelId) au clic d'une salle ; onSandbox() bac à sable ; onExam() mode examen.
 export function renderRegionMap(container, solved, onEnter, onSandbox, onExam) {
 	clear(container);
-	const body = el('div', { style: 'padding:16px 22px 20px' });
+	const body = el('div', { class: 'mf-map-body' });
 
-	body.appendChild(el('h2', {
-		style: 'margin:0;font-family:var(--font-display);font-size:var(--fs-display-1);line-height:1;color:var(--accent);text-shadow:var(--text-glow-green)',
-		text: t('LA RAM')
-	}));
-	body.appendChild(el('div', {
-		style: 'display:flex;align-items:center;gap:8px;background:var(--danger-fill);border:1px solid var(--danger);border-radius:var(--radius-sm);padding:7px 10px;margin:8px 0 14px;color:var(--danger);font-size:var(--fs-sm)'
-	}, [
+	body.appendChild(el('h2', { class: 'mf-map-title', text: t('LA RAM') }));
+	body.appendChild(el('div', { class: 'mf-map-alert' }, [
 		el('span', { text: '⚠' }),
 		el('span', { text: t("des fuites menacent la RAM — remets de l'ordre dans une région pour débloquer la suivante") })
 	]));
 
-	const list = el('div', { style: 'display:flex;flex-direction:column;gap:12px' });
+	const list = el('div', { class: 'mf-map-list' });
 	for (const r of REGIONS)
 		list.appendChild(regionBlock(r, solved, onEnter));
 	body.appendChild(list);
@@ -73,7 +68,7 @@ export function renderRegionMap(container, solved, onEnter, onSandbox, onExam) {
 	const actions = [];
 	if (onSandbox) actions.push(button({ label: t('bac à sable'), variant: 'secondary', size: 'sm', glyph: '⌘', onClick: onSandbox }));
 	if (onExam) actions.push(button({ label: t('examen'), variant: 'secondary', size: 'sm', glyph: '⏱', onClick: onExam }));
-	if (actions.length) body.appendChild(el('div', { style: 'margin-top:14px;display:flex;gap:8px' }, actions));
+	if (actions.length) body.appendChild(el('div', { class: 'mf-map-actions' }, actions));
 
 	container.appendChild(terminalWindow({ title: t('forge_memoire — carte.ram — 0x0000…0xFFFF') }, [body]));
 }

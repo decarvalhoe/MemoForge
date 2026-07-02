@@ -48,7 +48,7 @@ function drawThreads(row, snapshot, byAddr) {
 // les niveaux d'affichage (write/putnbr_base).
 export function renderMemory(container, snapshot, heap, changed, output) {
 	clear(container);
-	const row = el('div', { class: 'cells', style: 'position:relative' });
+	const row = el('div', { class: 'cells mf-cells--rel' });
 	const byAddr = new Map();
 	for (const c of snapshot) {
 		const ptr = c.kind === 'ptr';
@@ -85,7 +85,6 @@ export function renderMemory(container, snapshot, heap, changed, output) {
 		container.appendChild(el('div', { class: 'heap-label', text: t('// sortie') }));
 		container.appendChild(el('pre', {
 			class: 'mf-output',
-			style: 'margin:0;padding:10px 12px;background:var(--surface-well);border:1px solid var(--accent);border-radius:var(--radius-sm);color:var(--accent);font-family:var(--font-mono);font-size:var(--fs-md);text-shadow:var(--text-glow-green);white-space:pre-wrap;word-break:break-all',
 			text: output
 		}));
 	}
