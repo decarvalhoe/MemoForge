@@ -1306,5 +1306,61 @@ export const LEVELS = [
 			{ id: 'up-bad', label: 'tant que i >= 1 : … ; i = i + 1  (mauvais sens)',
 				ast: whileLoop(bin('>=', variable('i'), lit(1)), [call(variable('_'), 'ft_putstr', [load(variable('argv'), variable('i'))]), assign(variable('i'), bin('+', variable('i'), lit(1)))]) }
 		]
+	},
+	{
+		// ÉCRIS ft_memset (libft) : remplir n cases mémoire avec une valeur. Ici chaque casier
+		// est une unité mémoire (l'explorateur d'octets, mem-1, montre le détail des octets).
+		id: 'mem-2',
+		world: 'Mémoire dynamique — le Tas',
+		title: 'Écris ft_memset',
+		goalText: 'Écris le CORPS de ft_memset(ptr, val, n). main remplit 3 cases avec 65 (\'A\') : b0, b1, b2 doivent valoir 65.',
+		hint: 'memset écrit LA MÊME valeur dans chaque case, de 0 à n−1. Qu\'écris-tu dans la case i : la valeur, ou l\'indice i ? (cours M1)',
+		assembleInto: 'ft_memset',
+		params: ['ptr', 'val', 'n'],
+		driverText: 'main (verrouillé) : ft_memset(&b0, 65, 3)',
+		driver: [{ id: 'drv', label: 'ft_memset(&b0, 65, 3)', ast: call(variable('done'), 'ft_memset', [addr('b0'), lit(65), lit(3)]) }],
+		vars: [
+			{ name: 'b0', value: 0, kind: 'int' }, { name: 'b1', value: 0, kind: 'int' }, { name: 'b2', value: 0, kind: 'int' },
+			{ name: 'done', value: 0, kind: 'int' }
+		],
+		slots: 3,
+		par: 3,
+		goal: { b0: 65, b1: 65, b2: 65 },
+		bank: [
+			{ id: 'i0', label: 'i = 0', ast: assign(variable('i'), lit(0)) },
+			{ id: 'loop', label: 'tant que i < n : ptr[i] = val ; i = i + 1',
+				ast: whileLoop(bin('<', variable('i'), variable('n')), [assign(store(variable('ptr'), variable('i')), variable('val')), assign(variable('i'), bin('+', variable('i'), lit(1)))]) },
+			{ id: 'ret', label: 'return ptr', ast: ret(variable('ptr')) },
+			{ id: 'loop-bad', label: 'tant que i < n : ptr[i] = i ; i = i + 1  (écrit l\'indice)',
+				ast: whileLoop(bin('<', variable('i'), variable('n')), [assign(store(variable('ptr'), variable('i')), variable('i')), assign(variable('i'), bin('+', variable('i'), lit(1)))]) }
+		]
+	},
+	{
+		// ÉCRIS ft_memcpy (libft) : copier n cases de src vers dst. Case par case, de 0 à n−1.
+		id: 'mem-3',
+		world: 'Mémoire dynamique — le Tas',
+		title: 'Écris ft_memcpy',
+		goalText: 'Écris le CORPS de ft_memcpy(dst, src, n). main copie 3 cases de src (1, 2, 3) vers dst : d0, d1, d2 doivent valoir 1, 2, 3.',
+		hint: 'memcpy recopie n cases. Que mets-tu dans dst[i] : la case correspondante de src, ou autre chose ? (cours M1/M11)',
+		assembleInto: 'ft_memcpy',
+		params: ['dst', 'src', 'n'],
+		driverText: 'main (verrouillé) : ft_memcpy(&d0, &s0, 3)',
+		driver: [{ id: 'drv', label: 'ft_memcpy(&d0, &s0, 3)', ast: call(variable('done'), 'ft_memcpy', [addr('d0'), addr('s0'), lit(3)]) }],
+		vars: [
+			{ name: 's0', value: 1, kind: 'int' }, { name: 's1', value: 2, kind: 'int' }, { name: 's2', value: 3, kind: 'int' },
+			{ name: 'd0', value: 0, kind: 'int' }, { name: 'd1', value: 0, kind: 'int' }, { name: 'd2', value: 0, kind: 'int' },
+			{ name: 'done', value: 0, kind: 'int' }
+		],
+		slots: 3,
+		par: 3,
+		goal: { d0: 1, d1: 2, d2: 3 },
+		bank: [
+			{ id: 'i0', label: 'i = 0', ast: assign(variable('i'), lit(0)) },
+			{ id: 'loop', label: 'tant que i < n : dst[i] = src[i] ; i = i + 1',
+				ast: whileLoop(bin('<', variable('i'), variable('n')), [assign(store(variable('dst'), variable('i')), load(variable('src'), variable('i'))), assign(variable('i'), bin('+', variable('i'), lit(1)))]) },
+			{ id: 'ret', label: 'return dst', ast: ret(variable('dst')) },
+			{ id: 'loop-bad', label: 'tant que i < n : dst[i] = i ; i = i + 1  (ignore src)',
+				ast: whileLoop(bin('<', variable('i'), variable('n')), [assign(store(variable('dst'), variable('i')), variable('i')), assign(variable('i'), bin('+', variable('i'), lit(1)))]) }
+		]
 	}
 ];

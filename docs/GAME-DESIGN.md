@@ -93,6 +93,12 @@ dépendances de forge, son tier de faisabilité moteur et son **statut** (jouabl
 refondre · à forger · hors-runtime · optionnel). `tests/game/catalog.test.mjs` interdit
 toute dérive : oublier une fonction ou pointer un niveau fantôme casse la CI.
 
+Décision de design (E8-2, modèle mémoire à l'octet) : les fonctions `mem*` (memset,
+memcpy…) opèrent sur des **casiers-unités** (un casier = une unité mémoire), pas sur des
+octets individuels. La boucle et l'algorithme sont fidèles ; la décomposition en octets
+d'un entier est enseignée séparément par l'**explorateur d'octets** (mem-1, M1/M2). Un vrai
+adressage-octet reste possible plus tard sans casser ces niveaux.
+
 Deux règles moteur qui rendent ce contenu fidèle :
 - **Un char EST son code ASCII** (`codeOf`, `evalBin`) : `c - '0'`, `'a' - 32`, `c <= 'z'`
   se comportent comme en C. C'est le socle de la moitié de la libft (atoi, itoa, casse,

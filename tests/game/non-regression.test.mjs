@@ -19,6 +19,8 @@ const SOLUTIONS = {
 	'dang-1': ['h-alloc', 'h-set', 'h-ret'],
 	'2-1': ['i0', 'j0', 'loop'],
 	'range-1': ['size', 'alloc', 'i0', 'fill', 'ret'],
+	'mem-2': ['i0', 'loop', 'ret'],
+	'mem-3': ['i0', 'loop', 'ret'],
 	'split-1': ['a0', 'a1', 'at', 'l0', 'l1', 'f0', 'f1', 'ft'],
 	'sub-1': ['alloc', 'i0', 'copy', 'term', 'ret'],
 	'join-1': ['l1', 'l2', 'alloc', 'cpy', 'cat', 'ret'],
