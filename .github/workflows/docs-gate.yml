@@ -1,0 +1,43 @@
+name: Docs gate
+
+# Rend obligatoire la mise à jour de la documentation lors d'une release : dès que la
+# version de package.json change dans une PR, le CHANGELOG et les README (FR + EN) doivent
+# être à jour. Sans bump de version, la gate est inerte (elle ne gêne pas les PR de feature).
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  docs-gate:
+    name: Docs à jour (release)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Version bumpée ⇒ README + CHANGELOG à jour
+        run: |
+          set -e
+          BASE="${{ github.event.pull_request.base.ref }}"
+          git fetch origin "$BASE" --depth=1
+          base_ver=$(git show "origin/$BASE:package.json" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>console.log(JSON.parse(d).version))")
+          head_ver=$(node -e "console.log(require('./package.json').version)")
+          echo "base=$base_ver · head=$head_ver"
+          if [ "$base_ver" = "$head_ver" ]; then
+            echo "Pas de bump de version → gate non applicable. ✓"; exit 0
+          fi
+          echo "Bump détecté ($base_ver → $head_ver) : la doc doit suivre."
+          fail=0
+          grep -q "## \[$head_ver\]" CHANGELOG.md || { echo "::error file=CHANGELOG.md::Entrée manquante : ## [$head_ver]"; fail=1; }
+          grep -q "version-$head_ver" README.md || { echo "::error file=README.md::Badge version pas à jour (attendu version-$head_ver)"; fail=1; }
+          grep -q "version-$head_ver" README.en.md || { echo "::error file=README.en.md::Badge version pas à jour (attendu version-$head_ver)"; fail=1; }
+          if [ "$fail" = "0" ]; then echo "Doc à jour pour $head_ver. ✓"; fi
+          exit $fail
+
+      - name: Rappel — description du dépôt
+        if: always()
+        run: echo "::notice::Release : pense à mettre à jour la description GitHub du dépôt (pitch produit) — cf. docs/WORKFLOW.md."

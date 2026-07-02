@@ -1,5 +1,7 @@
 # Workflow de développement & release (GitFlow)
 
+**🌐 Français · [English](WORKFLOW.en.md)**
+
 MemoForge suit un **GitFlow léger** à trois branches longues, avec CI obligatoire et
 protection de branche. La branche par défaut est **`develop`**.
 
