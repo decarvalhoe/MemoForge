@@ -326,24 +326,30 @@ export const LEVELS = [
 		]
 	},
 	{
+		// Le piège reine de C12 (M12) : libérer toute la liste. free(cur) est légal, mais si
+		// tu lis cur->next APRÈS l'avoir libéré, c'est un use-after-free (tu perds la suite).
+		// La discipline : sauver ->next AVANT free(cur). L'appât free(n1->next) le montre.
 		id: 'l-1',
 		world: 'Listes & arbres',
-		title: 'Chaîne deux maillons, puis libère',
-		goalText: 'Crée n1 et n2, chaîne-les (n1->next = n2), puis libère les deux SANS fuite ni crash.',
+		title: 'Libère toute la liste',
+		goalText: 'La liste n1 → n2 est déjà chaînée. Libère les DEUX maillons sans fuite ni crash use-after-free.',
 		hint: 'Pour libérer un nœud sans perdre la suite de la liste, que dois-tu lire et garder juste avant le free ? (cours M8/M12)',
 		vars: [
 			{ name: 'n1', value: 0, kind: 'ptr' },
-			{ name: 'n2', value: 0, kind: 'ptr' }
+			{ name: 'n2', value: 0, kind: 'ptr' },
+			{ name: 'nxt', value: 0, kind: 'ptr' }
 		],
-		slots: 5,
-		par: 5,
+		slots: 6,
+		par: 6,
 		goalCheck: (mem) => mem.leaks().length === 0 && mem.freed.size >= 4,
 		bank: [
 			{ id: 'mk-n1', label: 'n1 = node(1)', ast: assign(variable('n1'), node(lit(1))) },
 			{ id: 'mk-n2', label: 'n2 = node(2)', ast: assign(variable('n2'), node(lit(2))) },
 			{ id: 'link', label: 'n1->next = n2', ast: assign(field(variable('n1'), 'next'), variable('n2')) },
+			{ id: 'save', label: 'nxt = n1->next', ast: assign(variable('nxt'), field(variable('n1'), 'next')) },
 			{ id: 'free-n1', label: 'free(n1)', ast: freeNode(variable('n1')) },
-			{ id: 'free-n2', label: 'free(n2)', ast: freeNode(variable('n2')) }
+			{ id: 'free-nxt', label: 'free(nxt)', ast: freeNode(variable('nxt')) },
+			{ id: 'free-via', label: 'free(n1->next)', ast: freeNode(field(variable('n1'), 'next')) }
 		]
 	},
 	{

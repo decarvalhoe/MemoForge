@@ -23,7 +23,7 @@ const SOLUTIONS = {
 	'str-1': ['init', 'copy', 'term', 'ret'],
 	'conv-1': ['r0', 'i0', 'scan', 'ret'],
 	'conv-2': ['hex'],
-	'l-1': ['mk-n1', 'mk-n2', 'link', 'free-n1', 'free-n2'],
+	'l-1': ['mk-n1', 'mk-n2', 'link', 'save', 'free-n1', 'free-nxt'],
 	'str-2': ['set-term', 'measure'],
 	'f-1': ['open', 'read', 'write', 'close'],
 	'dup-1': ['len', 'size', 'alloc', 'copy', 'ret'],
