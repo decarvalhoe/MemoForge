@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml/badge.svg)](https://github.com/decarvalhoe/MemoForge/actions/workflows/ci.yml)
 [![Deploy](https://github.com/decarvalhoe/MemoForge/actions/workflows/deploy.yml/badge.svg)](https://github.com/decarvalhoe/MemoForge/actions/workflows/deploy.yml)
-![Version](https://img.shields.io/badge/version-1.3.0-46E08A)
+![Version](https://img.shields.io/badge/version-1.3.1-46E08A)
 ![Engine coverage](https://img.shields.io/badge/engine_coverage-100%25-46E08A)
 ![Runtime dependencies](https://img.shields.io/badge/runtime_dependencies-0-46E08A)
 
