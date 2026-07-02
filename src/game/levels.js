@@ -21,6 +21,17 @@ const REF_STRCPY = func('ft_strcpy', ['dst', 'src'], [
 	assign(store(V('dst'), V('i')), lit(0)),
 	ret(V('dst'))
 ]);
+const REF_STRCAT = func('ft_strcat', ['dst', 'src'], [
+	assign(V('i'), lit(0)),
+	whileLoop(bin('!=', load(V('dst'), V('i')), lit(0)), [assign(V('i'), bin('+', V('i'), lit(1)))]),
+	assign(V('j'), lit(0)),
+	whileLoop(bin('!=', load(V('src'), V('j')), lit(0)), [
+		assign(store(V('dst'), bin('+', V('i'), V('j'))), load(V('src'), V('j'))),
+		assign(V('j'), bin('+', V('j'), lit(1)))
+	]),
+	assign(store(V('dst'), bin('+', V('i'), V('j'))), lit(0)),
+	ret(V('dst'))
+]);
 
 export const LEVELS = [
 	{
@@ -1034,6 +1045,86 @@ export const LEVELS = [
 			{ id: 'prime', label: 'return 1', ast: ret(lit(1)) },
 			{ id: 'scan-bad', label: 'tant que i < n : i = i + 1  (ne teste pas la divisibilité)',
 				ast: whileLoop(bin('<', variable('i'), variable('n')), [assign(variable('i'), bin('+', variable('i'), lit(1)))]) }
+		]
+	},
+	{
+		// ÉCRIS ft_substr (libft) : une tranche ALLOUÉE de s, à partir de start, sur len
+		// caractères. malloc(len+1), copie s[start+i], sentinelle. (M7 + M11).
+		id: 'sub-1',
+		world: 'Mémoire dynamique — le Tas',
+		title: 'Écris ft_substr',
+		goalText: 'Écris le CORPS de ft_substr(s, start, len). main extrait 2 caractères de « Hello » à partir de l\'indice 1 : p doit pointer « el » sur le tas.',
+		hint: 'Réserve la place de len caractères ET de la fin de chaîne. Quel indice de s lis-tu pour remplir la case i de la copie ? (cours M7/M11)',
+		assembleInto: 'ft_substr',
+		params: ['s', 'start', 'len'],
+		driverText: 'main (verrouillé) : p = ft_substr(&s0, 1, 2)',
+		driver: [{ id: 'drv', label: 'p = ft_substr(&s0, 1, 2)', ast: call(variable('p'), 'ft_substr', [addr('s0'), lit(1), lit(2)]) }],
+		vars: [
+			{ name: 's0', value: 'H', kind: 'char' }, { name: 's1', value: 'e', kind: 'char' },
+			{ name: 's2', value: 'l', kind: 'char' }, { name: 's3', value: 'l', kind: 'char' },
+			{ name: 's4', value: 'o', kind: 'char' }, { name: 's5', value: 0, kind: 'char' },
+			{ name: 'p', value: 0, kind: 'ptr' }
+		],
+		slots: 5,
+		par: 5,
+		goalCheck: (mem) => {
+			const p = mem.getVar('p');
+			if (!p) return false;
+			try {
+				return mem.readAddr(p) === 'e' && mem.readAddr(p + 4) === 'l' && mem.readAddr(p + 8) === 0;
+			} catch {
+				return false;
+			}
+		},
+		bank: [
+			{ id: 'alloc', label: 'dst = malloc(len + 1)', ast: assign(variable('dst'), malloc(bin('+', variable('len'), lit(1)))) },
+			{ id: 'i0', label: 'i = 0', ast: assign(variable('i'), lit(0)) },
+			{ id: 'copy', label: 'tant que i < len : dst[i] = s[start + i] ; i = i + 1',
+				ast: whileLoop(bin('<', variable('i'), variable('len')), [assign(store(variable('dst'), variable('i')), load(variable('s'), bin('+', variable('start'), variable('i')))), assign(variable('i'), bin('+', variable('i'), lit(1)))]) },
+			{ id: 'term', label: 'dst[i] = 0', ast: assign(store(variable('dst'), variable('i')), lit(0)) },
+			{ id: 'ret', label: 'return dst', ast: ret(variable('dst')) },
+			{ id: 'copy-bad', label: 'tant que i < len : dst[i] = s[i] ; i = i + 1  (ignore start)',
+				ast: whileLoop(bin('<', variable('i'), variable('len')), [assign(store(variable('dst'), variable('i')), load(variable('s'), variable('i'))), assign(variable('i'), bin('+', variable('i'), lit(1)))]) }
+		]
+	},
+	{
+		// ÉCRIS ft_strjoin (libft) — le capstone de ta libft : longueur (ft_strlen ×2),
+		// malloc, puis ft_strcpy + ft_strcat. Toutes tes fonctions forgées, réunies.
+		id: 'join-1',
+		world: 'Mémoire dynamique — le Tas',
+		title: 'Écris ft_strjoin (toute ta libft)',
+		goalText: 'Écris le CORPS de ft_strjoin(s1, s2) en appelant TES ft_strlen, ft_strcpy et ft_strcat. main joint « Hi » et « ! » : p doit pointer « Hi! » sur le tas.',
+		hint: 'La chaîne jointe fait quelle longueur, fin comprise ? Le bloc réservé, quelles deux fonctions déjà forgées y déposent s1 et s2 sans que tu réécrives une boucle ? (cours M7/M10)',
+		assembleInto: 'ft_strjoin',
+		params: ['s1', 's2'],
+		usesLibft: ['ft_strlen', 'ft_strcpy', 'ft_strcat'],
+		functions: { ft_strlen: REF_STRLEN, ft_strcpy: REF_STRCPY, ft_strcat: REF_STRCAT },
+		driverText: 'main (verrouillé) : p = ft_strjoin(&a0, &b0)',
+		driver: [{ id: 'drv', label: 'p = ft_strjoin(&a0, &b0)', ast: call(variable('p'), 'ft_strjoin', [addr('a0'), addr('b0')]) }],
+		vars: [
+			{ name: 'a0', value: 'H', kind: 'char' }, { name: 'a1', value: 'i', kind: 'char' }, { name: 'a2', value: 0, kind: 'char' },
+			{ name: 'b0', value: '!', kind: 'char' }, { name: 'b1', value: 0, kind: 'char' },
+			{ name: 'p', value: 0, kind: 'ptr' }
+		],
+		slots: 6,
+		par: 6,
+		goalCheck: (mem) => {
+			const p = mem.getVar('p');
+			if (!p) return false;
+			try {
+				return mem.readAddr(p) === 'H' && mem.readAddr(p + 4) === 'i' && mem.readAddr(p + 8) === '!' && mem.readAddr(p + 12) === 0;
+			} catch {
+				return false;
+			}
+		},
+		bank: [
+			{ id: 'l1', label: 'len1 = ft_strlen(s1)', ast: call(variable('len1'), 'ft_strlen', [variable('s1')]) },
+			{ id: 'l2', label: 'len2 = ft_strlen(s2)', ast: call(variable('len2'), 'ft_strlen', [variable('s2')]) },
+			{ id: 'alloc', label: 'dst = malloc(len1 + len2 + 1)', ast: assign(variable('dst'), malloc(bin('+', bin('+', variable('len1'), variable('len2')), lit(1)))) },
+			{ id: 'cpy', label: 'ft_strcpy(dst, s1)', ast: call(variable('_a'), 'ft_strcpy', [variable('dst'), variable('s1')]) },
+			{ id: 'cat', label: 'ft_strcat(dst, s2)', ast: call(variable('_b'), 'ft_strcat', [variable('dst'), variable('s2')]) },
+			{ id: 'ret', label: 'return dst', ast: ret(variable('dst')) },
+			{ id: 'alloc-bad', label: 'dst = malloc(len1 + len2)  (oublie la fin)', ast: assign(variable('dst'), malloc(bin('+', variable('len1'), variable('len2')))) }
 		]
 	}
 ];
