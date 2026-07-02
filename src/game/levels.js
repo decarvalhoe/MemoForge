@@ -291,6 +291,74 @@ export const LEVELS = [
 		]
 	},
 	{
+		// ÉCRIS ft_putstr (C01/C04) en réutilisant ta libft : mesure la longueur avec
+		// ft_strlen, puis émets tout le bloc d'un coup. Pas de longueur stockée en C — on
+		// la calcule (M10).
+		id: 'io-1',
+		world: 'Sortie & ASCII',
+		title: 'Écris ft_putstr (avec ta libft)',
+		goalText: 'Écris le CORPS de ft_putstr(s). main l\'appelle sur « Hi » : la sortie doit être « Hi ». Utilise TON ft_strlen pour la longueur.',
+		hint: 'write émet un nombre d\'octets donné depuis une adresse. Combien d\'octets fait « Hi », et où trouver ce nombre sans le recompter à la main ? (cours M10)',
+		assembleInto: 'ft_putstr',
+		params: ['s'],
+		usesLibft: ['ft_strlen'],
+		functions: { ft_strlen: REF_STRLEN },
+		driverText: 'main (verrouillé) : ft_putstr(&c0)',
+		driver: [{ id: 'drv', label: 'ft_putstr(&c0)', ast: call(variable('done'), 'ft_putstr', [addr('c0')]) }],
+		vars: [
+			{ name: 'c0', value: 'H', kind: 'char' },
+			{ name: 'c1', value: 'i', kind: 'char' },
+			{ name: 'c2', value: 0, kind: 'char' },
+			{ name: 'done', value: 0, kind: 'int' }
+		],
+		slots: 2,
+		par: 2,
+		goalCheck: (mem) => mem.output === 'Hi',
+		bank: [
+			{ id: 'len', label: 'len = ft_strlen(s)', ast: call(variable('len'), 'ft_strlen', [variable('s')]) },
+			{ id: 'emit', label: 'write(1, s, len)', ast: write(1, variable('s'), variable('len')) },
+			{ id: 'emit-bad', label: 'write(1, s, 1)', ast: write(1, variable('s'), lit(1)) }
+		]
+	},
+	{
+		// ft_print_alphabet (C00) : émettre a…z. Une boucle où le caractère se CALCULE :
+		// c = 'a' + i (un char est son code ASCII), puis write(1, &c, 1).
+		id: 'io-2',
+		world: 'Sortie & ASCII',
+		title: 'Écris ft_print_alphabet',
+		goalText: 'Affiche l\'alphabet « abc…z » sur la sortie, avec une seule boucle de 26 tours.',
+		hint: 'À chaque tour, quel caractère écrire ? Un char est son code ASCII : que vaut « \'a\' + i » quand i va de 0 à 25 ? (cours M1/M2)',
+		vars: [{ name: 'c', value: 0, kind: 'char' }],
+		slots: 1,
+		par: 1,
+		goalCheck: (mem) => mem.output === 'abcdefghijklmnopqrstuvwxyz',
+		bank: [
+			{ id: 'loop', label: 'boucle 26× : c = \'a\' + i ; write(1, &c, 1)',
+				ast: loop(lit(26), [assign(variable('c'), bin('+', lit('a'), iter())), write(1, addr('c'), lit(1))]) },
+			{ id: 'loop-bad', label: 'boucle 26× : c = \'a\' ; write(1, &c, 1)',
+				ast: loop(lit(26), [assign(variable('c'), lit('a')), write(1, addr('c'), lit(1))]) }
+		]
+	},
+	{
+		// ft_print_numbers (C00) : émettre 0…9. Même patron, mais le chiffre-caractère se
+		// fabrique avec c = i + '0' (l'inverse de « c - '0' » d'atoi).
+		id: 'io-3',
+		world: 'Sortie & ASCII',
+		title: 'Écris ft_print_numbers',
+		goalText: 'Affiche « 0123456789 » sur la sortie, avec une seule boucle de 10 tours.',
+		hint: 'Le chiffre i (0-9) et le CARACTÈRE qui l\'affiche n\'ont pas le même code. Quelle opération transforme le nombre i en son caractère ? (cours M2)',
+		vars: [{ name: 'c', value: 0, kind: 'char' }],
+		slots: 1,
+		par: 1,
+		goalCheck: (mem) => mem.output === '0123456789',
+		bank: [
+			{ id: 'loop', label: 'boucle 10× : c = i + \'0\' ; write(1, &c, 1)',
+				ast: loop(lit(10), [assign(variable('c'), bin('+', iter(), lit('0'))), write(1, addr('c'), lit(1))]) },
+			{ id: 'loop-bad', label: 'boucle 10× : c = i ; write(1, &c, 1)',
+				ast: loop(lit(10), [assign(variable('c'), iter()), write(1, addr('c'), lit(1))]) }
+		]
+	},
+	{
 		// ÉCRIS ft_strcpy (C02) depuis zéro : boucle de copie + la sentinelle finale.
 		// La destination est pré-remplie de « X » : oublier le \0 laisse un X → échec.
 		id: 'str-1',

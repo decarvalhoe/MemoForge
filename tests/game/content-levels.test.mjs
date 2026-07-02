@@ -27,6 +27,31 @@ describe('s-1 — Sortie & ASCII (write / ft_putstr)', () => {
 	});
 });
 
+describe('io-1/2/3 — Sortie (ft_putstr, print_alphabet, print_numbers)', () => {
+	test('ft_putstr : len = ft_strlen(s) puis write(1, s, len) → "Hi"', () => {
+		assert.ok(solved(byId['io-1'], ['len', 'emit']));
+	});
+	test('ft_putstr sans la longueur (write ..., 1) → "H", échoue', () => {
+		const { mem } = runProgram(byId['io-1'], ['len', 'emit-bad']);
+		assert.equal(mem.output, 'H');
+		assert.equal(goalMet(byId['io-1'], mem), false);
+	});
+	test('print_alphabet : c = \'a\' + i → "abc…z"', () => {
+		const { mem } = runProgram(byId['io-2'], ['loop']);
+		assert.equal(mem.output, 'abcdefghijklmnopqrstuvwxyz');
+	});
+	test('print_alphabet sans le + i → "aaaa…", échoue', () => {
+		assert.equal(goalMet(byId['io-2'], runProgram(byId['io-2'], ['loop-bad']).mem), false);
+	});
+	test('print_numbers : c = i + \'0\' → "0123456789"', () => {
+		const { mem } = runProgram(byId['io-3'], ['loop']);
+		assert.equal(mem.output, '0123456789');
+	});
+	test('print_numbers sans le + \'0\' (émet des codes de contrôle) → échoue', () => {
+		assert.equal(goalMet(byId['io-3'], runProgram(byId['io-3'], ['loop-bad']).mem), false);
+	});
+});
+
 describe('str-1 — Écris ft_strcpy (forge depuis zéro)', () => {
 	const L = byId['str-1'];
 	test('init → copy → term → return : recopie "Hi\\0" dans dst', () => {
