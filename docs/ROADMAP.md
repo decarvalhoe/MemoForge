@@ -163,6 +163,7 @@ EPIC 0 ──> EPIC 1 ──┐
 ## Suivi
 
 Chaque EPIC = un *milestone* GitHub ; chaque `Ex-y` = une *issue* liée, étiquetée par domaine.
+Branches & releases : voir [WORKFLOW.md](WORKFLOW.md) (GitFlow develop → staging → main).
 Voir `docs/BRIQUES.md` pour l'ancrage pédagogique de chaque mécanique.
 
 ---
