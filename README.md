@@ -47,7 +47,7 @@ MemoForge suit le **cours mémoire M1→M12** et les **exercices officiels de 42
 l'**esprit libft** : les `ft_` qu'on utilise, on les **écrit soi-même**. Tu n'as jamais un
 bloc `strcpy` tout fait — tu assembles son corps à partir des primitives, et une fois forgée,
 la fonction entre dans **ta libft** et resert (ton `ft_strdup` appelle **ton** `ft_strlen`).
-**27 niveaux** sur la carte de la RAM ([`docs/BRIQUES.md`](docs/BRIQUES.md)) :
+**44 niveaux** sur la carte de la RAM ([`docs/BRIQUES.md`](docs/BRIQUES.md)) :
 
 | Concept (cours) | Ce que tu écris depuis zéro |
 |---|---|
