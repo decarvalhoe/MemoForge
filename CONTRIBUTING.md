@@ -24,12 +24,18 @@ touche jamais au DOM**. Détails : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) 
 
 Le lint (`npm run lint`, issue #2) formalisera ces règles.
 
-## Git & PR
+## Git, branches & PR (GitFlow)
 
-- Brancher depuis `main` : `git switch -c eX-Y-sujet`.
-- Un commit raconte une intention ; référencer l'issue (`(#N)`).
-- Ouvrir une PR avec le gabarit (`Closes #N`, AC cochés, tests verts).
-- **La CI doit être verte** (lint · test · build) avant merge.
+La branche par défaut est **`develop`** ; toutes les PR de feature la ciblent. Le modèle
+complet (`develop → staging → main`, releases, protection de branche) est dans
+[docs/WORKFLOW.md](docs/WORKFLOW.md).
+
+- Brancher depuis `develop` à jour : `git switch develop && git pull && git switch -c feature/<sujet>`.
+- Un commit raconte une intention ; message conventionnel (`feat:`/`fix:`/`test:`/`docs:`/`chore:`) ; référencer l'issue (`(#N)`).
+- Ouvrir une PR **vers `develop`** avec le gabarit (`Closes #N`, AC cochés, tests verts).
+- **La CI doit être verte** (lint · test · couverture ≥ 90 % · build · écrans visuels · budgets perf) avant merge — c'est imposé par la protection de branche.
+- **Squash-merge** puis élaguer la branche.
+- Les **releases** (promotion `develop → staging → main`, tag, déploiement) sont réservées aux mainteneurs.
 
 ## Ajouter du contenu (niveaux)
 
