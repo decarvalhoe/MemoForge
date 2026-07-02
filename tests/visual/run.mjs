@@ -23,6 +23,10 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const OUT_DIR = path.join(ROOT, 'tests', 'visual', 'out');
 const BASE_DIR = path.join(ROOT, 'tests', 'visual', 'baseline', process.platform);
 const UPDATE = process.argv.includes('--update');
+// `--root dist` : sert (et pèse) un autre répertoire racine — vérifie l'artefact de prod
+// (E5-4) avec les mêmes écrans, invariants et budgets que les sources.
+const rootArg = process.argv.indexOf('--root');
+const SERVE_ROOT = rootArg > -1 ? path.resolve(ROOT, process.argv[rootArg + 1]) : ROOT;
 const PORT = 8123;
 const VIEWPORT = { width: 1280, height: 900, deviceScaleFactor: 1 };
 const MAX_DIFF_RATIO = 0.005; // 0,5 % de pixels divergents tolérés (anti-aliasing)
@@ -37,9 +41,9 @@ const MIME = {
 function serve() {
 	const server = http.createServer((req, res) => {
 		const clean = path.normalize(decodeURIComponent(req.url.split('?')[0])).replace(/^([/\\])+/, '');
-		let file = path.join(ROOT, clean || 'index.html');
-		if (!file.startsWith(ROOT)) { res.writeHead(403); res.end(); return; }
-		if (req.url === '/' || clean === '.') file = path.join(ROOT, 'index.html');
+		let file = path.join(SERVE_ROOT, clean || 'index.html');
+		if (!file.startsWith(SERVE_ROOT)) { res.writeHead(403); res.end(); return; }
+		if (req.url === '/' || clean === '.') file = path.join(SERVE_ROOT, 'index.html');
 		fs.readFile(file, (err, data) => {
 			if (err) { res.writeHead(404); res.end('not found'); return; }
 			res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream' });
@@ -178,9 +182,9 @@ function appWeightKB() {
 			else total += fs.statSync(p).size;
 		}
 	};
-	total += fs.statSync(path.join(ROOT, 'index.html')).size;
-	walk(path.join(ROOT, 'src'));
-	walk(path.join(ROOT, 'styles'));
+	total += fs.statSync(path.join(SERVE_ROOT, 'index.html')).size;
+	walk(path.join(SERVE_ROOT, 'src'));
+	walk(path.join(SERVE_ROOT, 'styles'));
 	return total / 1024;
 }
 

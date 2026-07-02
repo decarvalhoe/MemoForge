@@ -9,6 +9,7 @@
 		"test": "node --test --experimental-test-coverage --test-coverage-include=\"src/engine/**\" --test-coverage-lines=90 --test-coverage-branches=90 --test-coverage-functions=90",
 		"test:watch": "node --test --watch",
 		"test:visual": "node tests/visual/run.mjs",
+		"build": "node scripts/build.mjs",
 		"lint": "eslint src/engine tests/engine tests/helpers.mjs"
 	},
 	"devDependencies": {

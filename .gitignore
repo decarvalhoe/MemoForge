@@ -15,3 +15,6 @@ __pycache__/
 
 # Tests visuels : captures courantes (les références vivent dans tests/visual/baseline/)
 tests/visual/out/
+
+# Build de prod (artefact statique, regénéré par npm run build)
+dist/
