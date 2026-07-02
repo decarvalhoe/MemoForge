@@ -113,12 +113,12 @@ export const CATALOG = [
 	{ fn: 't_list · push/size/clear', module: 'C12', concept: '->next sur le tas', tier: 'ready', deps: [], statut: 'jouable', level: 'l-1' },
 
 	// ── libft · Part 1 (fonctions de <ctype.h>/<string.h>/<stdlib.h> à refaire) ─
-	{ fn: 'ft_isalpha', module: 'libft-1', concept: 'plage alpha', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
-	{ fn: 'ft_isdigit', module: 'libft-1', concept: "plage '0'-'9'", tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
+	{ fn: 'ft_isalpha', module: 'libft-1', concept: 'plage alpha', tier: 'char', deps: [], statut: 'jouable', level: 'chr-2' },
+	{ fn: 'ft_isdigit', module: 'libft-1', concept: "plage '0'-'9'", tier: 'char', deps: [], statut: 'jouable', level: 'chr-1' },
 	{ fn: 'ft_isalnum', module: 'libft-1', concept: 'alpha ou digit', tier: 'char', deps: ['ft_isalpha', 'ft_isdigit'], statut: 'a-forger', level: null, issue: '#108' },
 	{ fn: 'ft_isascii', module: 'libft-1', concept: 'plage 0-127', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
 	{ fn: 'ft_isprint', module: 'libft-1', concept: "plage ' '-'~'", tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
-	{ fn: 'ft_toupper', module: 'libft-1', concept: 'minuscule - 32', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
+	{ fn: 'ft_toupper', module: 'libft-1', concept: 'minuscule - 32', tier: 'char', deps: [], statut: 'jouable', level: 'chr-3' },
 	{ fn: 'ft_tolower', module: 'libft-1', concept: 'majuscule + 32', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
 	{ fn: 'ft_strchr', module: 'libft-1', concept: 'trouver un char', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
 	{ fn: 'ft_strrchr', module: 'libft-1', concept: 'trouver le dernier', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },

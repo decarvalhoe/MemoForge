@@ -194,3 +194,24 @@ describe('while-1 — Écris ft_strlen (forge depuis zéro)', () => {
 		assert.equal(goalMet(L, mem), false);
 	});
 });
+
+describe('chr-1/2/3 — Caractères & casse (char = code ASCII)', () => {
+	test('ft_isdigit : (c>=\'0\')*(c<=\'9\') → 1 pour \'5\', 0 pour \'a\'', () => {
+		assert.ok(solved(byId['chr-1'], ['and']));
+	});
+	test('ft_isdigit avec + (OU) au lieu de * (ET) → échoue', () => {
+		assert.equal(goalMet(byId['chr-1'], runProgram(byId['chr-1'], ['or-bad']).mem), false);
+	});
+	test('ft_isalpha : somme des deux plages a-z / A-Z → 1 pour \'Z\', 0 pour \'5\'', () => {
+		assert.ok(solved(byId['chr-2'], ['or']));
+	});
+	test('ft_isalpha avec la seule plage a-z rate les majuscules → échoue', () => {
+		assert.equal(goalMet(byId['chr-2'], runProgram(byId['chr-2'], ['low-bad']).mem), false);
+	});
+	test('ft_toupper : - 32 SOUS CONDITION → \'a\'→\'A\', \'A\' inchangé', () => {
+		assert.ok(solved(byId['chr-3'], ['cond', 'ret']));
+	});
+	test('ft_toupper sans condition abîme les non-minuscules → échoue', () => {
+		assert.equal(goalMet(byId['chr-3'], runProgram(byId['chr-3'], ['uncond-bad', 'ret']).mem), false);
+	});
+});
