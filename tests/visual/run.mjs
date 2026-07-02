@@ -166,6 +166,62 @@ function compareToBaseline(name, outFile) {
 	return { status: 'conforme', detail: `${(ratio * 100).toFixed(2)} %` };
 }
 
+// ---------------------------------------------------------------- budget de perf (docs/PERF.md)
+const PERF_BUDGET = { weightKB: 200, roomMedianMs: 16, roomP95Ms: 32, mapMedianMs: 16 };
+
+function appWeightKB() {
+	let total = 0;
+	const walk = (dir) => {
+		for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+			const p = path.join(dir, entry.name);
+			if (entry.isDirectory()) walk(p);
+			else total += fs.statSync(p).size;
+		}
+	};
+	total += fs.statSync(path.join(ROOT, 'index.html')).size;
+	walk(path.join(ROOT, 'src'));
+	walk(path.join(ROOT, 'styles'));
+	return total / 1024;
+}
+
+// Mesure 60 rendus de la vue la plus chargée (salle rec-1, pile déployée) et de la carte.
+async function measurePerf(page) {
+	await page.goto(`http://127.0.0.1:${PORT}/`, { waitUntil: 'networkidle0' });
+	return page.evaluate(() => {
+		const g = window.__memoforge;
+		const stats = (fn) => {
+			const t = [];
+			for (let i = 0; i < 60; i++) { const t0 = performance.now(); fn(); t.push(performance.now() - t0); }
+			t.sort((a, b) => a - b);
+			return { median: t[30], p95: t[Math.floor(60 * 0.95)] };
+		};
+		g.enterRoom('rec-1');
+		for (const id of ['base', 'rec', 'comb']) g.addBlock(g.level.bank.find((b) => b.id === id));
+		g.freshInterp();
+		while (!g.interp.done && g.interp.frames().length < 4) g.interp.step();
+		const room = stats(() => g.render());
+		g.showMap();
+		const map = stats(() => g.renderMap());
+		return { room, map };
+	});
+}
+
+async function checkPerfBudget(page) {
+	let failures = 0;
+	const kb = appWeightKB();
+	const okW = kb <= PERF_BUDGET.weightKB;
+	if (!okW) failures += 1;
+	console.log(`${okW ? '✔' : '✖'} perf — poids app : ${kb.toFixed(0)} KB (budget ${PERF_BUDGET.weightKB} KB)`);
+	const { room, map } = await measurePerf(page);
+	const okRoom = room.median <= PERF_BUDGET.roomMedianMs && room.p95 <= PERF_BUDGET.roomP95Ms;
+	if (!okRoom) failures += 1;
+	console.log(`${okRoom ? '✔' : '✖'} perf — rendu salle rec-1 (pile déployée) : médiane ${room.median.toFixed(1)} ms · p95 ${room.p95.toFixed(1)} ms (budget ${PERF_BUDGET.roomMedianMs}/${PERF_BUDGET.roomP95Ms} ms)`);
+	const okMap = map.median <= PERF_BUDGET.mapMedianMs;
+	if (!okMap) failures += 1;
+	console.log(`${okMap ? '✔' : '✖'} perf — rendu carte : médiane ${map.median.toFixed(1)} ms (budget ${PERF_BUDGET.mapMedianMs} ms)`);
+	return failures;
+}
+
 // ---------------------------------------------------------------- main
 async function main() {
 	fs.mkdirSync(OUT_DIR, { recursive: true });
@@ -198,6 +254,7 @@ async function main() {
 				console.log(`✔ ${screen.name} — structure OK · référence ${cmp.status}${cmp.detail ? ` (${cmp.detail})` : ''}`);
 			}
 		}
+		failures += await checkPerfBudget(page);
 	} finally {
 		await browser.close();
 		server.close();
