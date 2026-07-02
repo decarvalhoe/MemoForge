@@ -3,6 +3,33 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) · versioning :
 [SemVer](https://semver.org/lang/fr/). Démo : <https://decarvalhoe.github.io/MemoForge/>.
 
+## [1.1.0] — 2026-07-02
+
+Réalignement complet sur le **cours mémoire (M1→M12)** et les **exercices officiels de 42**,
+dans l'**esprit libft** : on écrit les `ft_` depuis zéro (EPIC 6).
+
+### Ajouté
+- **Mécanique « ta libft »** : chaque niveau « écris `ft_xxx` » résolu ajoute la fonction à
+  un inventaire persistant ; les niveaux suivants la réutilisent (ex. `ft_strdup` appelle
+  **tes** `ft_strlen` et `ft_strcpy`).
+- **Catalogue du cursus** (`src/game/catalog.js`) : les 100 fonctions principales C00→C13 +
+  la libft intégrale (43), avec garde de couverture en CI.
+- **Verdict façon valgrind** sur les niveaux du tas (`definitely lost: 0 bytes`), **N+1 free**.
+- **Explorateur d'octets** (M1/M2) : `1000 → e8 03 00 00` little-endian.
+- Nouveaux niveaux : `ft_ft`/`ft_swap`/`ft_div_mod` (M4), `ft_ultimate_ft` (M5), **dangling
+  pointer** (M6, « pourquoi le tas existe »), `ft_rev_int_tab`/`ft_range` (M11), `ft_split`
+  N+1 (M9), `mem-1` octets (M1/M2). 27 niveaux, carte recentrée sur le cours.
+
+### Modifié
+- **Moteur** : un char est son code ASCII (`c - '0'`, `'a' - 32`) ; `deref` et `&` résolvent
+  la portée locale (par adresse vs par copie) ; les locales meurent au return (dangling).
+- Niveaux « brique magique » (`strcpy`/`atoi`/`putnbr` tout faits) → niveaux de
+  **construction**. Indices réécrits : **jamais la réponse** (garde automatisée).
+
+### Retiré
+- Sémantique inventée « nœud encore chaîné » (le vrai piège M12 est le use-after-free).
+- Niveaux hors-cursus (pointeurs de fonction C11, bonus days).
+
 ## [1.0.0] — 2026-07-02
 
 Première release complète : **les 12 briques de la Piscine C sont jouables**.
