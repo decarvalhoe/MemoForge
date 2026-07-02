@@ -366,7 +366,7 @@ export class Game {
 		const parts = [
 			back,
 			el('div', { class: 'mission-tag', text: tag }),
-			el('div', { class: 'mission-title', text: lv.title }),
+			el('h2', { class: 'mission-title', text: lv.title }),
 			el('p', { class: 'mission-goal', text: lv.goalText })
 		];
 		if (lv.driverText) parts.push(el('p', { class: 'mission-goal', text: '⚙ ' + lv.driverText }));
@@ -405,7 +405,7 @@ export class Game {
 		const total = EXAM.levelIds.length;
 		this.elMission.append(
 			el('div', { class: 'mission-tag', text: t('examen terminé') }),
-			el('div', { class: 'mission-title', text: `${t('Score : ')}${this.examSolved} / ${total}` }),
+			el('h2', { class: 'mission-title', text: `${t('Score : ')}${this.examSolved} / ${total}` }),
 			el('p', { class: 'mission-goal', text: `${t('Temps : ')}${this.examElapsed()}` }),
 			el('div', { style: 'display:flex;gap:8px;margin-top:14px' }, [
 				button({ label: t('recommencer'), variant: 'primary', onClick: () => this.enterExam() }),

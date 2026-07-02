@@ -64,7 +64,7 @@ h2 {
 	padding: var(--sp-7) var(--sp-8);
 }
 .mission-tag { font-size: var(--fs-xs); color: var(--accent); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: var(--ls-kicker); }
-.mission-title { font-family: var(--font-display); font-size: var(--fs-display-2); font-weight: var(--fw-regular); margin-top: .1rem; color: var(--text); text-shadow: var(--text-glow-ink); }
+.mission-title { font-family: var(--font-display); font-size: var(--fs-display-2); font-weight: var(--fw-regular); margin: .1rem 0 0; color: var(--text); text-shadow: var(--text-glow-ink); }
 .mission-goal { margin: var(--sp-4) 0 var(--sp-1); }
 .mission-hint { margin: 0; color: var(--text-muted); font-size: var(--fs-sm); }
 
@@ -152,8 +152,49 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 .star-off { color: var(--text-muted); opacity: .6; }
 .verdict .btn-primary { margin-top: var(--sp-3); }
 
-/* Focus clavier visible sur les salles de la carte (rôle bouton). */
-.mf-room-link:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--radius-md); }
+/* Focus clavier visible sur TOUS les éléments interactifs (WCAG 2.4.7). Un seul anneau
+   cohérent (--ring) pour boutons, liens, salles et champs. */
+.mf-room-link:focus-visible,
+.mf-btn:focus-visible,
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+	outline: none;
+	box-shadow: var(--ring);
+	border-radius: var(--radius-sm);
+}
+
+/* Lien d'évitement (WCAG 2.4.1) : masqué hors focus, visible au premier Tab. */
+.skip-link {
+	position: fixed;
+	top: 8px;
+	left: 8px;
+	z-index: 100;
+	padding: 8px 14px;
+	background: var(--surface-well);
+	color: var(--accent);
+	border: 1px solid var(--accent);
+	border-radius: var(--radius-sm);
+	font-family: var(--font-mono);
+	font-size: var(--fs-sm);
+	transform: translateY(-150%);
+	transition: transform var(--dur);
+}
+.skip-link:focus { transform: translateY(0); }
+
+/* Utilitaire lecteur d'écran : hors flux visuel, lisible par la synthèse vocale. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
 
 @media (max-width: 680px) {
 	.wrap { padding: var(--sp-9) var(--sp-6) 4rem; }
@@ -179,4 +220,15 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 		transition-duration: 0.01ms !important;
 		scroll-behavior: auto !important;
 	}
+}
+
+/* prefers-contrast: renforce bordures et texte atténué pour les réglages « plus de
+   contraste », et coupe le voile de scanlines qui réduit légèrement la lisibilité. */
+@media (prefers-contrast: more) {
+	:root {
+		--text-muted: var(--text);
+		--border: var(--accent);
+	}
+	body::before { display: none; }
+	.mf-locker__addr { opacity: 1; }
 }

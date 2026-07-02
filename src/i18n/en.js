@@ -87,6 +87,7 @@ export const EN = {
 		'n°': 'no.',
 		// Notes de statut des cartes de région (carte RAM).
 		'résolu': 'solved', 'tu es ici': 'you are here', 'verrouillé': 'locked',
+		'Aller au contenu': 'Skip to content',
 		'// explorateur d\'octets (little-endian)': '// byte explorer (little-endian)',
 		'GLIF surveille la mémoire': 'GLIF watches the memory',
 		'GLIF valide !': 'GLIF approves!', 'GLIF réfléchit…': 'GLIF is thinking…',

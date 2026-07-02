@@ -18,7 +18,8 @@
 /* ---------------- Locker ---------------- */
 .mf-locker { flex: 1; min-width: 84px; background: var(--surface-well); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px; text-align: center; box-shadow: var(--inset-well); }
 .mf-locker__name { font-size: var(--fs-sm); font-weight: 600; color: var(--text); }
-.mf-locker__addr { font-size: var(--fs-2xs); color: var(--text-muted); opacity: .7; }
+/* Pas d'opacity ici : elle cassait le contraste WCAG AA (axe-core). --text-muted seul passe. */
+.mf-locker__addr { font-size: var(--fs-2xs); color: var(--text-muted); }
 .mf-locker__val { font-size: var(--fs-value); font-weight: 600; margin-top: 3px; color: var(--text); line-height: 1; }
 .mf-locker__state { font-size: var(--fs-2xs); margin-top: 4px; color: var(--text); }
 .mf-locker--changed { background: var(--success-fill); border-color: var(--value); box-shadow: var(--glow-green); }
