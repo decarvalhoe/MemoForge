@@ -895,5 +895,71 @@ export const LEVELS = [
 			{ id: 'ret', label: 'return c', ast: ret(variable('c')) },
 			{ id: 'uncond-bad', label: 'c = c - 32  (sans condition)', ast: assign(variable('c'), bin('-', variable('c'), lit(32))) }
 		]
+	},
+	{
+		// ÉCRIS ft_strcmp (C03/libft) : avancer tant que les caractères sont ÉGAUX et non
+		// terminés, puis renvoyer la différence des codes au 1er écart (0 si identiques).
+		id: 'cmp-1',
+		world: 'Chaînes & bornes',
+		title: 'Écris ft_strcmp',
+		goalText: 'Écris le CORPS de ft_strcmp(s1, s2). main compare « Hi »/« Hi » (→ 0) et « Hi »/« Ha » (→ écart au 2e caractère, \'i\'-\'a\' = 8).',
+		hint: 'Avance tant que les deux caractères sont égaux ET que la chaîne n\'est pas finie. Au premier écart, que renvoie la DIFFÉRENCE de leurs codes ? (cours M2/M10)',
+		assembleInto: 'ft_strcmp',
+		params: ['s1', 's2'],
+		driverText: 'main (verrouillé) : r1 = ft_strcmp(&a0,&b0) · r2 = ft_strcmp(&a0,&c0)',
+		driver: [
+			{ id: 'd1', label: 'r1 = ft_strcmp(&a0, &b0)  // "Hi" vs "Hi"', ast: call(variable('r1'), 'ft_strcmp', [addr('a0'), addr('b0')]) },
+			{ id: 'd2', label: 'r2 = ft_strcmp(&a0, &c0)  // "Hi" vs "Ha"', ast: call(variable('r2'), 'ft_strcmp', [addr('a0'), addr('c0')]) }
+		],
+		vars: [
+			{ name: 'a0', value: 'H', kind: 'char' }, { name: 'a1', value: 'i', kind: 'char' }, { name: 'a2', value: 0, kind: 'char' },
+			{ name: 'b0', value: 'H', kind: 'char' }, { name: 'b1', value: 'i', kind: 'char' }, { name: 'b2', value: 0, kind: 'char' },
+			{ name: 'c0', value: 'H', kind: 'char' }, { name: 'c1', value: 'a', kind: 'char' }, { name: 'c2', value: 0, kind: 'char' },
+			{ name: 'r1', value: 0, kind: 'int' }, { name: 'r2', value: 0, kind: 'int' }
+		],
+		slots: 3,
+		par: 3,
+		goal: { r1: 0, r2: 8 },
+		bank: [
+			{ id: 'i0', label: 'i = 0', ast: assign(variable('i'), lit(0)) },
+			{ id: 'walk', label: 'tant que s1[i] != 0 ET s1[i] == s2[i] : i = i + 1',
+				ast: whileLoop(bin('*', bin('!=', load(variable('s1'), variable('i')), lit(0)), bin('==', load(variable('s1'), variable('i')), load(variable('s2'), variable('i')))), [assign(variable('i'), bin('+', variable('i'), lit(1)))]) },
+			{ id: 'diff', label: 'return s1[i] - s2[i]', ast: ret(bin('-', load(variable('s1'), variable('i')), load(variable('s2'), variable('i')))) },
+			{ id: 'walk-bad', label: 'tant que s1[i] != 0 : i = i + 1  (ignore l\'écart)',
+				ast: whileLoop(bin('!=', load(variable('s1'), variable('i')), lit(0)), [assign(variable('i'), bin('+', variable('i'), lit(1)))]) }
+		]
+	},
+	{
+		// ÉCRIS ft_strcat (C03/libft) en réutilisant ta libft : ft_strlen pour trouver la fin
+		// de dst, puis recopier src à partir de là (+ la sentinelle).
+		id: 'cat-1',
+		world: 'Chaînes & bornes',
+		title: 'Écris ft_strcat (avec ta libft)',
+		goalText: 'Écris le CORPS de ft_strcat(dst, src). main colle « ! » à la fin de « Hi » : dst doit devenir « Hi! ».',
+		hint: 'Concaténer, c\'est écrire src APRÈS le contenu de dst. Où commence « après » — et comment trouver cet indice sans le compter à la main ? (cours M10)',
+		assembleInto: 'ft_strcat',
+		params: ['dst', 'src'],
+		usesLibft: ['ft_strlen'],
+		functions: { ft_strlen: REF_STRLEN },
+		driverText: 'main (verrouillé) : ft_strcat(&d0, &s0)',
+		driver: [{ id: 'drv', label: 'ft_strcat(&d0, &s0)', ast: call(variable('done'), 'ft_strcat', [addr('d0'), addr('s0')]) }],
+		vars: [
+			{ name: 'd0', value: 'H', kind: 'char' }, { name: 'd1', value: 'i', kind: 'char' },
+			{ name: 'd2', value: 0, kind: 'char' }, { name: 'd3', value: 0, kind: 'char' }, { name: 'd4', value: 0, kind: 'char' },
+			{ name: 's0', value: '!', kind: 'char' }, { name: 's1', value: 0, kind: 'char' },
+			{ name: 'done', value: 0, kind: 'int' }
+		],
+		slots: 5,
+		par: 5,
+		goalCheck: (mem) => mem.getVar('d0') === 'H' && mem.getVar('d1') === 'i' && mem.getVar('d2') === '!' && mem.getVar('d3') === 0,
+		bank: [
+			{ id: 'end', label: 'i = ft_strlen(dst)', ast: call(variable('i'), 'ft_strlen', [variable('dst')]) },
+			{ id: 'j0', label: 'j = 0', ast: assign(variable('j'), lit(0)) },
+			{ id: 'copy', label: 'tant que src[j] != 0 : dst[i + j] = src[j] ; j = j + 1',
+				ast: whileLoop(bin('!=', load(variable('src'), variable('j')), lit(0)), [assign(store(variable('dst'), bin('+', variable('i'), variable('j'))), load(variable('src'), variable('j'))), assign(variable('j'), bin('+', variable('j'), lit(1)))]) },
+			{ id: 'term', label: 'dst[i + j] = 0', ast: assign(store(variable('dst'), bin('+', variable('i'), variable('j'))), lit(0)) },
+			{ id: 'ret', label: 'return dst', ast: ret(variable('dst')) },
+			{ id: 'j0-bad', label: 'i = 0  (écrase dst au lieu de coller après)', ast: assign(variable('i'), lit(0)) }
+		]
 	}
 ];

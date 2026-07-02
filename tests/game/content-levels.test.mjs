@@ -215,3 +215,18 @@ describe('chr-1/2/3 — Caractères & casse (char = code ASCII)', () => {
 		assert.equal(goalMet(byId['chr-3'], runProgram(byId['chr-3'], ['uncond-bad', 'ret']).mem), false);
 	});
 });
+
+describe('cmp-1/cat-1 — Comparaison & concaténation', () => {
+	test('ft_strcmp : 0 pour égales, écart de codes au 1er mismatch', () => {
+		assert.ok(solved(byId['cmp-1'], ['i0', 'walk', 'diff']));
+	});
+	test('ft_strcmp sans le test d\'égalité (avance jusqu\'au bout) → écart raté, échoue', () => {
+		assert.equal(goalMet(byId['cmp-1'], runProgram(byId['cmp-1'], ['i0', 'walk-bad', 'diff']).mem), false);
+	});
+	test('ft_strcat : ft_strlen(dst) puis copie src → "Hi!"', () => {
+		assert.ok(solved(byId['cat-1'], ['end', 'j0', 'copy', 'term', 'ret']));
+	});
+	test('ft_strcat avec i = 0 (écrase dst) → échoue', () => {
+		assert.equal(goalMet(byId['cat-1'], runProgram(byId['cat-1'], ['j0-bad', 'j0', 'copy', 'term', 'ret']).mem), false);
+	});
+});

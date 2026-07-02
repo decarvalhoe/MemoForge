@@ -41,6 +41,8 @@ const SOLUTIONS = {
 	'chr-1': ['and'],
 	'chr-2': ['or'],
 	'chr-3': ['cond', 'ret'],
+	'cmp-1': ['i0', 'walk', 'diff'],
+	'cat-1': ['end', 'j0', 'copy', 'term', 'ret'],
 	'rec-1': ['base', 'rec', 'comb'],
 	'rec-2': ['base', 'rec', 'comb']
 };
