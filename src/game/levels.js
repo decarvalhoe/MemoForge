@@ -1126,5 +1126,70 @@ export const LEVELS = [
 			{ id: 'ret', label: 'return dst', ast: ret(variable('dst')) },
 			{ id: 'alloc-bad', label: 'dst = malloc(len1 + len2)  (oublie la fin)', ast: assign(variable('dst'), malloc(bin('+', variable('len1'), variable('len2')))) }
 		]
+	},
+	{
+		// ÉCRIS ft_lstsize (libft bonus) : compter les nœuds en suivant ->next jusqu'à NULL.
+		// main a déjà construit une liste de 2 maillons. (M12 : parcours d'une liste.)
+		id: 'lst-1',
+		world: 'Listes & arbres',
+		title: 'Écris ft_lstsize',
+		goalText: 'La liste h1 → h2 est déjà construite. Écris le CORPS de ft_lstsize(head) qui compte les maillons : r doit valoir 2.',
+		hint: 'Un curseur part de la tête et suit ->next à chaque tour. Qu\'est-ce qui marque la fin de la liste, et donc arrête le comptage ? (cours M12)',
+		assembleInto: 'ft_lstsize',
+		params: ['head'],
+		driverText: 'main (verrouillé) : h1→h2 construite · r = ft_lstsize(h1)',
+		driver: [
+			{ id: 'b1', label: 'h1 = node(1)', ast: assign(variable('h1'), node(lit(1))) },
+			{ id: 'b2', label: 'h2 = node(2)', ast: assign(variable('h2'), node(lit(2))) },
+			{ id: 'bl', label: 'h1->next = h2', ast: assign(field(variable('h1'), 'next'), variable('h2')) },
+			{ id: 'bc', label: 'r = ft_lstsize(h1)', ast: call(variable('r'), 'ft_lstsize', [variable('h1')]) }
+		],
+		vars: [
+			{ name: 'h1', value: 0, kind: 'ptr' }, { name: 'h2', value: 0, kind: 'ptr' }, { name: 'r', value: 0, kind: 'int' }
+		],
+		slots: 4,
+		par: 4,
+		goal: { r: 2 },
+		bank: [
+			{ id: 'cur', label: 'cur = head', ast: assign(variable('cur'), variable('head')) },
+			{ id: 'cnt', label: 'count = 0', ast: assign(variable('count'), lit(0)) },
+			{ id: 'walk', label: 'tant que cur != 0 : count = count + 1 ; cur = cur->next',
+				ast: whileLoop(bin('!=', variable('cur'), lit(0)), [assign(variable('count'), bin('+', variable('count'), lit(1))), assign(variable('cur'), field(variable('cur'), 'next'))]) },
+			{ id: 'ret', label: 'return count', ast: ret(variable('count')) },
+			{ id: 'walk-bad', label: 'tant que cur != 0 : cur = cur->next  (ne compte pas)',
+				ast: whileLoop(bin('!=', variable('cur'), lit(0)), [assign(variable('cur'), field(variable('cur'), 'next'))]) }
+		]
+	},
+	{
+		// ÉCRIS ft_lstlast (libft bonus) : le DERNIER maillon. On avance tant que ->next
+		// existe (pas tant que cur existe, sinon on dépasse la fin). (M12.)
+		id: 'lst-2',
+		world: 'Listes & arbres',
+		title: 'Écris ft_lstlast',
+		goalText: 'La liste h1 → h2 est déjà construite. Écris le CORPS de ft_lstlast(head) qui rend le DERNIER maillon : last doit être h2.',
+		hint: 'Pour t\'arrêter SUR le dernier maillon (et non après), regardes-tu si le maillon courant existe, ou si son ->next existe encore ? (cours M12)',
+		assembleInto: 'ft_lstlast',
+		params: ['head'],
+		driverText: 'main (verrouillé) : h1→h2 construite · last = ft_lstlast(h1)',
+		driver: [
+			{ id: 'b1', label: 'h1 = node(1)', ast: assign(variable('h1'), node(lit(1))) },
+			{ id: 'b2', label: 'h2 = node(2)', ast: assign(variable('h2'), node(lit(2))) },
+			{ id: 'bl', label: 'h1->next = h2', ast: assign(field(variable('h1'), 'next'), variable('h2')) },
+			{ id: 'bc', label: 'last = ft_lstlast(h1)', ast: call(variable('last'), 'ft_lstlast', [variable('h1')]) }
+		],
+		vars: [
+			{ name: 'h1', value: 0, kind: 'ptr' }, { name: 'h2', value: 0, kind: 'ptr' }, { name: 'last', value: 0, kind: 'ptr' }
+		],
+		slots: 3,
+		par: 3,
+		goalCheck: (mem) => mem.getVar('last') !== 0 && mem.getVar('last') === mem.getVar('h2'),
+		bank: [
+			{ id: 'cur', label: 'cur = head', ast: assign(variable('cur'), variable('head')) },
+			{ id: 'walk', label: 'tant que cur->next != 0 : cur = cur->next',
+				ast: whileLoop(bin('!=', field(variable('cur'), 'next'), lit(0)), [assign(variable('cur'), field(variable('cur'), 'next'))]) },
+			{ id: 'ret', label: 'return cur', ast: ret(variable('cur')) },
+			{ id: 'walk-bad', label: 'tant que cur != 0 : cur = cur->next  (dépasse la fin)',
+				ast: whileLoop(bin('!=', variable('cur'), lit(0)), [assign(variable('cur'), field(variable('cur'), 'next'))]) }
+		]
 	}
 ];

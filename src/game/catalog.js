@@ -152,8 +152,8 @@ export const CATALOG = [
 	// ── libft · bonus (listes chaînées — la machinerie ->next) ────────────────
 	{ fn: 'ft_lstnew', module: 'libft-bonus', concept: 'nœud sur le tas', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#101' },
 	{ fn: 'ft_lstadd_front', module: 'libft-bonus', concept: 'chaîner en tête', tier: 'ready', deps: ['ft_lstnew'], statut: 'a-forger', level: null, issue: '#101' },
-	{ fn: 'ft_lstsize', module: 'libft-bonus', concept: 'compter les nœuds', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#101' },
-	{ fn: 'ft_lstlast', module: 'libft-bonus', concept: 'dernier nœud', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#101' },
+	{ fn: 'ft_lstsize', module: 'libft-bonus', concept: 'compter les nœuds', tier: 'ready', deps: [], statut: 'jouable', level: 'lst-1' },
+	{ fn: 'ft_lstlast', module: 'libft-bonus', concept: 'dernier nœud', tier: 'ready', deps: [], statut: 'jouable', level: 'lst-2' },
 	{ fn: 'ft_lstadd_back', module: 'libft-bonus', concept: 'chaîner en queue', tier: 'ready', deps: ['ft_lstlast'], statut: 'a-forger', level: null, issue: '#101' },
 	{ fn: 'ft_lstdelone', module: 'libft-bonus', concept: 'libérer un nœud', tier: 'ready', deps: [], statut: 'a-forger', level: null, issue: '#101' },
 	{ fn: 'ft_lstclear', module: 'libft-bonus', concept: 'libérer (sauver ->next)', tier: 'ready', deps: ['ft_lstdelone'], statut: 'a-forger', level: null, issue: '#101' },
