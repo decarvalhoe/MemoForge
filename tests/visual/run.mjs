@@ -172,6 +172,19 @@ const SCREENS = [
 		}
 	},
 	{
+		// Version anglaise (E9-3 / #149) : la salle rendue en EN — garde de régression.
+		name: 'en-salle',
+		url: '/',
+		lang: 'en',
+		prepare: () => { window.__memoforge.enterRoom('rec-1'); },
+		verify: () => {
+			const t = document.querySelector('.mission-title');
+			const tag = (document.querySelector('.mission-tag') || {}).textContent || '';
+			return (!!t && /Write fact/.test(t.textContent) && /level .*Recursion/i.test(tag))
+				|| 'rendu EN incomplet : ' + JSON.stringify((t && t.textContent) + ' | ' + tag);
+		}
+	},
+	{
 		name: 'styleguide',
 		url: '/styleguide.html',
 		verify: () => document.querySelectorAll('h2').length >= 3 || 'styleguide sans sections'
@@ -182,6 +195,14 @@ const SCREENS = [
 async function shoot(page, screen) {
 	if (screen.viewport)
 		await page.setViewport(screen.viewport);
+	// Langue (E9-3) : injecte le choix AVANT le chargement des scripts de la page.
+	await page.evaluateOnNewDocument((lang) => {
+		try {
+			window.localStorage.setItem('memoforge.lang', lang || 'fr');
+		} catch {
+			/* stockage indispo */
+		}
+	}, screen.lang || 'fr');
 	await page.goto(`http://127.0.0.1:${PORT}${screen.url}`, { waitUntil: 'networkidle0' });
 	await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; animation: none !important; caret-color: transparent !important; }' });
 	if (screen.prepare) await page.evaluate(screen.prepare);

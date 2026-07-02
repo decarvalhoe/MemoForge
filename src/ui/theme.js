@@ -5,6 +5,7 @@
 // Logique pure (storage/root injectables) → testable sans navigateur ; le câblage DOM en bas
 // est ignoré hors navigateur.
 
+import { t as tr } from '../game/i18n.js';
 export const THEME_KEY = 'memoforge.theme';
 
 /** @param {'dark'|'light'} current @returns {'dark'|'light'} */
@@ -40,7 +41,7 @@ if (typeof document !== 'undefined') {
 	if (btn) {
 		const sync = (t) => {
 			btn.setAttribute('aria-pressed', String(t === 'light'));
-			btn.textContent = t === 'light' ? '☾ sombre' : '☀ clair';
+			btn.textContent = t === 'light' ? ('☾ ' + tr('sombre')) : ('☀ ' + tr('clair'));
 		};
 		const initial = readTheme();
 		applyTheme(initial);

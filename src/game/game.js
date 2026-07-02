@@ -14,6 +14,7 @@ import { SANDBOX } from './sandbox.js';
 import { EXAM } from './exam.js';
 import { loadLibft, saveLibft, forge, functionsFor, forgedNames, depStatus } from './libft.js';
 import { loadStats, saveStats, record, hardest } from './stats.js';
+import { t, localize } from './i18n.js';
 import { renderLibft } from '../ui/libftView.js';
 import { WORD } from '../engine/memory.js';
 import { valgrindReport, measureLeaks } from './valgrind.js';
@@ -68,10 +69,10 @@ export class Game {
 		this.elPalette = el('div', { class: 'palette' });
 		this.elControls = el('div', { class: 'controls' });
 		this.elMainSection = el('div', { class: 'main' }, [
-			el('section', { class: 'panel' }, [el('h2', { text: 'mur de casiers' }), this.elMemory, this.elBytes = el('div', { class: 'bytes' }), this.elCallStack, this.elValgrind = el('div', { class: 'valgrind' })]),
+			el('section', { class: 'panel' }, [el('h2', { text: t('mur de casiers') }), this.elMemory, this.elBytes = el('div', { class: 'bytes' }), this.elCallStack, this.elValgrind = el('div', { class: 'valgrind' })]),
 			el('aside', { class: 'side' }, [
-				el('h2', { text: 'ton programme' }), this.elProgram,
-				el('h2', { text: 'palette' }), this.elPalette,
+				el('h2', { text: t('ton programme') }), this.elProgram,
+				el('h2', { text: t('palette') }), this.elPalette,
 				this.elLibft = el('div', { class: 'libft' })
 			])
 		]);
@@ -328,17 +329,17 @@ export class Game {
 			this.fails += 1;
 		}
 		let message;
-		if (error) message = 'Crash : ' + error;
-		else if (goalMet) message = 'Réussi !';
-		else message = 'Cible non atteinte. Réessaie.';
+		if (error) message = t('Crash : ') + error;
+		else if (goalMet) message = t('Réussi !');
+		else message = t('Cible non atteinte. Réessaie.');
 		this.verdict = {
 			passed,
 			message,
 			feedback,
 			stars: [
-				{ label: 'cible atteinte', got: goalMet },
-				{ label: 'sans erreur ni fuite', got: clean },
-				{ label: '≤ ' + this.level.par + ' instructions', got: minimal }
+				{ label: t('cible atteinte'), got: goalMet },
+				{ label: t('sans erreur ni fuite'), got: clean },
+				{ label: '≤ ' + this.level.par + ' ' + t('instructions'), got: minimal }
 			]
 		};
 		// E9-4 : enregistre la tentative (local, privé). Sandbox/examen exclus (sans cible).
@@ -352,14 +353,14 @@ export class Game {
 		if (this.examMode && this.examDone) { this.renderExamSummary(); return; }
 		if (this.elMainSection) this.elMainSection.style.display = '';
 		this.elControls.style.display = '';
-		const lv = this.level;
+		const lv = localize(this.level, 'levels'); // surcharge EN des textes affichés (E9-3)
 		clear(this.elMission);
-		const back = button({ label: '← carte', variant: 'ghost', size: 'sm', onClick: () => this.showMap() });
+		const back = button({ label: t('← carte'), variant: 'ghost', size: 'sm', onClick: () => this.showMap() });
 		back.style.marginBottom = '10px';
 		let tag;
-		if (this.examMode) tag = `examen · Q${this.examIndex + 1}/${EXAM.levelIds.length} · ⏱ ${this.examElapsed()}`;
-		else if (lv.sandbox) tag = 'bac à sable';
-		else tag = 'niveau ' + (this.levelIndex + 1) + ' / ' + LEVELS.length + ' · ' + lv.world;
+		if (this.examMode) tag = `${t('examen')} · Q${this.examIndex + 1}/${EXAM.levelIds.length} · ⏱ ${this.examElapsed()}`;
+		else if (lv.sandbox) tag = t('bac à sable');
+		else tag = t('niveau ') + (this.levelIndex + 1) + ' / ' + LEVELS.length + ' · ' + t(this.level.world);
 		const parts = [
 			back,
 			el('div', { class: 'mission-tag', text: tag }),
@@ -370,9 +371,9 @@ export class Game {
 		// E9-1 : dépendances de forge — montre lesquelles sont TIENNES (forgées) ou en référence.
 		if (lv.usesLibft && lv.usesLibft.length) {
 			const deps = depStatus(this.libft, lv.usesLibft).map((d) => `${d.forged ? '✓' : '○'} ${d.name}${d.forged ? '' : ' (réf)'}`).join(' · ');
-			parts.push(el('p', { class: 'mission-goal', text: '🔧 réutilise ta libft : ' + deps }));
+			parts.push(el('p', { class: 'mission-goal', text: '🔧 ' + t('réutilise ta libft : ') + deps }));
 		}
-		if (!this.examMode) parts.push(el('p', { class: 'mission-hint', text: 'Indice : ' + lv.hint }));
+		if (!this.examMode) parts.push(el('p', { class: 'mission-hint', text: t('Indice : ') + lv.hint }));
 		this.elMission.append(...parts);
 		renderMemory(this.elMemory, this.memory.snapshot(), this.memory.heap(), this.memory.changed, this.memory.output);
 		const frames = this.interp && typeof this.interp.frames === 'function' ? this.interp.frames() : null;

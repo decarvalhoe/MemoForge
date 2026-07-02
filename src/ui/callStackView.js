@@ -1,4 +1,5 @@
 import { el, clear } from './dom.js';
+import { t } from '../game/i18n.js';
 import { badge } from './components/index.js';
 
 // Visualisation du contrôle de flux pour le pas-à-pas, d'après le contrat moteur (#79) :

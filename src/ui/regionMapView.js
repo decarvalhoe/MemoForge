@@ -1,6 +1,7 @@
 import { el, clear } from './dom.js';
 import { terminalWindow, regionCard, button } from './components/index.js';
 import { REGIONS, regionStatus } from '../game/world.js';
+import { t, localize } from '../game/i18n.js';
 import { LEVELS } from '../game/levels.js';
 
 const LEVEL_BY_ID = Object.fromEntries(LEVELS.map((l) => [l.id, l]));
@@ -13,13 +14,13 @@ export function renderRegionMap(container, solved, onEnter, onSandbox, onExam) {
 
 	body.appendChild(el('div', {
 		style: 'font-family:var(--font-display);font-size:var(--fs-display-1);line-height:1;color:var(--accent);text-shadow:var(--text-glow-green)',
-		text: 'LA RAM'
+		text: t('LA RAM')
 	}));
 	body.appendChild(el('div', {
 		style: 'display:flex;align-items:center;gap:8px;background:var(--danger-fill);border:1px solid var(--danger);border-radius:var(--radius-sm);padding:7px 10px;margin:8px 0 14px;color:var(--danger);font-size:var(--fs-sm)'
 	}, [
 		el('span', { text: '⚠' }),
-		el('span', { text: "des fuites menacent la RAM — remets de l'ordre dans une région pour débloquer la suivante" })
+		el('span', { text: t("des fuites menacent la RAM — remets de l'ordre dans une région pour débloquer la suivante") })
 	]));
 
 	const list = el('div', { style: 'display:flex;flex-direction:column;gap:12px' });
@@ -27,26 +28,26 @@ export function renderRegionMap(container, solved, onEnter, onSandbox, onExam) {
 		const status = regionStatus(r.id, solved);
 		const open = status === 'current' || status === 'solved';
 		const head = el('div', { style: 'display:flex;justify-content:space-between;align-items:baseline' }, [
-			el('div', { style: `font-size:var(--fs-md);font-weight:600;color:${open ? 'var(--accent)' : 'var(--text-muted)'}`, text: '▸ ' + r.name }),
+			el('div', { style: `font-size:var(--fs-md);font-weight:600;color:${open ? 'var(--accent)' : 'var(--text-muted)'}`, text: '▸ ' + localize(r, 'regions').name }),
 			el('div', { style: 'font-size:var(--fs-2xs);color:var(--text-muted)', text: r.addr })
 		]);
 
 		const rooms = el('div', { style: 'display:flex;gap:9px;margin-top:9px;flex-wrap:wrap' });
 		if (r.levelIds.length === 0) {
-			rooms.appendChild(el('div', { style: 'font-size:var(--fs-2xs);color:var(--text-muted)', text: 'à venir' }));
+			rooms.appendChild(el('div', { style: 'font-size:var(--fs-2xs);color:var(--text-muted)', text: t('à venir') }));
 		} else {
 			for (const id of r.levelIds) {
 				const lv = LEVEL_BY_ID[id];
 				const clickable = open;
 				const roomStatus = solved.has(id) ? 'solved' : (clickable ? 'current' : 'locked');
-				const card = regionCard({ id, title: lv ? lv.title : id, status: roomStatus });
-				const title = lv ? lv.title : id;
+				const card = regionCard({ id, title: lv ? localize(lv, 'levels').title : id, status: roomStatus });
+				const title = lv ? localize(lv, 'levels').title : id;
 				const attrs = { class: 'mf-room-link', style: `flex:1;min-width:120px;cursor:${clickable ? 'pointer' : 'default'}` };
 				if (clickable) {
 					// Salle jouable = élément interactif accessible au clavier.
 					attrs.role = 'button';
 					attrs.tabindex = '0';
-					attrs['aria-label'] = `Entrer dans la salle ${id} : ${title}`;
+					attrs['aria-label'] = `${t('Entrer dans la salle')} ${id} : ${title}`;
 					attrs.onclick = () => onEnter(id);
 					attrs.onkeydown = (e) => {
 						if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEnter(id); }
@@ -65,8 +66,8 @@ export function renderRegionMap(container, solved, onEnter, onSandbox, onExam) {
 	body.appendChild(list);
 
 	const actions = [];
-	if (onSandbox) actions.push(button({ label: 'bac à sable', variant: 'secondary', size: 'sm', glyph: '⌘', onClick: onSandbox }));
-	if (onExam) actions.push(button({ label: 'examen', variant: 'secondary', size: 'sm', glyph: '⏱', onClick: onExam }));
+	if (onSandbox) actions.push(button({ label: t('bac à sable'), variant: 'secondary', size: 'sm', glyph: '⌘', onClick: onSandbox }));
+	if (onExam) actions.push(button({ label: t('examen'), variant: 'secondary', size: 'sm', glyph: '⏱', onClick: onExam }));
 	if (actions.length) body.appendChild(el('div', { style: 'margin-top:14px;display:flex;gap:8px' }, actions));
 
 	container.appendChild(terminalWindow({ title: 'forge_memoire — carte.ram — 0x0000…0xFFFF' }, [body]));
