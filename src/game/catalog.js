@@ -66,9 +66,9 @@ export const CATALOG = [
 	{ fn: 'ft_print_memory', module: 'C02', concept: 'hexdump — le modèle octet', tier: 'ready', deps: [], statut: 'jouable', level: 'mem-1' },
 
 	// ── C03 · comparaison, concaténation, recherche ───────────────────────────
-	{ fn: 'ft_strcmp', module: 'C03', concept: 'comparer code par code', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
+	{ fn: 'ft_strcmp', module: 'C03', concept: 'comparer code par code', tier: 'char', deps: [], statut: 'jouable', level: 'cmp-1' },
 	{ fn: 'ft_strncmp', module: 'C03', concept: 'comparaison bornée', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
-	{ fn: 'ft_strcat', module: 'C03', concept: 'concaténer au \\0', tier: 'ready', deps: ['ft_strlen'], statut: 'a-forger', level: null, issue: '#108' },
+	{ fn: 'ft_strcat', module: 'C03', concept: 'concaténer au \\0', tier: 'ready', deps: ['ft_strlen'], statut: 'jouable', level: 'cat-1' },
 	{ fn: 'ft_strncat', module: 'C03', concept: 'concaténation bornée', tier: 'ready', deps: ['ft_strlen'], statut: 'a-forger', level: null, issue: '#108' },
 	{ fn: 'ft_strstr', module: 'C03', concept: 'recherche de sous-chaîne', tier: 'char', deps: [], statut: 'a-forger', level: null, issue: '#108' },
 
